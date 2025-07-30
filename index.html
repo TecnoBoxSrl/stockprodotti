@@ -43,15 +43,18 @@
       complete: function(results) {
         const data = results.data;
         const tbody = document.querySelector("#products tbody");
+        console.log("Dati caricati:", data);
         data.forEach(row => {
           const tr = document.createElement("tr");
+          const foto = row.Foto || row.foto || '';
+          const imgTag = foto ? `<img src="${foto}" alt="foto prodotto">` : '';
           tr.innerHTML = `
-            <td><img src="${row.Foto}" alt=""></td>
-            <td>${row.Codice}</td>
-            <td>${row.Descrizione}</td>
-            <td>${row.Quantità}</td>
-            <td>${row.Prezzo}</td>
-            <td>${row.Provvigione}</td>
+            <td>${imgTag}</td>
+            <td>${row.Codice || ''}</td>
+            <td>${row.Descrizione || ''}</td>
+            <td>${row.Quantità || ''}</td>
+            <td>${row["Prezzo CT"] || row.Prezzo || ''}</td>
+            <td>${row.Provvigione || ''}</td>
           `;
           tbody.appendChild(tr);
         });
