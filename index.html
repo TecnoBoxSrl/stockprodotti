@@ -57,8 +57,8 @@
             <td>${row.Codice || ''}</td>
             <td>${row.Descrizione || ''}</td>
             <td>${row.Quantità || ''}</td>
-            <td>${row["Prezzo CT"] || row.Prezzo || ''}</td>
-            <td>${row.Provvigione || ''}</td>
+            <td>€${parseFloat(row.Prezzo).toFixed(2).replace('.', ',')}</td>
+<td>€${parseFloat(row.Provvigione).toFixed(2).replace('.', ',')}</td>
           `;
           tbody.appendChild(tr);
         });
