@@ -1,154 +1,93 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-<header>
-        <img src="logotecnobox.jpg" alt="Tecno Box Logo" class="logo">
-        <h1>Prodotti in Svendita</h1>
-    </header>
-  
-  <title>Prodotti in Svendita</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { text-align: center; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    th { background-color: #f2f2f2; }
-    input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-    img {
-      max-width: 250px;
-      height: auto;
-      cursor: pointer;
-    }
-    .prezzo-promo {
-      color: red;
-      font-weight: bold;
-    }
-    .descrizione .titolo {
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-    .descrizione .dettaglio {
-      font-size: 0.9em;
-    }
-    #popup-img {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    #popup-img img {
-      max-width: 90%;
-      max-height: 90%;
-      border: 4px solid white;
-      box-shadow: 0 0 20px black;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linea Prodotti in Svendita - Tecno Box</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
+    <header>
+        <img src="logotecnobox.jpg" alt="Tecno Box Logo" class="logo">
+        <h1>Linea Prodotti in Svendita</h1>
+    </header>
+    <main>
+        <div class="filters">
+            <input type="text" id="filtro-globale" placeholder="Ricerca...">
+        </div>
+        <table id="tabella-prodotti">
+            <thead>
+                <tr>
+                    <th>Codice</th>
+                    <th>Descrizione</th>
+                    <th>Quantità</th>
+                    <th>Prezzo (€)</th>
+                    <th>Prezzo Promo (€)</th>
+                    <th>Conai x collo (€)</th>
+                    <th>Immagine</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </main>
 
-  <h1>Elenco Prodotti in Svendita</h1>
-  <input type="text" id="search" placeholder="Cerca per codice o descrizione...">
+    <div class="zoom-overlay" id="zoomOverlay" onclick="this.style.display='none'">
+        <img id="zoomedImg" src="" alt="Zoom immagine">
+    </div>
 
-  <table id="products">
-    <thead>
-      <tr>
-        <th>Foto</th>
-        <th>Codice</th>
-        <th>Descrizione</th>
-        <th>Quantità</th>
-        <th>Prezzo di listino (€)</th>
-        <th>Prezzo Promo (€)</th>
-        <th>Conai x collo (€)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <script>
+        const sheetURL = 'INSERISCI_QUI_IL_LINK_CSV_GOOGLE_SHEET';
 
-  <div id="popup-img" onclick="this.style.display='none'">
-    <img src="" alt="immagine ingrandita">
-  </div>
+        Papa.parse(sheetURL, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const data = results.data;
+                const tbody = document.querySelector("#tabella-prodotti tbody");
 
-  <script>
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
+                data.forEach(row => {
+                    const codice = row.Codice || '';
+                    const descrizione = row.Descrizione || '';
+                    const quantita = row.Quantità || '';
+                    const prezzo = row.Prezzo || '';
+                    const prezzoPromo = row["Prezzo Promo"] || '';
+                    const conaicollo = row.Conaicollo || '';
+                    const imgSrc = row.Immagine?.trim() || '';
 
-    Papa.parse(sheetURL, {
-      download: true,
-      header: true,
-      complete: function(results) {
-        const data = results.data;
-        const tbody = document.querySelector("#products tbody");
+                    const prezzoFmt = (!isNaN(prezzo) && prezzo !== '') ? `€${Number(prezzo).toFixed(2).replace('.', ',')}` : '';
+                    const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` : '';
+                    const conaiFmt = (!isNaN(conaicollo) && conaicollo !== '') ? `€${Number(conaicollo).toFixed(2).replace('.', ',')}` : '';
+                    const imgTag = imgSrc ? `<img src="${imgSrc}" alt="foto prodotto" onclick="mostraZoom('${imgSrc}')">` : '';
 
-        data.forEach(row => {
-          const foto = row.Foto?.trim() || '';
-          const codice = row.Codice || '';
-          const descrizione = row.Descrizione || '';
-          const quantita = row.Quantità || '';
-          const prezzoListino = row["Prezzo CT"] || row["Prezzo"] || '';
-          const prezzoPromo = row["Prezzo Promo"] || '';
-          let conaiVal = row["Conaicollo"] || '';
-          conaiVal = conaiVal.replace(',', '.');
-          const conai = (!isNaN(conaiVal) && conaiVal.trim() !== '') ? `€${Number(conaiVal).toFixed(2).replace('.', ',')}` : '';
-
-          const imgTag = foto ? `<img src="${foto}" alt="foto prodotto" onclick="showPopup('${foto}')">` : '';
-          const prezzoListinoFormattato = (!isNaN(prezzoListino) && prezzoListino !== '') 
-            ? `€${Number(prezzoListino).toFixed(2).replace('.', ',')}` : '';
-          const prezzoPromoFormattato = (!isNaN(prezzoPromo) && prezzoPromo !== '') 
-            ? `<span class="prezzo-promo">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` : '';
-
-          const descrLines = descrizione.split('\n');
-          const titolo = descrLines[0] || '';
-          const dettaglio = descrLines.slice(1).join('<br>');
-
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${imgTag}</td>
-            <td>${codice}</td>
-            <td class="descrizione">
-              <div class="titolo">${titolo}</div>
-              <div class="dettaglio">${dettaglio}</div>
-            </td>
-            <td>${quantita}</td>
-            <td>${prezzoListinoFormattato}</td>
-            <td>${prezzoPromoFormattato}</td>
-            <td>${conai}</td>
-          `;
-          tbody.appendChild(tr);
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${codice}</td>
+                        <td>${descrizione}</td>
+                        <td>${quantita}</td>
+                        <td>${prezzoFmt}</td>
+                        <td>${prezzoPromoFmt}</td>
+                        <td>${conaiFmt}</td>
+                        <td>${imgTag}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
         });
-      }
-    });
 
-    document.getElementById("search").addEventListener("input", function(e) {
-      const term = e.target.value.toLowerCase();
-      document.querySelectorAll("#products tbody tr").forEach(tr => {
-        const text = tr.innerText.toLowerCase();
-        tr.style.display = text.includes(term) ? "" : "none";
-      });
-    });
+        document.getElementById("filtro-globale").addEventListener("input", function(e) {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll("#tabella-prodotti tbody tr").forEach(tr => {
+                tr.style.display = tr.innerText.toLowerCase().includes(term) ? "" : "none";
+            });
+        });
 
-    function showPopup(src) {
-      const popup = document.getElementById("popup-img");
-      popup.querySelector("img").src = src;
-      popup.style.display = "flex";
-    }
-  </script>
-
+        function mostraZoom(src) {
+            const overlay = document.getElementById("zoomOverlay");
+            const zoomedImg = document.getElementById("zoomedImg");
+            zoomedImg.src = src;
+            overlay.style.display = "flex";
+        }
+    </script>
 </body>
 </html>
