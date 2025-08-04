@@ -18,7 +18,10 @@ Papa.parse(sheetURL, {
 const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
             const imgSrc = row.Immagine?.trim() || '';
 
-            const prezzoFmt = (!isNaN(prezzo) && prezzo !== '') ? `€${Number(prezzo).toFixed(2).replace('.', ',')}` : '';
+            const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.'))) 
+    ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+    : '';
+
             const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` : '';
             const conaiFmt = (conaicollo && conaicollo.trim() !== '') 
               ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
