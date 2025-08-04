@@ -41,13 +41,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Filtro globale
-    document.getElementById("filtro-globale").addEventListener("input", function () {
-        const searchTerm = this.value.toLowerCase();
-        document.querySelectorAll("#tabella-prodotti tbody tr").forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(searchTerm) ? "" : "none";
+    document.getElementById("filtro-globale").addEventListener("input", function(e) {
+    const filtro = e.target.value.trim().toLowerCase();
+
+    document.querySelectorAll("#tabella-prodotti tbody tr").forEach(tr => {
+        const text = tr.textContent.toLowerCase();
+        const match = text.includes(filtro);
+
+        tr.style.display = match ? "" : "none";
+
+        tr.querySelectorAll("td").forEach(td => {
+            const htmlOriginale = td.textContent;
+            td.innerHTML = htmlOriginale.replace(
+                new RegExp(`(${filtro})`, "gi"),
+                filtro ? "<mark>$1</mark>" : "$1"
+            );
         });
     });
 });
+
 
 // Funzione per mostrare immagine ingrandita
 function mostraZoom(src) {
