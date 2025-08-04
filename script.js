@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
+});
 
 // Funzione per mostrare immagine ingrandita
 function mostraZoom(src) {
