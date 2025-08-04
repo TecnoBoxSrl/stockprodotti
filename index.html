@@ -33,8 +33,6 @@
     .descrizione .dettaglio {
       font-size: 0.9em;
     }
-
-    /* Popup immagine ingrandita */
     #popup-img {
       display: none;
       position: fixed;
@@ -46,7 +44,6 @@
       align-items: center;
       z-index: 999;
     }
-
     #popup-img img {
       max-width: 90%;
       max-height: 90%;
@@ -76,7 +73,6 @@
     <tbody></tbody>
   </table>
 
-  <!-- Popup per immagine -->
   <div id="popup-img" onclick="this.style.display='none'">
     <img src="" alt="immagine ingrandita">
   </div>
@@ -98,7 +94,7 @@
           const quantita = row.Quantità || '';
           const prezzoListino = row["Prezzo CT"] || row["Prezzo"] || '';
           const prezzoPromo = row["Prezzo Promo"] || '';
-          const conaiVal = row["Conai x collo"] || '';
+          const conaiVal = row["Conaicollo"] || '';
           const conai = (!isNaN(conaiVal) && conaiVal.trim() !== '') ? `€${Number(conaiVal).toFixed(2).replace('.', ',')}` : '';
 
           const imgTag = foto ? `<img src="${foto}" alt="foto prodotto" onclick="showPopup('${foto}')">` : '';
@@ -139,7 +135,6 @@
       });
     });
 
-    // Funzione popup immagine
     function showPopup(src) {
       const popup = document.getElementById("popup-img");
       popup.querySelector("img").src = src;
