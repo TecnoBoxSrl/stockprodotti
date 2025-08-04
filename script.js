@@ -20,14 +20,15 @@ Papa.parse(sheetURL, {
             const prezzoFmt = (!isNaN(prezzo) && prezzo !== '') ? `€${Number(prezzo).toFixed(2).replace('.', ',')}` : '';
             const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` : '';
             const conaiFmt = (conaicollo && conaicollo.trim() !== '') 
-                ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-                : '';
-            const imgTag = imgSrc ? `<img class="zoomable" src="${imgSrc}" alt="foto prodotto" onclick="mostraZoom('${imgSrc}')">` : '';
+              ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+              : '';
+
+            const imgTag = imgSrc ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` : '';
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>${codice}</td>
-                <td class="descrizione-wrap">${descrizione}</td>
+                <td>${descrizione}</td>
                 <td>${quantita}</td>
                 <td>${prezzoFmt}</td>
                 <td>${prezzoPromoFmt}</td>
@@ -40,10 +41,23 @@ Papa.parse(sheetURL, {
 });
 
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
-    const term = e.target.value.toLowerCase();
-    document.querySelectorAll("#tabella-prodotti tbody tr").forEach(tr => {
-        const match = tr.innerText.toLowerCase().includes(term);
-        tr.style.display = match ? "" : "none";
+    const term = e.target.value.trim().toLowerCase();
+    const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
+
+    rows.forEach(tr => {
+        let visible = false;
+
+        tr.querySelectorAll("td").forEach(td => {
+            td.innerHTML = td.innerHTML.replace(/<mark>(.*?)<\/mark>/g, "$1");
+            const plain = td.textContent.toLowerCase();
+            if (term && plain.includes(term)) {
+                visible = true;
+                const regex = new RegExp(`(${term})`, "gi");
+                td.innerHTML = td.innerHTML.replace(regex, `<mark>$1</mark>`);
+            }
+        });
+
+        tr.style.display = term === "" || visible ? "" : "none";
     });
 });
 
