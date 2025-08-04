@@ -24,7 +24,6 @@
       font-weight: bold;
     }
 
-    /* Modale per immagine ingrandita */
     .modal {
       display: none;
       position: fixed;
@@ -64,12 +63,12 @@
         <th>Quantità</th>
         <th>Prezzo di listino (€)</th>
         <th>Prezzo Promo (€)</th>
+        <th>Conai x collo (€)</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 
-  <!-- Modale immagine -->
   <div id="imageModal" class="modal" onclick="this.style.display='none'">
     <img class="modal-content" id="modalImage">
   </div>
@@ -90,8 +89,11 @@
           const imgTag = foto ? `<img src="${foto}" alt="foto prodotto" onclick="openModal('${foto}')">` : '';
 
           const prezzoListino = row.Prezzo ? `€${parseFloat(row.Prezzo).toFixed(2).replace('.', ',')}` : '';
-          const prezzoPromo = row["Prezzo Promo"] || row["PrezzoPromo"];
-          const prezzoPromoFormatted = prezzoPromo ? `€${parseFloat(prezzoPromo).toFixed(2).replace('.', ',')}` : '';
+          const prezzoPromoVal = row["Prezzo Promo"] || row["PrezzoPromo"];
+          const prezzoPromo = prezzoPromoVal ? `€${parseFloat(prezzoPromoVal).toFixed(2).replace('.', ',')}` : '';
+
+          const conaiVal = row["Conai x collo"] || row["ConaiCollo"];
+          const conai = conaiVal ? `€${parseFloat(conaiVal).toFixed(2).replace('.', ',')}` : '';
 
           tr.innerHTML = `
             <td>${imgTag}</td>
@@ -99,7 +101,8 @@
             <td>${row.Descrizione || ''}</td>
             <td>${row.Quantità || ''}</td>
             <td>${prezzoListino}</td>
-            <td class="prezzo-promo">${prezzoPromoFormatted}</td>
+            <td class="prezzo-promo">${prezzoPromo}</td>
+            <td>${conai}</td>
           `;
           tbody.appendChild(tr);
         });
