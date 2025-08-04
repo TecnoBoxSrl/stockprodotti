@@ -36,6 +36,10 @@ const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
                 <td>${conaiFmt}</td>
                 <td>${imgTag}</td>
             `;
+if (evidenzia) {
+  tr.style.backgroundColor = '#ffedba'; // colore chiaro giallo
+  tr.style.fontWeight = 'bold';
+}
             tbody.appendChild(tr);
         });
     }
