@@ -15,8 +15,34 @@
       width: 100%;
       height: auto;
       max-width: 250px;
+      cursor: pointer;
     }
     input[type="text"] { width: 100%; padding: 8px; margin-top: 10px; }
+
+    /* Modale per immagine ingrandita */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.8);
+    }
+
+    .modal-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 80vh;
+    }
+
+    .modal:hover {
+      cursor: zoom-out;
+    }
   </style>
 </head>
 <body>
@@ -37,6 +63,11 @@
     <tbody></tbody>
   </table>
 
+  <!-- Modale immagine -->
+  <div id="imageModal" class="modal" onclick="this.style.display='none'">
+    <img class="modal-content" id="modalImage">
+  </div>
+
   <script>
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
 
@@ -46,11 +77,12 @@
       complete: function(results) {
         const data = results.data;
         const tbody = document.querySelector("#products tbody");
-        console.log("Dati caricati:", data);
         data.forEach(row => {
           const tr = document.createElement("tr");
           const foto = row.Foto || row.foto || '';
-          const imgTag = foto ? `<img src="${foto}" alt="foto prodotto">` : '';
+          const imgTag = foto
+            ? `<img src="${foto}" alt="foto prodotto" onclick="openModal('${foto}')">`
+            : '';
           const prezzo = parseFloat(row.Prezzo).toFixed(2).replace('.', ',');
           tr.innerHTML = `
             <td>${imgTag}</td>
@@ -71,6 +103,13 @@
         tr.style.display = text.includes(term) ? "" : "none";
       });
     });
+
+    function openModal(src) {
+      const modal = document.getElementById("imageModal");
+      const modalImg = document.getElementById("modalImage");
+      modalImg.src = src;
+      modal.style.display = "block";
+    }
   </script>
 </body>
 </html>
