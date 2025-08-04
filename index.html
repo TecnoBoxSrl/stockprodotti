@@ -12,10 +12,10 @@
     th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
     th { background-color: #f2f2f2; }
     img {
-  width: 100%;
-  height: auto;
-  max-width: 250px;
-}
+      width: 100%;
+      height: auto;
+      max-width: 250px;
+    }
     input[type="text"] { width: 100%; padding: 8px; margin-top: 10px; }
   </style>
 </head>
@@ -32,7 +32,6 @@
         <th>Descrizione</th>
         <th>Quantità</th>
         <th>Prezzo (€)</th>
-        <th>Provvigione (€)</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -52,13 +51,13 @@
           const tr = document.createElement("tr");
           const foto = row.Foto || row.foto || '';
           const imgTag = foto ? `<img src="${foto}" alt="foto prodotto">` : '';
+          const prezzo = parseFloat(row.Prezzo).toFixed(2).replace('.', ',');
           tr.innerHTML = `
             <td>${imgTag}</td>
             <td>${row.Codice || ''}</td>
             <td>${row.Descrizione || ''}</td>
             <td>${row.Quantità || ''}</td>
-            <td>€${parseFloat(row.Prezzo).toFixed(2).replace('.', ',')}</td>
-<td>€${parseFloat(row.Provvigione).toFixed(2).replace('.', ',')}</td>
+            <td>€${prezzo}</td>
           `;
           tbody.appendChild(tr);
         });
