@@ -15,6 +15,7 @@ Papa.parse(sheetURL, {
             const prezzo = row.Prezzo || '';
             const prezzoPromo = row["Prezzo Promo"] || '';
             const conaicollo = row.Conaicollo || '';
+const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
             const imgSrc = row.Immagine?.trim() || '';
 
             const prezzoFmt = (!isNaN(prezzo) && prezzo !== '') ? `€${Number(prezzo).toFixed(2).replace('.', ',')}` : '';
