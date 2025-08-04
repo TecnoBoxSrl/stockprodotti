@@ -1,71 +1,75 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
-    const tbody = document.querySelector("#tabella-prodotti tbody");
+const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
 
-    Papa.parse(sheetURL, {
-        download: true,
-        header: true,
-        complete: function (results) {
-            const data = results.data;
+Papa.parse(sheetURL, {
+    download: true,
+    header: true,
+    complete: function(results) {
+        const data = results.data;
+        const tbody = document.querySelector("#tabella-prodotti tbody");
 
-            data.forEach(row => {
-                const codice = row.Codice || '';
-                const descrizione = row.Descrizione || '';
-                const quantita = row.Quantità || '';
-                const prezzo = row.Prezzo || '';
-                const prezzoPromo = row["Prezzo Promo"] || '';
-                const conaicollo = row.Conaicollo || '';
-                const imgSrc = row.Immagine?.trim() || '';
+        data.forEach(row => {
+            const codice = row.Codice || '';
+            const descrizione = row.Descrizione || '';
+            const quantita = row.Quantità || '';
+            const prezzo = row.Prezzo || '';
+            const prezzoPromo = row["Prezzo Promo"] || '';
+            const conaicollo = row.Conaicollo || '';
+            const imgSrc = row.Immagine?.trim() || '';
 
-                const prezzoFmt = (!isNaN(prezzo.replace(',', '.')) && prezzo !== '') 
-                    ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` : '';
-                const prezzoPromoFmt = (!isNaN(prezzoPromo.replace(',', '.')) && prezzoPromo !== '') 
-                    ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>` : '';
-                const conaiFmt = (!isNaN(conaicollo.replace(',', '.')) && conaicollo !== '') 
-                    ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` : '';
-                const imgTag = imgSrc ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` : '';
+            const prezzoFmt = (!isNaN(prezzo) && prezzo !== '') ? `€${Number(prezzo).toFixed(2).replace('.', ',')}` : '';
+            const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` : '';
+            const conaiFmt = (conaicollo && conaicollo.trim() !== '') 
+                ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+                : '';
 
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${codice}</td>
-                    <td>${descrizione}</td>
-                    <td>${quantita}</td>
-                    <td>${prezzoFmt}</td>
-                    <td>${prezzoPromoFmt}</td>
-                    <td>${conaiFmt}</td>
-                    <td>${imgTag}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-    });
+            const imgTag = imgSrc ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` : '';
 
-    // Filtro globale
-    document.getElementById("filtro-globale").addEventListener("input", function(e) {
-    const filtro = e.target.value.trim().toLowerCase();
-
-    document.querySelectorAll("#tabella-prodotti tbody tr").forEach(tr => {
-        const text = tr.textContent.toLowerCase();
-        const match = text.includes(filtro);
-
-        tr.style.display = match ? "" : "none";
-
-        tr.querySelectorAll("td").forEach(td => {
-            const htmlOriginale = td.textContent;
-            td.innerHTML = htmlOriginale.replace(
-                new RegExp(`(${filtro})`, "gi"),
-                filtro ? "<mark>$1</mark>" : "$1"
-            );
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${codice}</td>
+                <td>${descrizione}</td>
+                <td>${quantita}</td>
+                <td>${prezzoFmt}</td>
+                <td>${prezzoPromoFmt}</td>
+                <td>${conaiFmt}</td>
+                <td>${imgTag}</td>
+            `;
+            tbody.appendChild(tr);
         });
-    });
-});
+    }
 });
 
-// Funzione per mostrare immagine ingrandita
 function mostraZoom(src) {
     const overlay = document.getElementById("zoomOverlay");
     const zoomedImg = document.getElementById("zoomedImg");
     zoomedImg.src = src;
     overlay.style.display = "flex";
-    overlay.onclick = () => overlay.style.display = "none";
 }
+
+// ✅ Ricerca con evidenziazione senza rimuovere HTML
+document.getElementById("filtro-globale").addEventListener("input", function(e) {
+    const term = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
+
+    rows.forEach(tr => {
+        let match = false;
+
+        tr.querySelectorAll("td").forEach(td => {
+            if (!td.dataset.original) {
+                td.dataset.original = td.innerHTML;
+            } else {
+                td.innerHTML = td.dataset.original;
+            }
+
+            const testo = td.textContent.toLowerCase();
+
+            if (term && testo.includes(term)) {
+                match = true;
+                const regex = new RegExp(`(${term})`, 'gi');
+                td.innerHTML = td.innerHTML.replace(regex, '<mark>$1</mark>');
+            }
+        });
+
+        tr.style.display = match || !term ? "" : "none";
+    });
+});
