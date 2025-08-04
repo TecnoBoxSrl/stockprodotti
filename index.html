@@ -19,6 +19,11 @@
     }
     input[type="text"] { width: 100%; padding: 8px; margin-top: 10px; }
 
+    .prezzo-promo {
+      color: red;
+      font-weight: bold;
+    }
+
     /* Modale per immagine ingrandita */
     .modal {
       display: none;
@@ -57,7 +62,8 @@
         <th>Codice</th>
         <th>Descrizione</th>
         <th>Quantità</th>
-        <th>Prezzo (€)</th>
+        <th>Prezzo di listino (€)</th>
+        <th>Prezzo Promo (€)</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -79,17 +85,21 @@
         const tbody = document.querySelector("#products tbody");
         data.forEach(row => {
           const tr = document.createElement("tr");
+
           const foto = row.Foto || row.foto || '';
-          const imgTag = foto
-            ? `<img src="${foto}" alt="foto prodotto" onclick="openModal('${foto}')">`
-            : '';
-          const prezzo = parseFloat(row.Prezzo).toFixed(2).replace('.', ',');
+          const imgTag = foto ? `<img src="${foto}" alt="foto prodotto" onclick="openModal('${foto}')">` : '';
+
+          const prezzoListino = row.Prezzo ? `€${parseFloat(row.Prezzo).toFixed(2).replace('.', ',')}` : '';
+          const prezzoPromo = row["Prezzo Promo"] || row["PrezzoPromo"];
+          const prezzoPromoFormatted = prezzoPromo ? `€${parseFloat(prezzoPromo).toFixed(2).replace('.', ',')}` : '';
+
           tr.innerHTML = `
             <td>${imgTag}</td>
             <td>${row.Codice || ''}</td>
             <td>${row.Descrizione || ''}</td>
             <td>${row.Quantità || ''}</td>
-            <td>€${prezzo}</td>
+            <td>${prezzoListino}</td>
+            <td class="prezzo-promo">${prezzoPromoFormatted}</td>
           `;
           tbody.appendChild(tr);
         });
