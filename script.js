@@ -1,3 +1,7 @@
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+
 const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
 
 Papa.parse(sheetURL, {
@@ -21,11 +25,11 @@ Papa.parse(sheetURL, {
                 ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
                 : '';
 
-            const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') 
-                ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` 
+            const prezzoPromoFmt = (prezzoPromo && !isNaN(prezzoPromo.replace(',', '.'))) 
+                ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>` 
                 : '';
 
-            const conaiFmt = (conaicollo && conaicollo.trim() !== '') 
+            const conaiFmt = (conaicollo && !isNaN(conaicollo.replace(',', '.'))) 
                 ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
                 : '';
 
@@ -45,7 +49,7 @@ Papa.parse(sheetURL, {
             `;
 
             if (evidenzia) {
-                tr.style.backgroundColor = '#45ac49'; // colore verde
+                tr.style.backgroundColor = '#45ac49';
                 tr.style.fontWeight = 'bold';
             }
 
@@ -54,7 +58,7 @@ Papa.parse(sheetURL, {
     }
 });
 
-// ✅ Filtro con evidenziazione
+// 🔍 Filtro con evidenziazione
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
     const term = e.target.value.trim().toLowerCase();
     const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
@@ -72,22 +76,37 @@ document.getElementById("filtro-globale").addEventListener("input", function(e) 
             }
         });
 
-        tr.style.display = term === "" || visible ? "" : "none";
+        tr.style.display = (term === "" || visible) ? "" : "none";
     });
 });
 
-// ✅ Pulsante "Pulisci"
-document.getElementById("pulisci-filtro").addEventListener("click", function() {
+// 🧼 Pulsante "Pulisci"
+document.getElementById("pulisci-filtro").addEventListener("click", function () {
     const input = document.getElementById("filtro-globale");
     input.value = "";
     input.dispatchEvent(new Event("input"));
 });
 
-// ✅ Zoom immagine
+// 🔍 Zoom immagine
 function mostraZoom(src) {
     const overlay = document.getElementById("zoomOverlay");
     const zoomedImg = document.getElementById("zoomedImg");
     zoomedImg.src = src;
     overlay.style.display = "flex";
 }
+
+// 🖨️ Pulsante "Scarica PDF"
+document.getElementById("scarica-pdf").addEventListener("click", function () {
+    const elemento = document.querySelector("main");
+
+    const opt = {
+        margin:       0.5,
+        filename:     'prodotti-tecnobox.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(elemento).save();
+});
 
