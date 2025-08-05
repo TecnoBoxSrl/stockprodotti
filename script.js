@@ -116,7 +116,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     const clone = contenuto.cloneNode(true);
   clone.style.transform = "scale(0.75)";
   clone.style.transformOrigin = "top left";
-  clone.style.width = "130%"; // aggiusta il layout
+  clone.style.width = contenuto.offsetWidth * 0.75 + "px";
   clone.style.margin = "0 auto";
 
   const wrapper = document.createElement("div");
