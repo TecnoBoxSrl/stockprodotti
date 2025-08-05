@@ -95,8 +95,7 @@ function mostraZoom(src) {
 
   document.getElementById("scarica-pdf").addEventListener("click", function () {
 
-  const element = document.getElementById("contenuto-pdf");
-
+  const element = document.querySelector("main");
 
   const opt = {
     margin:       0.2,
