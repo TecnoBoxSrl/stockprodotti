@@ -35,7 +35,7 @@ h1 {
 .filters input[type="text"] {
     width: 300px;
     max-width: 100%;
-    padding: 8px;
+    padding: 6px;
     font-size: 16px;
 }
 
