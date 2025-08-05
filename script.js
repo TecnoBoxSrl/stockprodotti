@@ -1,7 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-
 const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
 
 Papa.parse(sheetURL, {
@@ -109,4 +105,3 @@ document.getElementById("scarica-pdf").addEventListener("click", function () {
 
     html2pdf().set(opt).from(elemento).save();
 });
-
