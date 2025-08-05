@@ -17,43 +17,38 @@
 </head>
 
 <body>
+
+  <div id="zoomOverlay">
+    <img id="zoomedImg">
+  </div>
+
   <div id="contenuto-pdf">
     <header>
-      <img src="logotecnobox.jpg" alt="Logo" class="logo">
+      <img class="logo" src="logo.png" alt="Logo">
       <div>
         <h1>Linea Prodotti in Svendita</h1>
-        <p class="nota-rossa">
-          Tutti i prezzi si intendono franco ns magazzino di Carini ed escluso IVA 22%
-        </p>
+        <p class="nota-rossa">Tutti i prezzi si intendono franco ns magazzino di Carini ed escluso IVA 22%</p>
       </div>
     </header>
 
-    <div class="filters no-print">
-      <input type="text" id="filtro-globale" placeholder="Ricerca...">
-      <button id="pulisci-filtro">Pulisci</button>
-      <button id="scarica-pdf">Scarica articoli in PDF</button>
-    </div>
-
     <main>
+      <!-- tabella qui -->
       <table id="tabella-prodotti">
-        <thead>
-          <tr>
-            <th>Codice</th>
-            <th>Descrizione</th>
-            <th>Quantità</th>
-            <th>Prezzo (€)</th>
-            <th>Prezzo Promo (€)</th>
-            <th>Conai x confezione (€)</th>
-            <th>Immagine</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
+        <thead>...</thead>
+        <tbody>...</tbody>
       </table>
     </main>
   </div>
 
-  <div class="zoom-overlay" id="zoomOverlay" onclick="this.style.display='none'">
-    <img id="zoomedImg" src="" alt="Zoom immagine">
+  <!-- elementi NON da stampare -->
+  <div class="no-print">
+    <div class="filters">
+      <input id="filtro-globale" type="text" placeholder="Cerca...">
+      <button id="pulisci-filtro">Pulisci</button>
+      <button id="scarica-pdf">Scarica articoli in PDF</button>
+    </div>
   </div>
+
 </body>
+
 </html>
