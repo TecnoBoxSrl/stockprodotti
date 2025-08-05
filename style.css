@@ -35,12 +35,12 @@ h1 {
 .filters input[type="text"] {
     width: 300px;
     max-width: 100%;
-    padding: 3px;
+    padding: 8px;
     font-size: 16px;
 }
 
 .filters button {
-    padding: 6px 16px;
+    padding: 8px 16px;
     font-size: 16px;
     background-color: #45AC49;
     color: white;
