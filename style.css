@@ -75,6 +75,10 @@ th {
     color: white;
     text-align: left;
 }
+#tabella-prodotti tr {
+  page-break-inside: avoid;
+}
+
 
 /* Sticky header */
 #tabella-prodotti thead th {
