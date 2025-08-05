@@ -12,12 +12,12 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-  <!-- Tuo script principale -->
+  <!-- Script -->
   <script defer src="script.js"></script>
 </head>
 
 <body>
-  <div id="contenuto-pdf">
+  <div id="contenuto-pdf" class="pdf-scale">
     <header>
       <img src="logotecnobox.jpg" alt="Logo" class="logo">
       <div>
@@ -28,15 +28,13 @@
       </div>
     </header>
 
-    <main>
-      <!-- SEZIONE VISIBILE SOLO NELLA WEBAPP -->
-      <div class="filters no-print">
-        <input type="text" id="filtro-globale" placeholder="Ricerca...">
-        <button id="pulisci-filtro">Pulisci</button>
-        <button id="scarica-pdf">Scarica articoli in PDF</button>
-      </div>
+    <div class="filters no-print">
+      <input type="text" id="filtro-globale" placeholder="Ricerca...">
+      <button id="pulisci-filtro">Pulisci</button>
+      <button id="scarica-pdf">Scarica articoli in PDF</button>
+    </div>
 
-      <!-- TABELLA PRODOTTI -->
+    <main>
       <table id="tabella-prodotti">
         <thead>
           <tr>
@@ -54,7 +52,6 @@
     </main>
   </div>
 
-  <!-- Overlay per zoom immagini -->
   <div class="zoom-overlay" id="zoomOverlay" onclick="this.style.display='none'">
     <img id="zoomedImg" src="" alt="Zoom immagine">
   </div>
