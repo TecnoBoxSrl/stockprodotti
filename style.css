@@ -186,4 +186,8 @@ mark {
     margin-top: 2px; /* alza la scritta */
     margin-bottom: 0;
 }
+/* Nasconde solo nella stampa PDF le parti con classe 'no-print' */
+.no-print {
+  display: none;
+}
 
