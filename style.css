@@ -172,3 +172,11 @@ mark {
         font-size: 14px;
     }
 }
+.nota-rossa {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: -10px; /* alza la scritta */
+    margin-bottom: 0;
+}
+
