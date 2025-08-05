@@ -92,38 +92,28 @@ function mostraZoom(src) {
 }
 
 // ✅ Pulsante per scaricare il PDF
-document.getElementById("scarica-pdf").addEventListener("click", () => {
-  const contenuto = document.getElementById("contenuto-pdf");
 
-  const clone = contenuto.cloneNode(true);
+  document.getElementById("scarica-pdf").addEventListener("click", function () {
 
-  // Riduce solo nel PDF (non nella web app!)
-  clone.style.zoom = "0.75";  // Usa zoom anziché scale per compatibilità
-  clone.style.transformOrigin = "top left";
-  clone.style.width = "100%";
-  clone.style.margin = "0 auto";
-
-  const wrapper = document.createElement("div");
-  wrapper.style.width = "100%";
-  wrapper.appendChild(clone);
+  const element = document.querySelector("main");
 
   const opt = {
-    margin: 5,
-    filename: 'prodotti_svendita.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
+    margin:       0.2,
+    filename:     "prodotti-svendita.pdf",
+    image:        { type: 'jpeg', quality: 1 },
+    html2canvas:  {
+      scale: 3,           // aumenta qualità
+      useCORS: true,      // se ci sono immagini esterne
+      allowTaint: true,
       scrollX: 0,
-      scrollY: 0,
-      windowWidth: 2000 // forza larghezza ampia per il rendering
+      scrollY: 0
     },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a3',
+    jsPDF:        {
+      unit: 'px',
+      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
       orientation: 'landscape'
     }
   };
 
-  html2pdf().set(opt).from(wrapper).save();
+ html2pdf().set(opt).from(element).save();
 });
