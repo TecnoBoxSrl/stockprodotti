@@ -40,7 +40,7 @@ const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
                 <td>${imgTag}</td>
             `;
 if (evidenzia) {
-  tr.style.backgroundColor = '#d4f4dd'; // colore verde pastello
+  tr.style.backgroundColor = '#45ac49'; // colore verde 
   tr.style.fontWeight = 'bold';
 }
             tbody.appendChild(tr);
