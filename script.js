@@ -1,4 +1,4 @@
-
+<script>
 const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRRDCJzWLq3Xy-EkBQqzANaYZy-Ln_xFpKw8fFS8qvS9yA939BnLOyvXPTvLnu0eA/pub?output=csv';
 
 Papa.parse(sheetURL, {
@@ -15,19 +15,24 @@ Papa.parse(sheetURL, {
             const prezzo = row.Prezzo || '';
             const prezzoPromo = row["Prezzo Promo"] || '';
             const conaicollo = row.Conaicollo || '';
-const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
+            const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
             const imgSrc = row.Immagine?.trim() || '';
 
             const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.'))) 
-    ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-    : '';
+                ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+                : '';
 
-            const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` : '';
+            const prezzoPromoFmt = (!isNaN(prezzoPromo) && prezzoPromo !== '') 
+                ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo).toFixed(2).replace('.', ',')}</span>` 
+                : '';
+
             const conaiFmt = (conaicollo && conaicollo.trim() !== '') 
-              ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-              : '';
+                ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+                : '';
 
-            const imgTag = imgSrc ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` : '';
+            const imgTag = imgSrc 
+                ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` 
+                : '';
 
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -39,15 +44,18 @@ const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
                 <td>${conaiFmt}</td>
                 <td>${imgTag}</td>
             `;
-if (evidenzia) {
-  tr.style.backgroundColor = '#45ac49'; // colore verde 
-  tr.style.fontWeight = 'bold';
-}
+
+            if (evidenzia) {
+                tr.style.backgroundColor = '#45ac49'; // colore verde
+                tr.style.fontWeight = 'bold';
+            }
+
             tbody.appendChild(tr);
         });
     }
 });
 
+// ✅ Filtro con evidenziazione
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
     const term = e.target.value.trim().toLowerCase();
     const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
@@ -69,9 +77,18 @@ document.getElementById("filtro-globale").addEventListener("input", function(e) 
     });
 });
 
+// ✅ Pulsante "Pulisci"
+document.getElementById("pulisci-filtro").addEventListener("click", function() {
+    const input = document.getElementById("filtro-globale");
+    input.value = "";
+    input.dispatchEvent(new Event("input"));
+});
+
+// ✅ Zoom immagine
 function mostraZoom(src) {
     const overlay = document.getElementById("zoomOverlay");
     const zoomedImg = document.getElementById("zoomedImg");
     zoomedImg.src = src;
     overlay.style.display = "flex";
 }
+</script>
