@@ -103,7 +103,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
       scale: 2,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: document.body.scrollWidth
+      windowWidth: contenuto.scrollWidth
     },
     jsPDF: {
       unit: 'mm',
@@ -114,9 +114,6 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 
   html2pdf().set(opt).from(contenuto).save();
 });
-
-
-
 
 
 
