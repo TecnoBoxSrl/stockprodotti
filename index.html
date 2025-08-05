@@ -15,9 +15,9 @@
   <!-- Tuo script principale -->
   <script defer src="script.js"></script>
 </head>
+
 <body>
-  <!-- CONTENUTO CHE VA NEL PDF -->
-  <div id="contenuto-da-esportare">
+  <div id="contenuto-pdf">
     <header>
       <img src="logotecnobox.jpg" alt="Logo" class="logo">
       <div>
@@ -29,6 +29,14 @@
     </header>
 
     <main>
+      <!-- SEZIONE VISIBILE SOLO NELLA WEBAPP -->
+      <div class="filters no-print">
+        <input type="text" id="filtro-globale" placeholder="Ricerca...">
+        <button id="pulisci-filtro">Pulisci</button>
+        <button id="scarica-pdf">Scarica articoli in PDF</button>
+      </div>
+
+      <!-- TABELLA PRODOTTI -->
       <table id="tabella-prodotti">
         <thead>
           <tr>
@@ -46,19 +54,9 @@
     </main>
   </div>
 
-  <!-- FILTRI E PULSANTI (visibili solo nella web app) -->
- <div class="filters no-print">
-  <input type="text" id="filtro-globale" placeholder="Ricerca...">
-  <button id="pulisci-filtro">Pulisci</button>
-  <button id="scarica-pdf">Scarica articoli in PDF</button>
-</div>
-
-
-  <!-- ZOOM IMMAGINE -->
+  <!-- Overlay per zoom immagini -->
   <div class="zoom-overlay" id="zoomOverlay" onclick="this.style.display='none'">
     <img id="zoomedImg" src="" alt="Zoom immagine">
   </div>
 </body>
-
 </html>
-
