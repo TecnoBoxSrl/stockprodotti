@@ -198,3 +198,9 @@ main {
     display: none !important;
   }
 }
+/* Forza scala per adattare tutto nel PDF */
+.pdf-scale {
+  transform: scale(0.72);
+  transform-origin: top left;
+  width: 138%;
+}
