@@ -186,21 +186,27 @@ mark {
     margin-top: 2px; /* alza la scritta */
     margin-bottom: 0;
 }
-/* ❌ Nascondi questi elementi SOLO nella stampa/pdf */
+/* Nasconde filtri e pulsanti quando si genera il PDF */
 @media print {
   .no-print {
-    display: none;
+    display: none !important;
   }
 }
 
-/* ✅ Evita che le righe si spezzino a metà nel PDF */
+/* Evita che le righe si spezzino nel PDF */
 #tabella-prodotti tr {
   page-break-inside: avoid;
 }
 
-/* ✅ Assicura che tutte le colonne stiano visibili nel PDF */
+/* Rendi la tabella scorrevole su schermi piccoli */
 main {
   width: 100%;
   overflow-x: auto;
 }
 
+/* Altezza ridotta dei pulsanti */
+.filters button {
+  padding: 6px 14px;
+  font-size: 15px;
+  height: 34px;
+}
