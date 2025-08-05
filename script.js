@@ -96,18 +96,19 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   const contenuto = document.getElementById("contenuto-pdf");
 
   const opt = {
-    margin: [10, 10, 10, 10],
+    margin: 10,
     filename: 'prodotti_svendita.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: {
       scale: 2,
+      useCORS: true,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: contenuto.scrollWidth
+      windowWidth: document.body.scrollWidth
     },
     jsPDF: {
       unit: 'mm',
-      format: 'a4',
+      format: 'a3',
       orientation: 'landscape'
     }
   };
