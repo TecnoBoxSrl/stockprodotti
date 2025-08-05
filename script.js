@@ -95,8 +95,20 @@ function mostraZoom(src) {
 document.getElementById("scarica-pdf").addEventListener("click", () => {
   const contenuto = document.getElementById("contenuto-pdf");
 
+  const clone = contenuto.cloneNode(true);
+
+  // Riduce solo nel PDF (non nella web app!)
+  clone.style.zoom = "0.75";  // Usa zoom anziché scale per compatibilità
+  clone.style.transformOrigin = "top left";
+  clone.style.width = "100%";
+  clone.style.margin = "0 auto";
+
+  const wrapper = document.createElement("div");
+  wrapper.style.width = "100%";
+  wrapper.appendChild(clone);
+
   const opt = {
-    margin: 10,
+    margin: 5,
     filename: 'prodotti_svendita.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: {
@@ -104,7 +116,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
       useCORS: true,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: document.body.scrollWidth
+      windowWidth: 2000 // forza larghezza ampia per il rendering
     },
     jsPDF: {
       unit: 'mm',
@@ -113,18 +125,5 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     }
   };
 
-    const clone = contenuto.cloneNode(true);
-  clone.style.transform = "scale(0.75)";
-  clone.style.transformOrigin = "top left";
-  clone.style.width = contenuto.offsetWidth * 0.75 + "px";
-  clone.style.margin = "0 auto";
-
-  const wrapper = document.createElement("div");
-  wrapper.appendChild(clone);
-
   html2pdf().set(opt).from(wrapper).save();
-
 });
-
-
-
