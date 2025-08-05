@@ -21,12 +21,35 @@ h1 {
     margin: 0;
 }
 
-input[type="text"] {
+/* Filtro + Pulisci */
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.filters input[type="text"] {
     width: 300px;
     max-width: 100%;
     padding: 8px;
-    margin: 20px 0;
     font-size: 16px;
+}
+
+.filters button {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #45AC49;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    height: 40px;
+    min-width: 80px;
+}
+
+.filters button:hover {
+    background-color: #39933e;
 }
 
 /* Tabella */
@@ -40,14 +63,14 @@ th, td {
     border: 1px solid #ccc;
     padding: 8px;
     vertical-align: top;
+    white-space: nowrap; /* impedisce a capo */
 }
 
 /* Colori header tabella */
 th {
-    background-color: #45AC49; /* Verde del logo */
+    background-color: #45AC49;
     color: white;
     text-align: left;
-    white-space: nowrap;
 }
 
 /* Sticky header */
@@ -107,8 +130,15 @@ mark {
         align-items: flex-start;
     }
 
-    input[type="text"] {
+    .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filters input[type="text"],
+    .filters button {
         width: 100%;
+        margin-bottom: 10px;
     }
 
     th, td {
@@ -138,7 +168,7 @@ mark {
         width: 60px;
     }
 
-    input[type="text"] {
+    .filters input[type="text"] {
         font-size: 14px;
     }
 }
