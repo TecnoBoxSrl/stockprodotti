@@ -17,7 +17,8 @@
 </head>
 
 <body>
-  <div id="contenuto-pdf">
+  <!-- CONTENUTO CHE VA NEL PDF -->
+  <div id="contenuto-da-esportare">
     <header>
       <img src="logotecnobox.jpg" alt="Logo" class="logo">
       <div>
@@ -29,23 +30,16 @@
     </header>
 
     <main>
-      <!-- SEZIONE CHE NON VA IN PDF -->
-      <div class="filters no-print">
-        <input type="text" id="filtro-globale" placeholder="Ricerca...">
-        <button id="pulisci-filtro">Pulisci</button>
-        <button id="scarica-pdf">Scarica articoli in PDF</button>
-      </div>
-
       <table id="tabella-prodotti">
         <thead>
           <tr>
-            <th>Codice</th>
-            <th>Descrizione</th>
-            <th>Quantità</th>
-            <th>Prezzo (€)</th>
+            <th>Codice articolo</th>
+            <th>Descrizione - Unità di Vendita</th>
+            <th>Quantità disponibile</th>
+            <th>Prezzo Unità (€)</th>
             <th>Prezzo Promo (€)</th>
             <th>Conai x confezione (€)</th>
-            <th>Immagine</th>
+            <th>Foto - clicca per ingrandire</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -53,8 +47,17 @@
     </main>
   </div>
 
+  <!-- FILTRI E PULSANTI (esclusi dal PDF) -->
+  <div class="filters no-print">
+    <input type="text" id="filtro-globale" placeholder="Ricerca...">
+    <button id="pulisci-filtro">Pulisci</button>
+    <button id="scarica-pdf">Scarica articoli in PDF</button>
+  </div>
+
+  <!-- ZOOM IMMAGINE -->
   <div class="zoom-overlay" id="zoomOverlay" onclick="this.style.display='none'">
     <img id="zoomedImg" src="" alt="Zoom immagine">
   </div>
 </body>
 </html>
+
