@@ -186,10 +186,21 @@ mark {
     margin-top: 2px; /* alza la scritta */
     margin-bottom: 0;
 }
+/* ❌ Nascondi questi elementi SOLO nella stampa/pdf */
 @media print {
   .no-print {
     display: none;
   }
 }
 
+/* ✅ Evita che le righe si spezzino a metà nel PDF */
+#tabella-prodotti tr {
+  page-break-inside: avoid;
+}
+
+/* ✅ Assicura che tutte le colonne stiano visibili nel PDF */
+main {
+  width: 100%;
+  overflow-x: auto;
+}
 
