@@ -93,15 +93,16 @@ function mostraZoom(src) {
 
 // 🖨️ Pulsante "Scarica PDF"
 document.getElementById("scarica-pdf").addEventListener("click", function () {
-    const elemento = document.querySelector("main");
+  const element = document.querySelector("main");
 
-    const opt = {
-        margin:       0.5,
-        filename:     'prodotti-tecnobox.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
-    };
+  const opt = {
+    margin:       [0.3, 0.3, 0.3, 0.3], // margini in pollici (top, left, bottom, right)
+    filename:     'prodotti-tecnobox.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 1.5 },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' } // 🔁 LANDSCAPE
+  };
 
-    html2pdf().set(opt).from(elemento).save();
+  html2pdf().set(opt).from(element).save();
 });
+
