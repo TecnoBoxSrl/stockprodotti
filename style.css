@@ -192,15 +192,15 @@ main {
   }
 }
 
-/* Escludi pulsanti e ricerca dal PDF */
+/* Nasconde i pulsanti e la barra di ricerca solo nel PDF */
 @media print {
   .no-print {
     display: none !important;
   }
 }
-/* Forza scala per adattare tutto nel PDF */
-.pdf-scale {
-  transform: scale(0.72);
-  transform-origin: top left;
-  width: 138%;
+
+/* Evita che le righe si spezzino nel PDF */
+#tabella-prodotti tr {
+  page-break-inside: avoid;
 }
+
