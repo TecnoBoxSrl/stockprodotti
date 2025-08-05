@@ -113,7 +113,17 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     }
   };
 
-  html2pdf().set(opt).from(contenuto).save();
+    const clone = contenuto.cloneNode(true);
+  clone.style.transform = "scale(0.75)";
+  clone.style.transformOrigin = "top left";
+  clone.style.width = "130%"; // aggiusta il layout
+  clone.style.margin = "0 auto";
+
+  const wrapper = document.createElement("div");
+  wrapper.appendChild(clone);
+
+  html2pdf().set(opt).from(wrapper).save();
+
 });
 
 
