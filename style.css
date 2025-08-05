@@ -10,10 +10,7 @@ header {
     gap: 20px;
     flex-wrap: wrap;
 }
-main {
-  width: 100%;
-  overflow-x: auto;
-}
+
 .logo {
     max-width: 200px;
     height: auto;
@@ -24,7 +21,15 @@ h1 {
     margin: 0;
 }
 
-/* Filtro + Pulisci */
+.nota-rossa {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 2px;
+    margin-bottom: 0;
+}
+
+/* Filtro + Pulsanti */
 .filters {
     display: flex;
     align-items: center;
@@ -40,14 +45,14 @@ h1 {
 }
 
 .filters button {
-    padding: 8px 16px;
-    font-size: 16px;
+    padding: 6px 14px;
+    font-size: 15px;
+    height: 34px;
     background-color: #45AC49;
     color: white;
     border: none;
     cursor: pointer;
     border-radius: 4px;
-    height: 40px;
     min-width: 80px;
 }
 
@@ -66,19 +71,18 @@ th, td {
     border: 1px solid #ccc;
     padding: 8px;
     vertical-align: top;
-    white-space: nowrap; /* impedisce a capo */
+    white-space: nowrap;
 }
 
-/* Colori header tabella */
 th {
     background-color: #45AC49;
     color: white;
     text-align: left;
 }
-#tabella-prodotti tr {
-  page-break-inside: avoid;
-}
 
+#tabella-prodotti tr {
+    page-break-inside: avoid;
+}
 
 /* Sticky header */
 #tabella-prodotti thead th {
@@ -179,34 +183,17 @@ mark {
         font-size: 14px;
     }
 }
-.nota-rossa {
-    color: red;
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 2px; /* alza la scritta */
-    margin-bottom: 0;
-}
-/* Nasconde filtri e pulsanti quando si genera il PDF */
+
+/* PDF: nasconde barra ricerca e pulsanti */
 @media print {
-  .no-print {
-    display: none !important;
-  }
+    .no-print {
+        display: none !important;
+    }
 }
 
-/* Evita che le righe si spezzino nel PDF */
-#tabella-prodotti tr {
-  page-break-inside: avoid;
-}
-
-/* Rendi la tabella scorrevole su schermi piccoli */
+/* Contenitore principale (main) */
 main {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* Altezza ridotta dei pulsanti */
-.filters button {
-  padding: 6px 14px;
-  font-size: 15px;
-  height: 34px;
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
 }
