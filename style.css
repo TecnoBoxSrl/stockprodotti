@@ -10,7 +10,10 @@ header {
     gap: 20px;
     flex-wrap: wrap;
 }
-
+main {
+  width: 100%;
+  overflow-x: auto;
+}
 .logo {
     max-width: 200px;
     height: auto;
