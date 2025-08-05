@@ -93,21 +93,29 @@ function mostraZoom(src) {
 
 // ✅ Pulsante per scaricare il PDF
 document.getElementById("scarica-pdf").addEventListener("click", function () {
-  const contenuto = document.getElementById("contenuto-pdf");
+  const element = document.getElementById("contenuto-pdf");
 
-  const opzioni = {
+  const opt = {
     margin: 0.5,
     filename: 'prodotti_svendita.pdf',
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: {
       scale: 2,
-      useCORS: true
+      scrollY: 0,
+      useCORS: true,
+      allowTaint: true
     },
-    jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    jsPDF: {
+      unit: 'cm',
+      format: 'a4',
+      orientation: 'landscape'
+    },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
   };
 
-  html2pdf().from(contenuto).set(opzioni).save();
+  html2pdf().set(opt).from(element).save();
 });
+
 
 
 
