@@ -15,7 +15,6 @@
   <!-- Tuo script principale -->
   <script defer src="script.js"></script>
 </head>
-
 <body>
   <!-- CONTENUTO CHE VA NEL PDF -->
   <div id="contenuto-da-esportare">
@@ -33,13 +32,13 @@
       <table id="tabella-prodotti">
         <thead>
           <tr>
-            <th>Codice articolo</th>
-            <th>Descrizione - Unità di Vendita</th>
-            <th>Giacenza</th>
+            <th>Codice</th>
+            <th>Descrizione</th>
+            <th>Quantità</th>
             <th>Prezzo (€)</th>
             <th>Prezzo Promo (€)</th>
             <th>Conai x confezione (€)</th>
-            <th>Foto</th>
+            <th>Immagine</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -47,7 +46,7 @@
     </main>
   </div>
 
-  <!-- FILTRI E PULSANTI (esclusi dal PDF) -->
+  <!-- FILTRI E PULSANTI (visibili solo nella web app) -->
   <div class="filters no-print">
     <input type="text" id="filtro-globale" placeholder="Ricerca...">
     <button id="pulisci-filtro">Pulisci</button>
@@ -59,5 +58,6 @@
     <img id="zoomedImg" src="" alt="Zoom immagine">
   </div>
 </body>
+
 </html>
 
