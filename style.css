@@ -1,7 +1,12 @@
+/* Importa font elegante */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 /* Layout base */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
     margin: 20px;
+    color: #333;
+    background-color: #fff;
 }
 
 header {
@@ -18,15 +23,28 @@ header {
 
 h1 {
     font-size: 2em;
+    font-weight: 700;
     margin: 0;
+    color: #111;
 }
 
+h2.sottotitolo {
+    font-size: 0.95em;
+    color: #cc0000;
+    font-weight: 500;
+    margin-top: 5px;
+    margin-bottom: 20px;
+}
+
+/* Barra di ricerca */
 input[type="text"] {
     width: 300px;
     max-width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin: 20px 0;
     font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
 }
 
 /* Tabella */
@@ -34,25 +52,28 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 50px;
+    font-size: 15px;
 }
 
 th, td {
-    border: 1px solid #ccc;
-    padding: 8px;
+    border: 1px solid #e0e0e0;
+    padding: 10px;
     vertical-align: top;
 }
 
 th {
-    background-color: #f5f5f5;
+    background-color: #f9f9f9;
+    color: #222;
+    font-weight: 600;
     text-align: left;
 }
 
-/* Sticky header */
 #tabella-prodotti thead th {
     position: sticky;
     top: 0;
-    background-color: f5f5f5;
+    background-color: #fff;
     z-index: 2;
+    border-bottom: 2px solid #ccc;
 }
 
 /* Immagini */
@@ -61,6 +82,8 @@ td img.zoomable {
     max-width: 100%;
     height: auto;
     cursor: zoom-in;
+    border-radius: 4px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
 }
 
 /* Zoom overlay */
@@ -82,9 +105,15 @@ td img.zoomable {
     max-height: 90%;
 }
 
-/* Evidenziazione */
+/* Evidenziazione righe */
+tr[style*="background-color"] {
+    background-color: #e6f4ec !important;
+    font-weight: 600;
+}
+
+/* Evidenziazione parole trovate */
 mark {
-    background-color: #8ab783 !important;
+    background-color: #d5eadb !important;
     padding: 0 2px;
     border-radius: 2px;
 }
@@ -110,7 +139,7 @@ mark {
     }
 
     h1 {
-        font-size: 1.5em;
+        font-size: 1.6em;
     }
 
     td img.zoomable {
