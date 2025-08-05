@@ -96,24 +96,25 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   const contenuto = document.getElementById("contenuto-pdf");
 
   const opt = {
-    margin:       [10, 10, 10, 10], // margini: top, left, bottom, right
-    filename:     'prodotti_svendita.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  {
-      scale: 2,          // migliora la qualità
+    margin: [10, 10, 10, 10],
+    filename: 'prodotti_svendita.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: document.body.scrollWidth, // forza la larghezza reale
+      windowWidth: document.body.scrollWidth
     },
     jsPDF: {
       unit: 'mm',
       format: 'a4',
-      orientation: 'landscape' // <--- ORIENTAMENTO ORIZZONTALE
+      orientation: 'landscape'
     }
   };
 
   html2pdf().set(opt).from(contenuto).save();
 });
+
 
 
 
