@@ -85,14 +85,22 @@ th {
   page-break-inside: avoid;
 }
 
-/* Sticky header */
-#tabella-prodotti thead th {
-  position: sticky;
-  top: 0;
-  background-color: #45AC49;
-  color: white;
-  z-index: 2;
+@media screen {
+  #tabella-prodotti thead th {
+    position: sticky;
+    top: 0;
+    background-color: #45AC49;
+    color: white;
+    z-index: 2;
+  }
 }
+
+@media print {
+  #tabella-prodotti thead th {
+    position: static !important;
+  }
+}
+
 
 /* Immagini */
 td img.zoomable {
