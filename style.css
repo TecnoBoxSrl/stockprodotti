@@ -140,6 +140,8 @@ main {
   width: 100%;
   overflow-x: auto;
   margin-top: 20px;
+  max-height: 80vh;   /* aggiunto per bloccare la testata */
+  overflow-y: auto;
 }
 
 /* Responsive */
