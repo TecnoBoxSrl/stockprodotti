@@ -95,6 +95,12 @@ function mostraZoom(src) {
 
   document.getElementById("scarica-pdf").addEventListener("click", function () {
 
+ // 🔒 CONTROLLO MINIMO: se nessuna riga è visibile, blocca la stampa
+  if (!document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])")) {
+    alert("Nessun articolo da stampare.");
+    return;
+  }
+      
   const element = document.querySelector("main");
 
   const opt = {
