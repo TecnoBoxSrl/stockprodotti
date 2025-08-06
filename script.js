@@ -93,50 +93,27 @@ function mostraZoom(src) {
 
 // ✅ Pulsante per scaricare il PDF
 
-document.getElementById("scarica-pdf").addEventListener("click", function () {
-  const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
-  const righeVisibili = Array.from(rows).filter(tr =>
-    window.getComputedStyle(tr).display !== "none"
-  );
+  document.getElementById("scarica-pdf").addEventListener("click", function () {
 
-  if (righeVisibili.length === 0) {
-    alert("Nessun articolo da stampare.");
-    return;
-  }
-
-  // Clona solo le righe visibili per evitare di stampare tutto
-  const tabellaOriginale = document.getElementById("tabella-prodotti");
-  const tabellaClonata = tabellaOriginale.cloneNode(true);
-
-  // Rimuove le righe nascoste
-  const righeClonate = tabellaClonata.querySelectorAll("tbody tr");
-  righeClonate.forEach((tr, i) => {
-    if (window.getComputedStyle(rows[i]).display === "none") {
-      tr.remove();
-    }
-  });
-
-  // Crea un contenitore temporaneo
-  const contenitoreTemp = document.createElement("div");
-  contenitoreTemp.appendChild(tabellaClonata);
+  const element = document.querySelector("main");
 
   const opt = {
-    margin: 0.2,
-    filename: "prodotti-svendita-tecnobox.pdf",
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: {
-      scale: 3,
-      useCORS: true,
+    margin:       0.2,
+    filename:     "prodotti-svendita-tecnobox.pdf",
+    image:        { type: 'jpeg', quality: 1 },
+    html2canvas:  {
+      scale: 3,           // aumenta qualità
+      useCORS: true,      // se ci sono immagini esterne
       allowTaint: true,
       scrollX: 0,
       scrollY: 0
     },
-    jsPDF: {
+    jsPDF:        {
       unit: 'px',
-      format: 'a4',
+      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
       orientation: 'landscape'
     }
   };
 
-  html2pdf().set(opt).from(contenitoreTemp).save();
+ html2pdf().set(opt).from(element).save();
 });
