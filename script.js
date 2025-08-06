@@ -119,3 +119,5 @@ const opt = {
 
 html2pdf().set(opt).from(element).save();
 
+
+});
