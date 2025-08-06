@@ -99,7 +99,7 @@ function mostraZoom(src) {
 
   const opt = {
     margin:       0.2,
-    filename:     "prodotti-svendita.pdf",
+    filename:     "prodotti-svendita-tecnobox.pdf",
     image:        { type: 'jpeg', quality: 1 },
     html2canvas:  {
       scale: 3,           // aumenta qualità
