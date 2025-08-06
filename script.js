@@ -94,8 +94,9 @@ function mostraZoom(src) {
 // ✅ Pulsante per scaricare il PDF
 
   document.getElementById("scarica-pdf").addEventListener("click", function () {
-  const righeVisibili = Array.from(document.querySelectorAll("#tabella-prodotti tbody tr"))
-    .some(tr => tr.style.display !== "none");
+ const righeVisibili = Array.from(document.querySelectorAll("#tabella-prodotti tbody tr"))
+  .some(tr => window.getComputedStyle(tr).display !== "none");
+
 
   if (!righeVisibili) {
     alert("Nessun articolo da stampare.");
