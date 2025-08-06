@@ -135,13 +135,27 @@ mark {
   border-radius: 2px;
 }
 
-/* Contenitore principale */
-main {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 20px;
-  
+/* Contenitore principale modificato */
+/* Contenitore principale: visuale normale */
+@media screen {
+  main {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 20px;
+    max-height: 80vh;     /* solo per browser */
+    overflow-y: auto;
+  }
 }
+
+/* Contenitore principale: PDF o stampa */
+@media print {
+  main {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+
 
 /* Responsive */
 @media (max-width: 768px) {
