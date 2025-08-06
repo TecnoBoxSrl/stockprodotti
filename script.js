@@ -95,25 +95,27 @@ function mostraZoom(src) {
 
   document.getElementById("scarica-pdf").addEventListener("click", function () {
 
-  const element = document.querySelector("main");
+ const element = document.querySelector("#contenuto-pdf"); // non solo main
+const realHeight = element.scrollHeight;
+const realWidth = element.scrollWidth;
 
-  const opt = {
-    margin:       0.2,
-    filename:     "prodotti-svendita-tecnobox.pdf",
-    image:        { type: 'jpeg', quality: 1 },
-    html2canvas:  {
-      scale: 3,           // aumenta qualità
-      useCORS: true,      // se ci sono immagini esterne
-      allowTaint: true,
-      scrollX: 0,
-      scrollY: 0
-    },
-    jsPDF:        {
-      unit: 'px',
-      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
-      orientation: 'landscape'
-    }
-  };
+const opt = {
+  margin: 0.2,
+  filename: "prodotti-svendita.pdf",
+  image: { type: 'jpeg', quality: 1 },
+  html2canvas: {
+    scale: 3,
+    useCORS: true,
+    allowTaint: true,
+    scrollX: 0,
+    scrollY: 0
+  },
+  jsPDF: {
+    unit: 'px',
+    format: [realWidth + 40, realHeight + 40],
+    orientation: 'landscape'
+  }
+};
 
- html2pdf().set(opt).from(element).save();
-});
+html2pdf().set(opt).from(element).save();
+
