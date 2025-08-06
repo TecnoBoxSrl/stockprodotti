@@ -94,30 +94,37 @@ function mostraZoom(src) {
 // ✅ Pulsante per scaricare il PDF
 
   document.getElementById("scarica-pdf").addEventListener("click", function () {
+  const element = document.querySelector("#contenuto-pdf");
+  const realHeight = element.scrollHeight;
+  const realWidth = element.scrollWidth;
 
- const element = document.querySelector("#contenuto-pdf"); // non solo main
-const realHeight = element.scrollHeight;
-const realWidth = element.scrollWidth;
+  // 🔓 Sblocca visibilità completa prima del salvataggio
+  const originalMaxHeight = element.style.maxHeight;
+  const originalOverflow = element.style.overflow;
+  element.style.maxHeight = "none";
+  element.style.overflow = "visible";
 
-const opt = {
-  margin: 0.2,
-  filename: "prodotti-svendita.pdf",
-  image: { type: 'jpeg', quality: 1 },
-  html2canvas: {
-    scale: 3,
-    useCORS: true,
-    allowTaint: true,
-    scrollX: 0,
-    scrollY: 0
-  },
-  jsPDF: {
-    unit: 'px',
-    format: [realWidth + 40, realHeight + 40],
-    orientation: 'landscape'
-  }
-};
+  const opt = {
+    margin: 0.2,
+    filename: "prodotti-svendita.pdf",
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      scrollX: 0,
+      scrollY: 0
+    },
+    jsPDF: {
+      unit: 'px',
+      format: [realWidth + 40, realHeight + 40],
+      orientation: 'landscape'
+    }
+  };
 
-html2pdf().set(opt).from(element).save();
-
-
+  html2pdf().set(opt).from(element).save().then(() => {
+    // 🔒 Ripristina lo stile originale
+    element.style.maxHeight = originalMaxHeight;
+    element.style.overflow = originalOverflow;
+  });
 });
