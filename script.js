@@ -97,7 +97,7 @@ function mostraZoom(src) {
 
  // 🔒 CONTROLLO MINIMO: se nessuna riga è visibile, blocca la stampa
   if (!document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])")) {
-    alert("Nessun articolo da stampare.");
+    alert("Nessun articolo da stampare!");
     return;
   }
       
