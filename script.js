@@ -93,33 +93,50 @@ function mostraZoom(src) {
 
 // ✅ Pulsante per scaricare il PDF
 
-  document.getElementById("scarica-pdf").addEventListener("click", function () {
- const righeVisibili = Array.from(document.querySelectorAll("#tabella-prodotti tbody tr"))
-  .some(tr => window.getComputedStyle(tr).display !== "none");
+document.getElementById("scarica-pdf").addEventListener("click", function () {
+  const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
+  const righeVisibili = Array.from(rows).filter(tr =>
+    window.getComputedStyle(tr).display !== "none"
+  );
 
-
-  if (!righeVisibili) {
+  if (righeVisibili.length === 0) {
     alert("Nessun articolo da stampare.");
     return;
   }
 
+  // Clona solo le righe visibili per evitare di stampare tutto
+  const tabellaOriginale = document.getElementById("tabella-prodotti");
+  const tabellaClonata = tabellaOriginale.cloneNode(true);
+
+  // Rimuove le righe nascoste
+  const righeClonate = tabellaClonata.querySelectorAll("tbody tr");
+  righeClonate.forEach((tr, i) => {
+    if (window.getComputedStyle(rows[i]).display === "none") {
+      tr.remove();
+    }
+  });
+
+  // Crea un contenitore temporaneo
+  const contenitoreTemp = document.createElement("div");
+  contenitoreTemp.appendChild(tabellaClonata);
+
   const opt = {
-    margin:       0.2,
-    filename:     "prodotti-svendita-tecnobox.pdf",
-    image:        { type: 'jpeg', quality: 1 },
-    html2canvas:  {
-      scale: 3,           // aumenta qualità
-      useCORS: true,      // se ci sono immagini esterne
+    margin: 0.2,
+    filename: "prodotti-svendita-tecnobox.pdf",
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
       allowTaint: true,
       scrollX: 0,
       scrollY: 0
     },
-    jsPDF:        {
+    jsPDF: {
       unit: 'px',
-      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
+      format: 'a4',
       orientation: 'landscape'
     }
   };
 
- html2pdf().set(opt).from(element).save();
+  html2pdf().set(opt).from(contenitoreTemp).save();
 });
