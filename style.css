@@ -203,4 +203,20 @@ main {
 #tabella-prodotti tr {
   page-break-inside: avoid;
 }
+#tabella-prodotti {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#tabella-prodotti thead th {
+  position: sticky;
+  top: 0;
+  background-color: #45ac49;
+  color: white;
+  z-index: 2;
+  padding: 8px;
+  text-align: left;
+}
+
 
