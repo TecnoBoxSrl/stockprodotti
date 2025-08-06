@@ -203,11 +203,5 @@ main {
 #tabella-prodotti tr {
   page-break-inside: avoid;
 }
-#tabella-prodotti {
-  border-collapse: collapse;
-  width: 100%;
-  table-layout: fixed;
-}
-
 
 
