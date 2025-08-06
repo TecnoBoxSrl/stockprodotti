@@ -94,37 +94,26 @@ function mostraZoom(src) {
 // ✅ Pulsante per scaricare il PDF
 
   document.getElementById("scarica-pdf").addEventListener("click", function () {
-  const element = document.querySelector("#contenuto-pdf");
-  const realHeight = element.scrollHeight;
-  const realWidth = element.scrollWidth;
 
-  // 🔓 Sblocca visibilità completa prima del salvataggio
-  const originalMaxHeight = element.style.maxHeight;
-  const originalOverflow = element.style.overflow;
-  element.style.maxHeight = "none";
-  element.style.overflow = "visible";
+  const element = document.querySelector("main");
 
   const opt = {
-    margin: 0.2,
-    filename: "prodotti-svendita.pdf",
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: {
-      scale: 3,
-      useCORS: true,
+    margin:       0.2,
+    filename:     "prodotti-svendita-tecnobox.pdf",
+    image:        { type: 'jpeg', quality: 1 },
+    html2canvas:  {
+      scale: 3,           // aumenta qualità
+      useCORS: true,      // se ci sono immagini esterne
       allowTaint: true,
       scrollX: 0,
       scrollY: 0
     },
-    jsPDF: {
+    jsPDF:        {
       unit: 'px',
-      format: [realWidth + 40, realHeight + 40],
+      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
       orientation: 'landscape'
     }
   };
 
-  html2pdf().set(opt).from(element).save().then(() => {
-    // 🔒 Ripristina lo stile originale
-    element.style.maxHeight = originalMaxHeight;
-    element.style.overflow = originalOverflow;
-  });
+ html2pdf().set(opt).from(element).save();
 });
