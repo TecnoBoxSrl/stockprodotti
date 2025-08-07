@@ -38,7 +38,7 @@ Papa.parse(sheetURL, {
                 <td>${codice}</td>
                 <td>${descrizione}</td>
                 <td>${quantita}</td>
-                <td>${prezzoFmt}</td>
+                <td><strong>${prezzoFmt}</strong></td>
                 <td>${prezzoPromoFmt}</td>
                 <td>${conaiFmt}</td>
                 <td>${imgTag}</td>
