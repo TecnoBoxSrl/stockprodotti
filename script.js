@@ -37,11 +37,11 @@ Papa.parse(sheetURL, {
             tr.innerHTML = `
                 <td>${codice}</td>
                 <td>${descrizione}</td>
-                <td>${quantita}</td>
                 <td><strong>${prezzoFmt}</strong></td>
                 <td>${prezzoPromoFmt}</td>
                 <td>${conaiFmt}</td>
-                <td>${imgTag}</td>
+                <td style="text-align: center;">${quantita}</td>
+                <td style="text-align: center;">${imgTag}</td>
             `;
 
             if (evidenzia) {
