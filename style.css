@@ -235,3 +235,9 @@ main {
   background-color: #125ca2;
 }
 
+#categorie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+}
