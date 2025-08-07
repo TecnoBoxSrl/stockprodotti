@@ -228,7 +228,6 @@ background-color: #125ca2 !important;
   white-space: normal;
   word-wrap: break-word;
   display: inline-block;
-  flex: 1 1 auto;
   box-sizing: border-box;
 }
 
