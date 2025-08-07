@@ -214,8 +214,8 @@ main {
 }
 
 .btn-categoria {
-  background-color: #007bff;
-  color: white;
+background-color: #007bff !important;
+  color: white !important;
   border: none;
   padding: 10px 16px;
   border-radius: 5px;
