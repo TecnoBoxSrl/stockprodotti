@@ -54,6 +54,78 @@ Papa.parse(sheetURL, {
     }
 });
 
+// Crea pulsanti per ogni categoria unica
+const categorieUniche = [...new Set(data.map(row => row.Categoria?.trim()).filter(Boolean))];
+
+const containerCategorie = document.getElementById("container-categorie");
+
+categorieUniche.forEach(categoria => {
+    const btn = document.createElement("button");
+    btn.textContent = categoria;
+    btn.classList.add("categoria-btn"); // aggiungi stile nel CSS
+    btn.addEventListener("click", () => {
+        filtraPerCategoria(categoria, data);
+    });
+    containerCategorie.appendChild(btn);
+});
+
+// Funzione di filtro
+function filtraPerCategoria(categoria, dataOriginale) {
+    const tbody = document.querySelector("#tabella-prodotti tbody");
+    tbody.innerHTML = ""; // svuota la tabella
+
+    const filtrati = dataOriginale.filter(r => r.Categoria?.trim() === categoria);
+
+    filtrati.forEach(row => {
+        const codice = row.Codice || '';
+        const descrizione = row.Descrizione || '';
+        const quantita = row.Quantità || '';
+        const prezzo = row.Prezzo || '';
+        const prezzoPromo = row["Prezzo Promo"] || '';
+        const conaicollo = row.Conaicollo || '';
+        const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
+        const imgSrc = row.Immagine?.trim() || '';
+
+        const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.'))) 
+            ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+            : '';
+
+        const prezzoPromoFmt = (prezzoPromo && !isNaN(prezzoPromo.replace(',', '.'))) 
+            ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>` 
+            : '';
+
+        const conaiFmt = (conaicollo && !isNaN(conaicollo.replace(',', '.'))) 
+            ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
+            : '';
+
+        const imgTag = imgSrc 
+            ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` 
+            : '';
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${codice}</td>
+            <td>${descrizione}</td>
+            <td style="text-align: right;"><strong>${prezzoFmt}</strong></td>
+            <td style="text-align: right;">${prezzoPromoFmt}</td>
+            <td style="text-align: right;">${conaiFmt}</td>
+            <td style="text-align: center;">${quantita}</td>
+            <td style="text-align: center;">${imgTag}</td>
+        `;
+
+        if (evidenzia) {
+            tr.style.backgroundColor = '#45ac49';
+            tr.style.fontWeight = 'bold';
+        }
+
+        tbody.appendChild(tr);
+    });
+}
+
+
+
+
+
 // 🔍 Filtro con evidenziazione
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
     const term = e.target.value.trim().toLowerCase();
