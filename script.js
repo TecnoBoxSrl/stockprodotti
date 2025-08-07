@@ -37,9 +37,9 @@ Papa.parse(sheetURL, {
             tr.innerHTML = `
                 <td>${codice}</td>
                 <td>${descrizione}</td>
-                <td><strong>${prezzoFmt}</strong></td>
-                <td>${prezzoPromoFmt}</td>
-                <td>${conaiFmt}</td>
+                <td style="text-align: right;"><strong>${prezzoFmt}</strong></td>
+                <td style="text-align: right;">${prezzoPromoFmt}</td>
+                <td style="text-align: right;">${conaiFmt}</td>
                 <td style="text-align: center;">${quantita}</td>
                 <td style="text-align: center;">${imgTag}</td>
             `;
