@@ -217,19 +217,15 @@ main {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 1em 2em;              /* proporzionale: 1 unità verticale, 2 orizzontale */
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: 6px;
   margin: 5px;
   cursor: pointer;
-  font-size: 1em;               /* scala con il contenuto */
-  white-space: nowrap;
-  aspect-ratio: 3 / 1;          /* larghezza 3, altezza 1 */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.3s;
+  font-size: 13px;
+  white-space: nowrap;           /* impedisce l’andata a capo */
+  display: inline-block;
+  max-width: 100%;
 }
-
 
 .categoria-btn:hover {
   background-color: #125ca2;
