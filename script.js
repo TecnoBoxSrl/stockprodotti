@@ -159,7 +159,19 @@ document.getElementById("pulisci-filtro").addEventListener("click", function () 
     const input = document.getElementById("filtro-globale");
     input.value = "";
     input.dispatchEvent(new Event("input"));
+
+    // ✅ Ripristina anche la visualizzazione di tutte le righe (annulla filtro per categoria)
+    const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
+    rows.forEach(row => {
+        row.style.display = "";
+    });
+
+    // ✅ Rimuove evidenziazione bottone categoria selezionato
+    document.querySelectorAll(".btn-categoria").forEach(btn => {
+        btn.classList.remove("active-category");
+    });
 });
+
 
 // 🔍 Zoom immagine
 function mostraZoom(src) {
