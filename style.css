@@ -244,3 +244,46 @@ background-color: #4285F4 !important;
   justify-content: flex-start;
   align-items: stretch;
 }
+/* Layout responsive header */
+.testata {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.blocco-logo,
+.blocco-titolo,
+.blocco-immagine {
+  flex: 1 1 100%;
+}
+
+.logo {
+  max-width: 200px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.blocco-titolo h1 {
+  margin: 0;
+  font-size: 1.8em;
+}
+
+.nota-rossa {
+  color: #d60606;
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.immagine-shock {
+  max-height: 250px;
+  max-width: 179px;
+  margin: 10px auto 0;
+  display: block;
+}
+
