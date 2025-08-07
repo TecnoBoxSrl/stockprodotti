@@ -218,14 +218,18 @@ main {
   color: white;
   border: none;
   padding: 10px 16px;
-  border-radius: 6px;
+  border-radius: 5px;
   margin: 5px;
   cursor: pointer;
   font-size: 13px;
-  white-space: nowrap;           /* impedisce l’andata a capo */
-  display: inline-block;
+  min-width: 120px;
   max-width: 100%;
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+  display: inline-block;
 }
+
 
 .categoria-btn:hover {
   background-color: #125ca2;
