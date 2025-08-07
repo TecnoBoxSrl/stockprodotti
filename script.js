@@ -51,8 +51,8 @@ Papa.parse(sheetURL, {
 
             tbody.appendChild(tr);
         });
-    }
-});
+
+
 
 // Crea pulsanti per ogni categoria unica
 const categorieUniche = [...new Set(data.map(row => row.Categoria?.trim()).filter(Boolean))];
@@ -121,6 +121,12 @@ function filtraPerCategoria(categoria, dataOriginale) {
         tbody.appendChild(tr);
     });
 }
+
+        
+    }
+});
+
+
 
 
 
