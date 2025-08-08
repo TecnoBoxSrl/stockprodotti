@@ -219,7 +219,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 
   html2pdf()
     .set({
-      margin: 6, // mm
+      margin: 0.5, // mm
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
