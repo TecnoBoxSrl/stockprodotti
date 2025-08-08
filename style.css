@@ -337,14 +337,16 @@ background-color: #05539c !important;
 
 .blocco-shock {
   display: inline-block;   /* contenitore largo quanto l'immagine */
-  text-align: center;      /* centra il testo sotto */
+  text-align: center;      /* centra il testo */
 }
 
 .blocco-shock img {
-  display: block;
-  max-width: 100%;         /* adattabile su mobile */
+  display: block;          /* immagine su riga propria */
+  max-width: 100%;         /* si adatta su mobile */
 }
 
 .blocco-shock p {
-  margin: 0;
+  margin: 5px 0 0 0;       /* piccolo spazio sopra */
+  font-size: 14px;         /* regola grandezza testo */
+  line-height: 1.4;        /* migliora leggibilità */
 }
