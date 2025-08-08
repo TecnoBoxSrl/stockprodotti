@@ -333,3 +333,17 @@ background-color: #05539c !important;
     display: block !important;
   }
 }
+
+
+.blocco-shock {
+  text-align: left; /* o center se vuoi centrato */
+}
+
+.blocco-shock img {
+  display: block;   /* forza l’immagine a occupare tutta la riga */
+  margin-bottom: 2px; /* spazio minimo sotto */
+}
+
+.blocco-shock p {
+  margin: 0; /* toglie spazio extra */
+}
