@@ -304,3 +304,32 @@ background-color: #05539c !important;
   #categorie { display: none; }
   #combo-categorie { display: block !important; } /* serve !important se lasci inline */
 }
+
+/* Combo categorie mobile */
+#select-categoria {
+  background-color: #125ca2;   /* Colore di sfondo */
+  color: #ffffff;              /* Colore testo */
+  border: 1px solid #0d4377;   /* Bordo */
+  padding: 8px;
+  border-radius: 5px;
+  font-size: 14px;
+  appearance: none;            /* Rimuove stile predefinito */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Cambia colore freccia dropdown nei browser */
+#select-categoria option {
+  background-color: #ffffff; /* Colore sfondo opzioni */
+  color: #000000;            /* Colore testo opzioni */
+}
+
+/* Mostra combo solo su mobile, nasconde bottoni */
+@media (max-width: 768px) {
+  #categorie {
+    display: none !important;
+  }
+  #combo-categorie {
+    display: block !important;
+  }
+}
