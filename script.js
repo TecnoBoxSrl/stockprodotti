@@ -182,37 +182,42 @@ function mostraZoom(src) {
   overlay.style.display = "flex";
 }
 
-// 📄 PDF: usa il vecchio flusso .from(element).set(...).save()
-// ma con clone pulito + multipagina A4 landscape
+// 📄 PDF: header + tabella, multipagina A4, senza filtri/categorie, con override CSS per evitare tagli
 document.getElementById("scarica-pdf").addEventListener("click", () => {
-  // blocco se non ci sono righe visibili
   const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
   if (!visibile) { alert("Nessun articolo da stampare!"); return; }
 
-  // CLONE del contenuto
   const src = document.getElementById("contenuto-pdf");
   const clone = src.cloneNode(true);
 
-  // rimuovo tutto ciò che non deve entrare nel PDF
+  // rimuovi ciò che non vuoi
   clone.querySelectorAll(".no-print, .filters, #categorie, #combo-categorie").forEach(el => el.remove());
 
-  // disattivo sticky header e contenitori con overflow nel CLONE
+  // disattiva sticky e overflow nel clone
   const thead = clone.querySelector("#tabella-prodotti thead");
   if (thead) thead.querySelectorAll("th").forEach(th => { th.style.position = "static"; });
 
   const wrapper = clone.querySelector(".tabella-scroll");
   if (wrapper) { wrapper.style.overflow = "visible"; wrapper.style.maxHeight = "none"; }
 
-  // monto off-screen per html2pdf
+  // ⚠️ OVERRIDE CSS SOLO NEL CLONE per evitare tagli a destra
+  const styleFix = document.createElement("style");
+  styleFix.textContent = `
+    #tabella-prodotti { width: 100% !important; table-layout: auto !important; }
+    #tabella-prodotti th, #tabella-prodotti td { white-space: normal !important; }
+    #tabella-prodotti th, #tabella-prodotti td { font-size: 13px !important; padding: 6px !important; }
+    #tabella-prodotti img { max-width: 80px !important; height: auto !important; }
+  `;
+  clone.appendChild(styleFix);
+
+  // monta off-screen
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
   tmp.appendChild(clone);
   document.body.appendChild(tmp);
 
-  // VECCHIO STILE: .from(element).set(...).save()
   html2pdf()
-    .from(clone)
     .set({
       margin: 10, // mm
       filename: "prodotti-svendita-tecnobox.pdf",
@@ -221,6 +226,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
       jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
       pagebreak: { mode: ["css", "legacy"] }
     })
+    .from(clone)
     .save()
     .then(() => document.body.removeChild(tmp))
     .catch(() => document.body.removeChild(tmp));
