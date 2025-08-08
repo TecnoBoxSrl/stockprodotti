@@ -65,51 +65,47 @@ function mostraArticoli(data) {
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
   const select = document.getElementById("select-categoria");
-  if (!contenitore && !select) return;
-
-  // categorie uniche ordinate
   const categorieUniche = [...new Set(data.map(r => r.Categoria).filter(Boolean))].sort();
 
-  // --- BOTTONI DESKTOP ---
+  // Bottoni (desktop)
   if (contenitore) {
     contenitore.innerHTML = "";
-    categorieUniche.forEach(categoria => {
+    categorieUniche.forEach(cat => {
       const btn = document.createElement("button");
-      btn.textContent = categoria;
+      btn.textContent = cat;
       btn.classList.add("btn-categoria");
-      btn.addEventListener("click", () => {
-        const filtrati = datiOriginali.filter(r => r.Categoria === categoria);
-        mostraArticoli(filtrati);
-      });
+      btn.onclick = () => mostraArticoli(datiOriginali.filter(r => r.Categoria === cat));
       contenitore.appendChild(btn);
     });
   }
 
-  // --- COMBO MOBILE ---
+  // Combo (mobile)
   if (select) {
-    // reset e placeholder
     select.innerHTML = '<option value="">Scegli la categoria di articoli</option>';
-    categorieUniche.forEach(categoria => {
+    categorieUniche.forEach(cat => {
       const opt = document.createElement("option");
-      opt.value = categoria;
-      opt.textContent = categoria;
+      opt.value = cat;
+      opt.textContent = cat;
       select.appendChild(opt);
     });
-
-    // bind change una volta sola
     if (!select.dataset.bound) {
       select.addEventListener("change", () => {
-        if (select.value === "") {
-          mostraArticoli(datiOriginali);
-        } else {
-          const filtrati = datiOriginali.filter(r => r.Categoria === select.value);
-          mostraArticoli(filtrati);
-        }
+        if (select.value === "") mostraArticoli(datiOriginali);
+        else mostraArticoli(datiOriginali.filter(r => r.Categoria === select.value));
       });
       select.dataset.bound = "1";
     }
   }
 }
+
+// reset combo nel "Pulisci"
+document.getElementById("pulisci-filtro").addEventListener("click", () => {
+  document.getElementById("filtro-globale").value = "";
+  mostraArticoli(datiOriginali);
+  const select = document.getElementById("select-categoria");
+  if (select) select.value = "";
+});
+
 
 
 // 🔍 Filtro globale
