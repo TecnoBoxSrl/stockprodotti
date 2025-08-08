@@ -360,7 +360,7 @@ background-color: #05539c !important;
 }
 
 .testo-shock {
-  max-width: 200px; /* stessa larghezza dell'immagine */
+  max-width: 120px; /* stessa larghezza dell'immagine */
   margin: 5px auto 0 auto;
   font-size: 14px;
   line-height: 1.4;
