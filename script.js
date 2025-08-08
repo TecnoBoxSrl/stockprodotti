@@ -182,42 +182,39 @@ function mostraZoom(src) {
   overlay.style.display = "flex";
 }
 
-
-// 📄 Scarica SOLO intestazione + tabella (senza ricerca, bottoni, categorie/combo)
+// 📄 PDF: intestazione + tabella, multipagina A4 landscape, niente filtri/categorie
 document.getElementById("scarica-pdf").addEventListener("click", () => {
-  // 1) blocca se non ci sono righe visibili
   const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
-  if (!visibile) {
-    alert("Nessun articolo da stampare!");
-    return;
-  }
+  if (!visibile) { alert("Nessun articolo da stampare!"); return; }
 
-  // 2) clona l'area da stampare
   const src = document.getElementById("contenuto-pdf");
   const clone = src.cloneNode(true);
 
-  // 3) rimuovi filtri/categorie/combo dal clone
+  // rimuovi tutto ciò che non vuoi nel PDF
   clone.querySelectorAll(".no-print, .filters, #categorie, #combo-categorie").forEach(el => el.remove());
 
-  // 4) append fuori viewport per calcolare dimensioni reali
+  // disattiva sticky header & scroll wrapper nel clone (altrimenti taglia/si sovrappone)
+  const thead = clone.querySelector("#tabella-prodotti thead");
+  if (thead) thead.querySelectorAll("th").forEach(th => { th.style.position = "static"; });
+
+  const wrapper = clone.querySelector(".tabella-scroll");
+  if (wrapper) { wrapper.style.overflow = "visible"; wrapper.style.maxHeight = "none"; }
+
+  // monta off-screen per misura corretta
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
   tmp.appendChild(clone);
   document.body.appendChild(tmp);
 
-  // forza reflow e misura
-  const w = clone.scrollWidth || clone.offsetWidth;
-  const h = clone.scrollHeight || clone.offsetHeight;
-
-  // 5) genera PDF con le TUE impostazioni (px + formato dinamico + landscape)
   html2pdf()
     .set({
-      margin: 0.2, // come da tua versione (in px: volutamente minimo)
+      margin: 10, // mm
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 3, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: "px", format: [w + 40, h + 40], orientation: "landscape" }
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      pagebreak: { mode: ["css", "legacy"] } // rispetta regole CSS di page-break
     })
     .from(clone)
     .save()
