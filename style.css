@@ -285,3 +285,17 @@ background-color: #05539c !important;
     margin-top: 15px;
   }
 }
+
+
+/* Combo categorie: desktop hidden, mobile visible */
+#combo-categorie { display: none; }
+
+@media (max-width: 768px) {
+  #categorie { display: none; }              /* nasconde i bottoni su mobile */
+  #combo-categorie { display: block; }       /* mostra la combo su mobile */
+  #select-categoria {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+  }
+}
