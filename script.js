@@ -185,27 +185,45 @@ function mostraZoom(src) {
 
 // ✅ Pulsante per scaricare il PDF
 
-  document.getElementById("scarica-pdf").addEventListener("click", function () {
+ // 📄 Scarica SOLO intestazione + tabella (senza ricerca, bottoni, categorie)
+document.getElementById("scarica-pdf").addEventListener("click", () => {
+  // 1) se non c'è nemmeno una riga visibile, blocca
+  const haRigheVisibili = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
+  if (!haRigheVisibili) {
+    alert("Nessun articolo da stampare!");
+    return;
+  }
 
-  const element = document.querySelector("main");
+  // 2) clona il contenuto principale
+  const src = document.getElementById("contenuto-pdf");
+  const clone = src.cloneNode(true);
 
-  const opt = {
-    margin:       0.2,
-    filename:     "prodotti-svendita-tecnobox.pdf",
-    image:        { type: 'jpeg', quality: 1 },
-    html2canvas:  {
-      scale: 3,           // aumenta qualità
-      useCORS: true,      // se ci sono immagini esterne
-      allowTaint: true,
-      scrollX: 0,
-      scrollY: 0
-    },
-    jsPDF:        {
-      unit: 'px',
-      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
-      orientation: 'landscape'
-    }
-  };
+  // 3) rimuovi filtri/categorie/combo dal clone
+  clone.querySelectorAll(".no-print, .filters, #categorie, #combo-categorie").forEach(el => el.remove());
 
- html2pdf().set(opt).from(element).save();
+  // 4) metti il clone fuori schermo per html2pdf
+  const tmp = document.createElement("div");
+  tmp.style.position = "fixed";
+  tmp.style.left = "-99999px";
+  tmp.appendChild(clone);
+  document.body.appendChild(tmp);
+
+  // 5) genera il PDF
+  html2pdf()
+    .set({
+      margin: 10,
+      filename: "prodotti-svendita-tecnobox.pdf",
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" }
+    })
+    .from(clone)
+    .save()
+    .then(() => {
+      // 6) pulizia
+      document.body.removeChild(tmp);
+    })
+    .catch(() => {
+      document.body.removeChild(tmp);
+    });
 });
