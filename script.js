@@ -203,7 +203,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   // ⚠️ OVERRIDE CSS SOLO NEL CLONE per evitare tagli a destra
   const styleFix = document.createElement("style");
   styleFix.textContent = `
-    #tabella-prodotti { width: 90% !important; table-layout: auto !important; }
+    #tabella-prodotti { width: 95% !important; table-layout: auto !important; }
     #tabella-prodotti th, #tabella-prodotti td { white-space: normal !important; }
     #tabella-prodotti th, #tabella-prodotti td { font-size: 13px !important; padding: 6px !important; }
     #tabella-prodotti img { max-width: 80px !important; height: auto !important; }
