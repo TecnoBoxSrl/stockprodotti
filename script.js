@@ -2,10 +2,6 @@ const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBeQDcZ4tT-O
 
 let datiOriginali = [];
 
-const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBeQDcZ4tT-OSymuH_T89STQqG-OIQ2pmGmrZNSkj5VRVp4q_8oAh5D-bZ8HIIWYMW12xwEECxH5T/pub?output=csv';
-
-let datiOriginali = [];
-
 Papa.parse(sheetURL, {
   download: true,
   header: true,
