@@ -211,11 +211,13 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   // 5) genera il PDF
   html2pdf()
     .set({
-      margin: 10,
+      margin: 0.2,
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" }
+      html2canvas: { scale: 3, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: 'px',
+      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
+      orientation: 'landscape' }
     })
     .from(clone)
     .save()
