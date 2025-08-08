@@ -333,6 +333,19 @@ background-color: #05539c !important;
     display: block !important;
   }
 }
+.img-shock {
+  display: block;
+  width: 150px;     /* scegli tu: 120/150/180 px */
+  height: auto;
+  margin: 0 auto;   /* centra l’immagine */
+}
+
+.txt-shock {
+  width: 150px;     /* **uguale** alla width dell’immagine */
+  margin: 6px auto 0;
+  text-align: center;
+  line-height: 1.35;
+}
 
 
 .blocco-shock {
