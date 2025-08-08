@@ -207,6 +207,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     #tabella-prodotti th, #tabella-prodotti td { white-space: normal !important; }
     #tabella-prodotti th, #tabella-prodotti td { font-size: 13px !important; padding: 6px !important; }
     #tabella-prodotti img { max-width: 80px !important; height: auto !important; }
+.immagine-shock{max-width:160px!important;height:auto!important}
   `;
   clone.appendChild(styleFix);
 
