@@ -336,22 +336,23 @@ background-color: #05539c !important;
 
 
 .blocco-shock {
-  display: inline-block;   
-  text-align: center;      
+  display: inline-block; /* il contenitore prende la larghezza dell'immagine */
+  text-align: center;    /* centra il testo rispetto all'immagine */
 }
 
 .blocco-shock img {
   display: block;
-  width: 200px;         /* dimensione desktop */
+  width: 200px;  /* regola dimensione immagine */
   height: auto;
-  margin: 0 auto;
 }
 
-.blocco-shock p {
-  margin: 5px 0 0 0;
+.testo-shock {
+  max-width: 200px; /* stessa larghezza dell'immagine */
+  margin: 5px auto 0 auto;
   font-size: 14px;
   line-height: 1.4;
 }
+
 
 /* Ridimensionamento automatico su mobile */
 @media (max-width: 480px) {
