@@ -203,7 +203,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   // ⚠️ OVERRIDE CSS SOLO NEL CLONE per evitare tagli a destra
   const styleFix = document.createElement("style");
   styleFix.textContent = `
-    #tabella-prodotti { width: 100% !important; table-layout: auto !important; }
+    #tabella-prodotti { width: 80% !important; table-layout: auto !important; }
     #tabella-prodotti th, #tabella-prodotti td { white-space: normal !important; }
     #tabella-prodotti th, #tabella-prodotti td { font-size: 13px !important; padding: 6px !important; }
     #tabella-prodotti img { max-width: 80px !important; height: auto !important; }
@@ -219,7 +219,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 
   html2pdf()
     .set({
-      margin: 0.5, // mm
+      margin: 1, // mm
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
