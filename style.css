@@ -336,14 +336,15 @@ background-color: #05539c !important;
 
 
 .blocco-shock {
-  text-align: left; /* o center se vuoi centrato */
+  display: inline-block;   /* contenitore largo quanto l'immagine */
+  text-align: center;      /* centra il testo sotto */
 }
 
 .blocco-shock img {
-  display: block;   /* forza l’immagine a occupare tutta la riga */
-  margin-bottom: 2px; /* spazio minimo sotto */
+  display: block;
+  max-width: 100%;         /* adattabile su mobile */
 }
 
 .blocco-shock p {
-  margin: 0; /* toglie spazio extra */
+  margin: 0;
 }
