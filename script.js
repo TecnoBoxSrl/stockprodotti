@@ -182,41 +182,45 @@ function mostraZoom(src) {
   overlay.style.display = "flex";
 }
 
-// 📄 PDF: intestazione + tabella, multipagina A4 landscape, niente filtri/categorie
+// 📄 PDF: usa il vecchio flusso .from(element).set(...).save()
+// ma con clone pulito + multipagina A4 landscape
 document.getElementById("scarica-pdf").addEventListener("click", () => {
+  // blocco se non ci sono righe visibili
   const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
   if (!visibile) { alert("Nessun articolo da stampare!"); return; }
 
+  // CLONE del contenuto
   const src = document.getElementById("contenuto-pdf");
   const clone = src.cloneNode(true);
 
-  // rimuovi tutto ciò che non vuoi nel PDF
+  // rimuovo tutto ciò che non deve entrare nel PDF
   clone.querySelectorAll(".no-print, .filters, #categorie, #combo-categorie").forEach(el => el.remove());
 
-  // disattiva sticky header & scroll wrapper nel clone (altrimenti taglia/si sovrappone)
+  // disattivo sticky header e contenitori con overflow nel CLONE
   const thead = clone.querySelector("#tabella-prodotti thead");
   if (thead) thead.querySelectorAll("th").forEach(th => { th.style.position = "static"; });
 
   const wrapper = clone.querySelector(".tabella-scroll");
   if (wrapper) { wrapper.style.overflow = "visible"; wrapper.style.maxHeight = "none"; }
 
-  // monta off-screen per misura corretta
+  // monto off-screen per html2pdf
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
   tmp.appendChild(clone);
   document.body.appendChild(tmp);
 
+  // VECCHIO STILE: .from(element).set(...).save()
   html2pdf()
+    .from(clone)
     .set({
-      margin: 0.2, // mm
+      margin: 10, // mm
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: "px", format: [element.scrollWidth + 40, element.scrollHeight + 40], orientation: "landscape" },
-      pagebreak: { mode: ["css", "legacy"] } // rispetta regole CSS di page-break
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      pagebreak: { mode: ["css", "legacy"] }
     })
-    .from(clone)
     .save()
     .then(() => document.body.removeChild(tmp))
     .catch(() => document.body.removeChild(tmp));
