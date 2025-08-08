@@ -213,7 +213,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+      jsPDF: { unit: "mm", format: "[element.scrollWidth + 40, element.scrollHeight + 40]", orientation: "landscape" },
       pagebreak: { mode: ["css", "legacy"] } // rispetta regole CSS di page-break
     })
     .from(clone)
