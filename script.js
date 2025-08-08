@@ -64,21 +64,53 @@ function mostraArticoli(data) {
 
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
-  if (!contenitore) return;
+  const select = document.getElementById("select-categoria");
+  if (!contenitore && !select) return;
 
+  // categorie uniche ordinate
   const categorieUniche = [...new Set(data.map(r => r.Categoria).filter(Boolean))].sort();
 
-  categorieUniche.forEach(categoria => {
-    const btn = document.createElement("button");
-    btn.textContent = categoria;
-    btn.classList.add("btn-categoria");
-    btn.addEventListener("click", () => {
-      const filtrati = datiOriginali.filter(r => r.Categoria === categoria);
-      mostraArticoli(filtrati);
+  // --- BOTTONI DESKTOP ---
+  if (contenitore) {
+    contenitore.innerHTML = "";
+    categorieUniche.forEach(categoria => {
+      const btn = document.createElement("button");
+      btn.textContent = categoria;
+      btn.classList.add("btn-categoria");
+      btn.addEventListener("click", () => {
+        const filtrati = datiOriginali.filter(r => r.Categoria === categoria);
+        mostraArticoli(filtrati);
+      });
+      contenitore.appendChild(btn);
     });
-    contenitore.appendChild(btn);
-  });
+  }
+
+  // --- COMBO MOBILE ---
+  if (select) {
+    // reset e placeholder
+    select.innerHTML = '<option value="">Scegli la categoria di articoli</option>';
+    categorieUniche.forEach(categoria => {
+      const opt = document.createElement("option");
+      opt.value = categoria;
+      opt.textContent = categoria;
+      select.appendChild(opt);
+    });
+
+    // bind change una volta sola
+    if (!select.dataset.bound) {
+      select.addEventListener("change", () => {
+        if (select.value === "") {
+          mostraArticoli(datiOriginali);
+        } else {
+          const filtrati = datiOriginali.filter(r => r.Categoria === select.value);
+          mostraArticoli(filtrati);
+        }
+      });
+      select.dataset.bound = "1";
+    }
+  }
 }
+
 
 // 🔍 Filtro globale
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
@@ -105,6 +137,11 @@ document.getElementById("pulisci-filtro").addEventListener("click", function () 
   const input = document.getElementById("filtro-globale");
   input.value = "";
   mostraArticoli(datiOriginali); // RESET
+
+const select = document.getElementById("select-categoria");
+  if (select) {
+    select.value = "";
+  }
 });
 
 // 🔍 Zoom immagine
