@@ -183,49 +183,44 @@ function mostraZoom(src) {
 }
 
 
-// ✅ Pulsante per scaricare il PDF
-
- // 📄 Scarica SOLO intestazione + tabella (senza ricerca, bottoni, categorie)
+// 📄 Scarica SOLO intestazione + tabella (senza ricerca, bottoni, categorie/combo)
 document.getElementById("scarica-pdf").addEventListener("click", () => {
-  // 1) se non c'è nemmeno una riga visibile, blocca
-  const haRigheVisibili = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
-  if (!haRigheVisibili) {
+  // 1) blocca se non ci sono righe visibili
+  const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
+  if (!visibile) {
     alert("Nessun articolo da stampare!");
     return;
   }
 
-  // 2) clona il contenuto principale
+  // 2) clona l'area da stampare
   const src = document.getElementById("contenuto-pdf");
   const clone = src.cloneNode(true);
 
   // 3) rimuovi filtri/categorie/combo dal clone
   clone.querySelectorAll(".no-print, .filters, #categorie, #combo-categorie").forEach(el => el.remove());
 
-  // 4) metti il clone fuori schermo per html2pdf
+  // 4) append fuori viewport per calcolare dimensioni reali
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
   tmp.appendChild(clone);
   document.body.appendChild(tmp);
 
-  // 5) genera il PDF
+  // forza reflow e misura
+  const w = clone.scrollWidth || clone.offsetWidth;
+  const h = clone.scrollHeight || clone.offsetHeight;
+
+  // 5) genera PDF con le TUE impostazioni (px + formato dinamico + landscape)
   html2pdf()
     .set({
-      margin: 0.2,
+      margin: 0.2, // come da tua versione (in px: volutamente minimo)
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 3, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: 'px',
-      format: [element.scrollWidth + 40, element.scrollHeight + 40], // PDF su misura
-      orientation: 'landscape' }
+      jsPDF: { unit: "px", format: [w + 40, h + 40], orientation: "landscape" }
     })
     .from(clone)
     .save()
-    .then(() => {
-      // 6) pulizia
-      document.body.removeChild(tmp);
-    })
-    .catch(() => {
-      document.body.removeChild(tmp);
-    });
+    .then(() => document.body.removeChild(tmp))
+    .catch(() => document.body.removeChild(tmp));
 });
