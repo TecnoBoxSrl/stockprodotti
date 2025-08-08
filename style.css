@@ -300,9 +300,7 @@ background-color: #05539c !important;
   }
 }
 #combo-categorie { display: none; }
-
 @media (max-width: 768px) {
   #categorie { display: none; }
-  #combo-categorie { display: block; }
-  #select-categoria { width: 100%; padding: 8px; font-size: 16px; }
+  #combo-categorie { display: block !important; } /* serve !important se lasci inline */
 }
