@@ -2,15 +2,29 @@ const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBeQDcZ4tT-O
 
 let datiOriginali = [];
 
+const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBeQDcZ4tT-OSymuH_T89STQqG-OIQ2pmGmrZNSkj5VRVp4q_8oAh5D-bZ8HIIWYMW12xwEECxH5T/pub?output=csv';
+
+let datiOriginali = [];
+
 Papa.parse(sheetURL, {
   download: true,
   header: true,
+  // 🔧 normalizza nomi colonne: via spazi ed uniforma a “titolo case”
+  transformHeader: h => h.trim(),
   complete: function(results) {
-    datiOriginali = results.data.filter(row => row.Codice); // rimuovi righe vuote
+    const raw = results.data || [];
+    // scarta righe completamente vuote
+    datiOriginali = raw.filter(r => (r.Codice || r.Descrizione));
+
+    console.log('[DEBUG] headers normalizzati, righe:', datiOriginali.length);
+    // stampa un esempio di chiavi reali
+    if (datiOriginali[0]) console.log('[DEBUG] chiavi prima riga:', Object.keys(datiOriginali[0]));
+
     popolaCategorie(datiOriginali);
     mostraArticoli(datiOriginali);
   }
 });
+
 
 function mostraArticoli(data) {
   const tbody = document.querySelector("#tabella-prodotti tbody");
@@ -65,38 +79,62 @@ function mostraArticoli(data) {
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
   const select = document.getElementById("select-categoria");
-  const categorieUniche = [...new Set(data.map(r => r.Categoria).filter(Boolean))].sort();
+  if (!contenitore && !select) {
+    console.warn('[DEBUG] Mancano #categorie e #select-categoria nel DOM');
+    return;
+  }
 
-  // Bottoni (desktop)
+  // prendi la categoria con fallback su varianti di intestazione
+  const getCat = r => (r.Categoria ?? r.categoria ?? r['Categoria '] ?? r['categoria ']);
+  const categorieUniche = [...new Set(
+    data.map(r => (getCat(r) || '').toString().trim()).filter(Boolean)
+  )].sort();
+
+  console.log('[DEBUG] categorie trovate:', categorieUniche);
+
+  // Nessuna categoria? Mostra riga di diagnosi in pagina
+  if (categorieUniche.length === 0) {
+    console.error('[DEBUG] Nessuna categoria trovata. Controlla il nome colonna nello Sheet.');
+  }
+
+  // --- BOTTONI (desktop) ---
   if (contenitore) {
     contenitore.innerHTML = "";
-    categorieUniche.forEach(cat => {
+    categorieUniche.forEach(categoria => {
       const btn = document.createElement("button");
-      btn.textContent = cat;
+      btn.textContent = categoria;
       btn.classList.add("btn-categoria");
-      btn.onclick = () => mostraArticoli(datiOriginali.filter(r => r.Categoria === cat));
+      btn.addEventListener("click", () => {
+        const filtrati = datiOriginali.filter(r => (getCat(r) || '').trim() === categoria);
+        mostraArticoli(filtrati);
+      });
       contenitore.appendChild(btn);
     });
   }
 
-  // Combo (mobile)
+  // --- COMBO (mobile) ---
   if (select) {
     select.innerHTML = '<option value="">Scegli la categoria di articoli</option>';
-    categorieUniche.forEach(cat => {
+    categorieUniche.forEach(categoria => {
       const opt = document.createElement("option");
-      opt.value = cat;
-      opt.textContent = cat;
+      opt.value = categoria;
+      opt.textContent = categoria;
       select.appendChild(opt);
     });
+
     if (!select.dataset.bound) {
       select.addEventListener("change", () => {
         if (select.value === "") mostraArticoli(datiOriginali);
-        else mostraArticoli(datiOriginali.filter(r => r.Categoria === select.value));
+        else {
+          const filtrati = datiOriginali.filter(r => (getCat(r) || '').trim() === select.value);
+          mostraArticoli(filtrati);
+        }
       });
       select.dataset.bound = "1";
     }
   }
 }
+
 
 // reset combo nel "Pulisci"
 document.getElementById("pulisci-filtro").addEventListener("click", () => {
