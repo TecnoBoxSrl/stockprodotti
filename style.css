@@ -336,17 +336,29 @@ background-color: #05539c !important;
 
 
 .blocco-shock {
-  display: inline-block;   /* contenitore largo quanto l'immagine */
-  text-align: center;      /* centra il testo */
+  display: inline-block;   
+  text-align: center;      
 }
 
 .blocco-shock img {
-  display: block;          /* immagine su riga propria */
-  max-width: 100%;         /* si adatta su mobile */
+  display: block;
+  width: 200px;         /* dimensione desktop */
+  height: auto;
+  margin: 0 auto;
 }
 
 .blocco-shock p {
-  margin: 5px 0 0 0;       /* piccolo spazio sopra */
-  font-size: 14px;         /* regola grandezza testo */
-  line-height: 1.4;        /* migliora leggibilità */
+  margin: 5px 0 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Ridimensionamento automatico su mobile */
+@media (max-width: 480px) {
+  .blocco-shock img {
+    width: 150px;       /* ridotta su schermi piccoli */
+  }
+  .blocco-shock p {
+    font-size: 13px;    /* testo leggermente più piccolo */
+  }
 }
