@@ -377,3 +377,11 @@ background-color: #05539c !important;
     font-size: 13px;    /* testo leggermente più piccolo */
   }
 }
+
+@media (max-width: 768px) {
+  /* aumenta lo spazio PRIMA del paragrafo info (solo mobile) */
+  .titolo-testo p:last-of-type {
+    margin-top: 12px !important;  /* prova 12–16 se vuoi più aria */
+  }
+}
+
