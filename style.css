@@ -410,3 +410,8 @@ background-color: #05539c !important;
   }
 }
 
+@media (max-width: 768px) {
+  .footer .certificazioni img {
+    height: 40px;
+  }
+}
