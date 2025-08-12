@@ -450,12 +450,7 @@ background-color: #05539c !important;
 
 /* ===== FOOTER: MOBILE ===== */
 @media (max-width: 768px) {
-  .footer-content {
-    flex-direction: column; /* testo sopra, immagini sotto */
-    align-items: center;    /* centra orizzontalmente */
-    text-align: center;     /* centra il testo */
-    width: 100%;
-  }
+ 
 
   .footer-content p {
    margin: 0 auto;
