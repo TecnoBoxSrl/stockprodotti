@@ -458,7 +458,7 @@ background-color: #05539c !important;
   }
 
   .footer-content p {
-    text-align: center;     /* forza centratura del testo su mobile */
+    text-align: center !important;     /* forza centratura del testo su mobile */
   }
 
   .footer .certificazioni {
