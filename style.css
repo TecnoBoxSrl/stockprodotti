@@ -469,7 +469,8 @@ background-color: #05539c !important;
   }
 
   .footer .certificazioni img {
-    height: 40px !important; /* dimensione mobile */
+    height: 60px !important; /* aumenta dimensione mobile */
+    width: auto;
   }
 }
 
