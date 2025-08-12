@@ -390,3 +390,18 @@ background-color: #05539c !important;
     text-align-last: center;     /* centra il testo anche nei browser che lo richiedono */
   }
 }
+.testo-quantita {
+  font-size: 15px;
+  font-weight: bold;
+  color: #444;
+  margin-top: 2px;
+  margin-bottom: 1px;
+}
+
+/* Solo su mobile: centra il testo */
+@media (max-width: 768px) {
+  .testo-quantita {
+    text-align: center !important;
+  }
+}
+
