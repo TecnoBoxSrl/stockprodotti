@@ -454,11 +454,12 @@ background-color: #05539c !important;
     flex-direction: column; /* testo sopra, immagini sotto */
     align-items: center;    /* centra orizzontalmente */
     text-align: center;     /* centra il testo */
-    gap: 12px;
+    width: 100%;
   }
 
   .footer-content p {
-    text-align: center !important;     /* forza centratura del testo su mobile */
+   margin: 0 auto;
+ text-align: center !important;     /* forza centratura del testo su mobile */
   }
 
   .footer .certificazioni {
