@@ -422,11 +422,11 @@ background-color: #05539c !important;
   .footer .certificazioni {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
     flex-wrap: wrap;
   }
 
   .footer .certificazioni img {
-    height: 60px;
+    height: 40px;
   }
 }
