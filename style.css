@@ -432,9 +432,8 @@ background-color: #05539c !important;
 }
 
 
-/* Desktop (default) */
+/* Regola desktop */
 .footer .certificazioni img {
-    height: 50px; /* ridotto rispetto a prima */
+    height: 40px !important; /* forza la riduzione */
     margin: 0 10px; /* spazio orizzontale tra le immagini */
 }
-
