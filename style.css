@@ -410,8 +410,23 @@ background-color: #05539c !important;
   }
 }
 
+
+
 @media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column; /* mette testo sopra e immagini sotto */
+    align-items: center;    /* centra orizzontalmente */
+    text-align: center;
+  }
+
+  .footer .certificazioni {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   .footer .certificazioni img {
-    height: 40px;
+    height: 60px;
   }
 }
