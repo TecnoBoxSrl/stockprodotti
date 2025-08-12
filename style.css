@@ -384,4 +384,9 @@ background-color: #05539c !important;
     margin-top: 12px !important;  /* prova 12–16 se vuoi più aria */
   }
 }
-
+@media (max-width: 768px) {
+  #select-categoria {
+    text-align: center;          /* centra il testo selezionato */
+    text-align-last: center;     /* centra il testo anche nei browser che lo richiedono */
+  }
+}
