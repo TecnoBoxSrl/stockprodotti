@@ -443,7 +443,7 @@ background-color: #05539c !important;
 }
 
 .footer .certificazioni img {
-  height: 60px !important;  /* dimensione desktop */
+  height: 100px !important;  /* dimensione desktop */
   width: auto;
   vertical-align: middle;
 }
