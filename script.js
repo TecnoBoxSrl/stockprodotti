@@ -29,8 +29,23 @@ function mostraArticoli(data) {
   data.forEach(row => {
     const codice = row.Codice || '';
     const descrizione = row.Descrizione || '';
-    const quantita = row.Quantità || '';
-    const prezzo = row.Prezzo || '';
+
+
+    
+// const quantita = row.Quantità || '';
+ let quantita = row.Quantità || '';
+
+// normalizza a stringa e rimuovi spazi
+quantita = quantita.toString().trim();
+
+// se vuoto, zero o negativo → VENDUTO
+if (!quantita || parseFloat(quantita.replace(',', '.')) <= 0) {
+  quantita = `<span style="color:red; font-weight:bold;">VENDUTO</span>`;
+}
+
+
+    
+const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
     const conaicollo = row.Conaicollo || '';
     const imgSrc = row.Immagine?.trim() || '';
