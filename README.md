@@ -1,2 +1,2 @@
 # stockprodotti
-Elenco prodotti in svendita
+Elenco prodotti in offerta !
