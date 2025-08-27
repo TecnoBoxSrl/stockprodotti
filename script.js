@@ -248,18 +248,47 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     .catch(() => document.body.removeChild(tmp));
 });
 
-// Mostra/nasconde il pulsante "Torna su"
-window.addEventListener("scroll", function () {
-  const btn = document.getElementById("btnTop");
-  if (!btn) return; // se il bottone non è nel DOM, esci senza errori
-  const scrolled = document.body.scrollTop || document.documentElement.scrollTop;
-  btn.style.display = (scrolled > 200) ? "block" : "none";
-});
+(function () {
+  const SCROLL_THRESHOLD = 200;
 
-// Funzione per tornare in cima
-function scrollToTop() {
-  // rispetto di 'prefers-reduced-motion' (accessibilità)
-  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-  window.scrollTo({ top: 0, behavior: media.matches ? "auto" : "smooth" });
-}
+  function getScrollContainer() {
+    return document.querySelector(".tabella-scroll");
+  }
 
+  function scrolledAmount() {
+    const winScroll =
+      document.documentElement.scrollTop || document.body.scrollTop || 0;
+    const box = getScrollContainer();
+    const boxScroll = box ? box.scrollTop : 0;
+    return { winScroll, boxScroll };
+  }
+
+  function updateBtnVisibility() {
+    const btn = document.getElementById("btnTop");
+    if (!btn) return;
+    const { winScroll, boxScroll } = scrolledAmount();
+    const visible = (winScroll > SCROLL_THRESHOLD) || (boxScroll > SCROLL_THRESHOLD);
+    btn.style.display = visible ? "block" : "none";
+  }
+
+  // Listener su finestra
+  window.addEventListener("scroll", updateBtnVisibility, { passive: true });
+  // Listener sul contenitore scrollabile (dopo che esiste nel DOM)
+  window.addEventListener("load", () => {
+    const box = getScrollContainer();
+    if (box) box.addEventListener("scroll", updateBtnVisibility, { passive: true });
+    updateBtnVisibility(); // stato iniziale
+  });
+
+  // Funzione globale richiamata dal bottone
+  window.scrollToTop = function () {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior = prefersReduced ? "auto" : "smooth";
+
+    // scrolla la finestra
+    window.scrollTo({ top: 0, behavior });
+    // scrolla anche il contenitore
+    const box = getScrollContainer();
+    if (box) box.scrollTo({ top: 0, behavior });
+  };
+})();
