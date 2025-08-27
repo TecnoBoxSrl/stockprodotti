@@ -711,7 +711,7 @@ padding-left: 0;
   100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
 }
 
-/* (opzionale) piccolo badge "MAX" accanto all'input */
+/* (opzionale) piccolo badge "MAX" accanto all'input 
 .qty-wrap.max-reached::after {
   content: "MAX";
   margin-left: 6px;
@@ -719,4 +719,4 @@ padding-left: 0;
   font-weight: 700;
   color: #2ecc71;
 }
-
+*/
