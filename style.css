@@ -525,7 +525,7 @@ background-color: #05539c !important;
 }
 
 #btnTop {
-             /* verrà gestito via JS */
+  display: none;
   position: fixed;
   right: 20px;
   bottom: 20px;
@@ -540,14 +540,11 @@ background-color: #05539c !important;
   color: #fff;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
   transition: opacity .2s, transform .2s, background .3s;
-  opacity: 0.95;
 }
-#btnTop:hover { background: #005f73; transform: translateY(-1px); }
-@supports (bottom: env(safe-area-inset-bottom)) {
-  #btnTop { bottom: calc(20px + env(safe-area-inset-bottom)); }
+#btnTop:hover {
+  background: #005f73;
+  transform: translateY(-1px);
 }
 @media print {
   #btnTop { display: none !important; }
 }
-
-
