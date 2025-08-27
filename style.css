@@ -634,3 +634,13 @@ mark {
     opacity: .9;
   }
 }
+
+#tabella-prodotti td:nth-child(6) { text-align: left !important; }
+.qty-wrap { display: inline-flex; align-items: center; gap: 8px; }
+.qty-input {
+  width: 80px; padding: 6px 8px; border: 1px solid #bbb; border-radius: 6px;
+  text-align: left; box-sizing: border-box;
+}
+.qty-hint { color:#666; font-size:12px; white-space:nowrap; }
+@media (max-width:480px){ .qty-wrap{display:grid; gap:4px} .qty-input{width:100%} }
+
