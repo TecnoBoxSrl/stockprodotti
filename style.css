@@ -589,3 +589,48 @@ mark {
   border-radius: 2px;
 }
 
+/* ——— Desktop / default ——— */
+#tabella-prodotti td:nth-child(6) {
+  text-align: left !important;        /* allinea a sinistra solo la colonna quantità */
+}
+.qty-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.qty-input {
+  width: 80px;                        /* stessa larghezza per tutti */
+  padding: 6px 8px;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  text-align: left;
+  box-sizing: border-box;
+}
+.qty-hint {
+  color: #666;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* ——— Tablet (≤ 768px) ——— */
+@media (max-width: 768px) {
+  .qty-input {
+    width: 100px;                     /* un po’ più largo su tablet */
+  }
+}
+
+/* ——— Mobile (≤ 480px) ——— */
+@media (max-width: 480px) {
+  .qty-wrap {
+    display: grid;                    /* va su due righe: input sopra, hint sotto */
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .qty-input {
+    width: 100%;                      /* piena larghezza della cella */
+  }
+  .qty-hint {
+    font-size: 11px;
+    opacity: .9;
+  }
+}
