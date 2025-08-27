@@ -524,3 +524,24 @@ background-color: #05539c !important;
   .filters button { min-width: 0 !important; }
 }
 
+/* Pulsante "Torna su" flottante */
+#btnTop {
+  display: none;               /* nascosto di default */
+  position: fixed;
+  bottom: 20px;                /* distanza dal fondo */
+  right: 20px;                 /* distanza dal lato destro */
+  z-index: 99;                 /* sempre sopra altri elementi */
+  font-size: 18px;
+  background: #008cba;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: background 0.3s;
+}
+#btnTop:hover {
+  background: #005f73;
+}
