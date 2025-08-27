@@ -696,3 +696,27 @@ padding-left: 0;
   text-align: left;     /* allinea sempre il numero a sinistra */
   box-sizing: border-box;
 }
+
+/* Stato "massimo raggiunto" sull'input quantità */
+.qty-input.qty-max-reached {
+  animation: qtyPulse 500ms ease;
+  border-color: #2ecc71 !important;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, .25);
+}
+
+/* Keyframes del lampeggio verde */
+@keyframes qtyPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(46, 204, 113, .35); }
+  60%  { box-shadow: 0 0 0 6px rgba(46, 204, 113, .15); }
+  100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+}
+
+/* (opzionale) piccolo badge "MAX" accanto all'input */
+.qty-wrap.max-reached::after {
+  content: "MAX";
+  margin-left: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #2ecc71;
+}
+
