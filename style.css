@@ -524,13 +524,12 @@ background-color: #05539c !important;
   .filters button { min-width: 0 !important; }
 }
 
-/* Pulsante "Torna su" flottante */
 #btnTop {
-  display: none;               /* nascosto finché non scrolli */
+  display: none;             /* verrà gestito via JS */
   position: fixed;
   right: 20px;
   bottom: 20px;
-  z-index: 9999;               /* sopra quasi tutto */
+  z-index: 9999;
   width: 45px;
   height: 45px;
   border: none;
@@ -544,13 +543,11 @@ background-color: #05539c !important;
   opacity: 0.95;
 }
 #btnTop:hover { background: #005f73; transform: translateY(-1px); }
-
-/* un filo più distante sui telefoni con notch */
 @supports (bottom: env(safe-area-inset-bottom)) {
   #btnTop { bottom: calc(20px + env(safe-area-inset-bottom)); }
 }
-
-/* non stampare nel PDF (visto che cloni e rimuovi .no-print) */
 @media print {
   #btnTop { display: none !important; }
 }
+
+
