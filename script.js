@@ -249,7 +249,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 });
 
 (function () {
-  const SCROLL_THRESHOLD = 300;
+  const SCROLL_THRESHOLD = 400;
 
   function getScrollContainer() {
     return document.querySelector(".tabella-scroll");
