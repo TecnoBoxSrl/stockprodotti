@@ -679,3 +679,20 @@ padding-left: 0;
 }
 
 
+/* Colonna Quantità: larghezza fissa */
+#tabella-prodotti th:nth-child(6),
+#tabella-prodotti td:nth-child(6) {
+  width: 100px;         /* sempre uguale, cambia se vuoi più stretto o largo */
+  text-align: left;
+}
+
+/* Input quantità: testo allineato a sinistra e non fa "saltare" la cella */
+.qty-input {
+  width: 100%;          /* si adatta alla larghezza fissa della colonna */
+  max-width: 90px;      /* limite massimo dentro la cella */
+  padding: 4px 6px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  text-align: left;     /* allinea sempre il numero a sinistra */
+  box-sizing: border-box;
+}
