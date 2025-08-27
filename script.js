@@ -263,13 +263,18 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     return { winScroll, boxScroll };
   }
 
-  function updateBtnVisibility() {
-    const btn = document.getElementById("btnTop");
-    if (!btn) return;
-    const { winScroll, boxScroll } = scrolledAmount();
-    const visible = (winScroll > SCROLL_THRESHOLD) || (boxScroll > SCROLL_THRESHOLD);
-    btn.style.display = visible ? "block" : "none";
-  }
+ function updateBtnVisibility() {
+  const btn = document.getElementById("btnTop");
+  if (!btn) return;
+
+  const winScroll = document.documentElement.scrollTop || document.body.scrollTop || 0;
+  const box = document.querySelector(".tabella-scroll");
+  const boxScroll = box ? box.scrollTop : 0;
+
+  const visible = (winScroll > SCROLL_THRESHOLD || boxScroll > SCROLL_THRESHOLD);
+  btn.classList.toggle("is-visible", visible);
+}
+
 
   // Listener su finestra
   window.addEventListener("scroll", updateBtnVisibility, { passive: true });
