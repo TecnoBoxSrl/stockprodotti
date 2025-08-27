@@ -525,7 +525,7 @@ background-color: #05539c !important;
 }
 
 #btnTop {
-  display: none;             /* verrà gestito via JS */
+             /* verrà gestito via JS */
   position: fixed;
   right: 20px;
   bottom: 20px;
