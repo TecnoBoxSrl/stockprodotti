@@ -644,3 +644,37 @@ mark {
 .qty-hint { color:#666; font-size:12px; white-space:nowrap; }
 @media (max-width:480px){ .qty-wrap{display:grid; gap:4px} .qty-input{width:100%} }
 
+
+/* Contenitore con scroll se serve */
+.tabella-scroll {
+  width: 100%;
+  overflow-x: auto;
+  margin: 0 auto;
+}
+
+/* Tabella sempre proporzionata */
+#tabella-prodotti {
+  width: 100%;
+  max-width: 1200px;      /* limite su desktop largo */
+  margin: 0 auto;         /* centrata */
+  border-collapse: collapse;
+  table-layout: fixed;    /* celle distribuite proporzionalmente */
+}
+
+/* Celle con wrapping per non allargare la tabella */
+#tabella-prodotti th,
+#tabella-prodotti td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  padding: 6px 8px;
+}
+
+/* Colonna Quantità: larghezza fissa e allineamento a sinistra */
+#tabella-prodotti td:nth-child(6),
+#tabella-prodotti th:nth-child(6) {
+  width: 120px;          /* fissa larghezza per non deformare la tabella */
+  text-align: left;
+}
+
+
