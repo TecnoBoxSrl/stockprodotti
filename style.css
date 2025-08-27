@@ -583,3 +583,9 @@ background-color: #05539c !important;
 }
 #invia-proposta:hover { background: #033d74; }
 
+mark {
+  background: #fffb96;  /* giallo tenue */
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
