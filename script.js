@@ -249,17 +249,17 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 });
 
 // Mostra/nasconde il pulsante "Torna su"
-window.onscroll = function() {
+window.addEventListener("scroll", function () {
   const btn = document.getElementById("btnTop");
-  if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-    btn.style.display = "block";
-  } else {
-    btn.style.display = "none";
-  }
-};
+  if (!btn) return; // se il bottone non è nel DOM, esci senza errori
+  const scrolled = document.body.scrollTop || document.documentElement.scrollTop;
+  btn.style.display = (scrolled > 200) ? "block" : "none";
+});
 
 // Funzione per tornare in cima
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // rispetto di 'prefers-reduced-motion' (accessibilità)
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  window.scrollTo({ top: 0, behavior: media.matches ? "auto" : "smooth" });
 }
 
