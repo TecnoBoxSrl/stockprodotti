@@ -526,22 +526,31 @@ background-color: #05539c !important;
 
 /* Pulsante "Torna su" flottante */
 #btnTop {
-  display: none;               /* nascosto di default */
+  display: none;               /* nascosto finché non scrolli */
   position: fixed;
-  bottom: 20px;                /* distanza dal fondo */
-  right: 20px;                 /* distanza dal lato destro */
-  z-index: 99;                 /* sempre sopra altri elementi */
-  font-size: 18px;
-  background: #008cba;
-  color: white;
-  border: none;
-  border-radius: 50%;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;               /* sopra quasi tutto */
   width: 45px;
   height: 45px;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
   cursor: pointer;
+  background: #008cba;
+  color: #fff;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  transition: background 0.3s;
+  transition: opacity .2s, transform .2s, background .3s;
+  opacity: 0.95;
 }
-#btnTop:hover {
-  background: #005f73;
+#btnTop:hover { background: #005f73; transform: translateY(-1px); }
+
+/* un filo più distante sui telefoni con notch */
+@supports (bottom: env(safe-area-inset-bottom)) {
+  #btnTop { bottom: calc(20px + env(safe-area-inset-bottom)); }
+}
+
+/* non stampare nel PDF (visto che cloni e rimuovi .no-print) */
+@media print {
+  #btnTop { display: none !important; }
 }
