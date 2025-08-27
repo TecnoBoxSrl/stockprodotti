@@ -30,42 +30,45 @@ function mostraArticoli(data) {
     const codice = row.Codice || '';
     const descrizione = row.Descrizione || '';
 
+    // === [2.1] LOGICA QUANTITÀ (stock dallo Sheet) ===
+    // stock numerico robusto (gestisce stringhe e virgole)
+    const stockNum = parseFloat((row.Quantità || '0').toString().replace(',', '.')) || 0;
+    const isSoldOut = stockNum <= 0;
 
-    
-// const quantita = row.Quantità || '';
- let quantita = row.Quantità || '';
+    // input number limitato allo stock, oppure scritta VENDUTO
+    const qtyCellHTML = isSoldOut
+      ? `<span style="color:red; font-weight:bold;">VENDUTO</span>`
+      : `
+        <div class="qty-wrap">
+          <input type="number" class="qty-input" data-codice="${codice}"
+                 min="0" max="${Math.floor(stockNum)}" step="1" value="0" />
+          <small class="qty-hint">disp: ${Math.floor(stockNum)}</small>
+        </div>
+      `;
+    // === fine blocco quantità ===
 
-// normalizza a stringa e rimuovi spazi
-quantita = quantita.toString().trim();
-
-// se vuoto, zero o negativo → VENDUTO
-if (!quantita || parseFloat(quantita.replace(',', '.')) <= 0) {
-  quantita = `<span style="color:red; font-weight:bold;">VENDUTO</span>`;
-}
-
-
-    
-const prezzo = row.Prezzo || '';
+    // Prezzi e formattazioni come avevi già
+    const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
     const conaicollo = row.Conaicollo || '';
     const imgSrc = row.Immagine?.trim() || '';
     const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
 
-    const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.'))) 
-        ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-        : '';
+    const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.')))
+      ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}`
+      : '';
 
-    const prezzoPromoFmt = (prezzoPromo && !isNaN(prezzoPromo.replace(',', '.'))) 
-        ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>` 
-        : '';
+    const prezzoPromoFmt = (prezzoPromo && !isNaN(prezzoPromo.replace(',', '.')))
+      ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>`
+      : '';
 
-    const conaiFmt = (conaicollo && !isNaN(conaicollo.replace(',', '.'))) 
-        ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-        : '';
+    const conaiFmt = (conaicollo && !isNaN(conaicollo.replace(',', '.')))
+      ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}`
+      : '';
 
-    const imgTag = imgSrc 
-        ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` 
-        : '';
+    const imgTag = imgSrc
+      ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">`
+      : '';
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -74,7 +77,7 @@ const prezzo = row.Prezzo || '';
       <td style="text-align:right;">${prezzoFmt}</td>
       <td style="text-align:right;">${prezzoPromoFmt}</td>
       <td style="text-align:right;">${conaiFmt}</td>
-      <td style="text-align:center;">${quantita}</td>
+      <td style="text-align:center;">${qtyCellHTML}</td>
       <td style="text-align:center;">${imgTag}</td>
     `;
 
@@ -86,6 +89,10 @@ const prezzo = row.Prezzo || '';
     tbody.appendChild(tr);
   });
 }
+
+
+
+
 
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
@@ -157,25 +164,55 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
 
 
 
-// 🔍 Filtro globale
-document.getElementById("filtro-globale").addEventListener("input", function(e) {
-  const term = e.target.value.trim().toLowerCase();
-  const righe = document.querySelectorAll("#tabella-prodotti tbody tr");
+// 🔍 Filtro globale (safe per celle con input quantità)
+(function () {
+  const filtro = document.getElementById("filtro-globale");
+  if (!filtro) return;
 
-  righe.forEach(tr => {
-    let visibile = false;
-    tr.querySelectorAll("td").forEach(td => {
-      td.innerHTML = td.innerHTML.replace(/<mark>(.*?)<\/mark>/g, "$1");
-      const testo = td.textContent.toLowerCase();
-      if (term && testo.includes(term)) {
-        visibile = true;
-        const regex = new RegExp(`(${term})`, "gi");
-        td.innerHTML = td.innerHTML.replace(regex, "<mark>$1</mark>");
+  // Escape dei caratteri speciali per costruire la RegExp in sicurezza
+  const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  filtro.addEventListener("input", function (e) {
+    const termRaw = e.target.value.trim();
+    const term = termRaw.toLowerCase();
+    const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
+
+    rows.forEach(tr => {
+      let matched = false;
+
+      // 1) Pulisci i <mark> SOLO nelle celle eleggibili (no qty-wrap/input)
+      tr.querySelectorAll("td").forEach(td => {
+        const isQtyCell = td.querySelector('.qty-wrap') || td.querySelector('input,select,button');
+        if (!isQtyCell) {
+          td.innerHTML = td.innerHTML.replace(/<mark>(.*?)<\/mark>/g, "$1");
+        }
+      });
+
+      // 2) Se il termine è vuoto, mostra la riga e passa oltre
+      if (term === "") {
+        tr.style.display = "";
+        return;
       }
+
+      // 3) Evidenzia e determina match SOLO nelle celle eleggibili
+      tr.querySelectorAll("td").forEach(td => {
+        const isQtyCell = td.querySelector('.qty-wrap') || td.querySelector('input,select,button');
+        if (isQtyCell) return; // non toccare la cella quantità
+
+        const testo = td.textContent.toLowerCase();
+        if (testo.includes(term)) {
+          matched = true;
+          const rx = new RegExp(`(${escapeRegExp(termRaw)})`, "gi");
+          td.innerHTML = td.innerHTML.replace(rx, "<mark>$1</mark>");
+        }
+      });
+
+      // 4) Mostra/Nascondi riga
+      tr.style.display = matched ? "" : "none";
     });
-    tr.style.display = (term === "" || visibile) ? "" : "none";
   });
-});
+})();
+
 
 // 🧼 Pulsante Pulisci
 document.getElementById("pulisci-filtro").addEventListener("click", function () {
