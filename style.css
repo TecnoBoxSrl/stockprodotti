@@ -525,26 +525,48 @@ background-color: #05539c !important;
 }
 
 #btnTop {
-  display: none;
   position: fixed;
   right: 20px;
   bottom: 20px;
-  z-index: 9999;
+  z-index: 99999;
   width: 45px;
   height: 45px;
   border: none;
   border-radius: 50%;
   font-size: 18px;
   cursor: pointer;
-  background: #05539c;
+  background: #05539c;   /* colore richiesto */
   color: #fff;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  transition: opacity .2s, transform .2s, background .3s;
+
+  /* Fade */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity .2s ease, visibility .2s ease, transform .2s ease, background .3s ease;
 }
+
+/* Stato visibile */
+#btnTop.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
 #btnTop:hover {
-  background: #05539c;
+  background: #033d74;   /* versione più scura per hover */
   transform: translateY(-1px);
 }
-@media print {
-  #btnTop { display: none !important; }
+
+/* Telefono con notch */
+@supports (bottom: env(safe-area-inset-bottom)) {
+  #btnTop { bottom: calc(20px + env(safe-area-inset-bottom)); }
+}
+
+/* Niente in stampa */
+@media print { #btnTop { display: none !important; } }
+
+/* Accessibilità */
+@media (prefers-reduced-motion: reduce) {
+  #btnTop { transition: none; }
 }
