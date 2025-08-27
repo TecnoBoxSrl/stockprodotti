@@ -542,7 +542,7 @@ background-color: #05539c !important;
   transition: opacity .2s, transform .2s, background .3s;
 }
 #btnTop:hover {
-  background: #005f73;
+  background: #05539c;
   transform: translateY(-1px);
 }
 @media print {
