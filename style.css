@@ -650,13 +650,14 @@ mark {
   width: 100%;
   overflow-x: auto;
   margin: 0 auto;
+padding-left: 0; 
 }
 
 /* Tabella sempre proporzionata */
 #tabella-prodotti {
   width: 100%;
-  max-width: 1200px;      /* limite su desktop largo */
-  margin: 0 auto;         /* centrata */
+  max-width: none;      /* limite su desktop largo */
+  margin: 0;         /* centrata */
   border-collapse: collapse;
   table-layout: fixed;    /* celle distribuite proporzionalmente */
 }
