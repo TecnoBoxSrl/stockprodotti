@@ -22,6 +22,9 @@ Papa.parse(sheetURL, {
 });
 
 
+
+
+
 function mostraArticoli(data) {
   const tbody = document.querySelector("#tabella-prodotti tbody");
   tbody.innerHTML = "";
@@ -30,24 +33,34 @@ function mostraArticoli(data) {
     const codice = row.Codice || '';
     const descrizione = row.Descrizione || '';
 
-    // === [2.1] LOGICA QUANTITÀ (stock dallo Sheet) ===
-    // stock numerico robusto (gestisce stringhe e virgole)
-    const stockNum = parseFloat((row.Quantità || '0').toString().replace(',', '.')) || 0;
+    // ---- Quantità: lettura robusta header + normalizzazione valore ----
+    function getQtyRaw(r) {
+      const keys = Object.keys(r);
+      const hit = keys.find(k => k.trim().toLowerCase() === 'quantità' || k.trim().toLowerCase() === 'quantita');
+      return hit ? r[hit] : r.Quantità || r.Quantita || r['Quantità '] || r['Quantita '] || '';
+    }
+
+    const qtyRaw = (getQtyRaw(row) ?? '').toString().trim();
+    // normalizza per calcolo stock (es. "1.000", "12,5", "10 pz")
+    const normalizedStock = qtyRaw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]+/g, '');
+    const stockNum = parseFloat(normalizedStock) || 0;
     const isSoldOut = stockNum <= 0;
 
-    // input number limitato allo stock, oppure scritta VENDUTO
+    // input TESTUALE che accetta virgola o punto
     const qtyCellHTML = isSoldOut
       ? `<span style="color:red; font-weight:bold;">VENDUTO</span>`
       : `
         <div class="qty-wrap">
-          <input type="number" class="qty-input" data-codice="${codice}"
-                 min="0" max="${Math.floor(stockNum)}" step="1" value="0" />
-          <small class="qty-hint">disp: ${Math.floor(stockNum)}</small>
+          <input type="text" class="qty-input" data-codice="${codice}"
+                 value="0" placeholder="0,0" 
+                 inputmode="decimal"
+                 pattern="^[0-9]+([,.][0-9]{1,2})?$" />
+          <small class="qty-hint">disp: ${qtyRaw || stockNum}</small>
         </div>
       `;
-    // === fine blocco quantità ===
+    // ------------------------------------------------------------------
 
-    // Prezzi e formattazioni come avevi già
+    // Prezzi e formattazioni (come avevi)
     const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
     const conaicollo = row.Conaicollo || '';
@@ -77,7 +90,7 @@ function mostraArticoli(data) {
       <td style="text-align:right;">${prezzoFmt}</td>
       <td style="text-align:right;">${prezzoPromoFmt}</td>
       <td style="text-align:right;">${conaiFmt}</td>
-      <td style="text-align:center;">${qtyCellHTML}</td>
+      <td style="text-align:left;">${qtyCellHTML}</td>
       <td style="text-align:center;">${imgTag}</td>
     `;
 
@@ -90,8 +103,13 @@ function mostraArticoli(data) {
   });
 }
 
-
-
+// Helper: converte "1,5" -> 1.5 (numero), gestisce stringhe vuote
+function normalizzaQuantita(val) {
+  if (val == null) return 0;
+  const s = val.toString().trim().replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
 
 
 function popolaCategorie(data) {
