@@ -2,27 +2,44 @@ const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBeQDcZ4tT-O
 
 let datiOriginali = [];
 
+// -------------------- UTIL --------------------
+function getQtyRaw(row) {
+  const keys = Object.keys(row);
+  const hit = keys.find(k => k.trim().toLowerCase() === 'quantità' || k.trim().toLowerCase() === 'quantita');
+  return hit ? row[hit] : row.Quantità || row.Quantita || row['Quantità '] || row['Quantita '] || '';
+}
+
+// normalizza numeri stile IT ("1.000", "12,5", "10 pz") -> "1000.0"
+function normalizeNumberString(s) {
+  if (s == null) return '';
+  return s.toString().trim()
+    .replace(/\./g, '')       // rimuove separatore migliaia
+    .replace(',', '.')        // decimali IT -> punto
+    .replace(/[^\d.]+/g, ''); // elimina testo extra
+}
+
+function normalizzaQuantita(val) {
+  const s = normalizeNumberString(val);
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+// ------------------------------------------------
+
 Papa.parse(sheetURL, {
   download: true,
   header: true,
-  // 🔧 normalizza nomi colonne: via spazi ed uniforma a “titolo case”
   transformHeader: h => h.trim(),
   complete: function(results) {
     const raw = results.data || [];
-    // scarta righe completamente vuote
     datiOriginali = raw.filter(r => (r.Codice || r.Descrizione));
 
     console.log('[DEBUG] headers normalizzati, righe:', datiOriginali.length);
-    // stampa un esempio di chiavi reali
     if (datiOriginali[0]) console.log('[DEBUG] chiavi prima riga:', Object.keys(datiOriginali[0]));
 
     popolaCategorie(datiOriginali);
     mostraArticoli(datiOriginali);
   }
 });
-
-
-
 
 
 function mostraArticoli(data) {
@@ -33,34 +50,36 @@ function mostraArticoli(data) {
     const codice = row.Codice || '';
     const descrizione = row.Descrizione || '';
 
-    // ---- Quantità: lettura robusta header + normalizzazione valore ----
-    function getQtyRaw(r) {
-      const keys = Object.keys(r);
-      const hit = keys.find(k => k.trim().toLowerCase() === 'quantità' || k.trim().toLowerCase() === 'quantita');
-      return hit ? r[hit] : r.Quantità || r.Quantita || r['Quantità '] || r['Quantita '] || '';
-    }
-
+    // ---- Quantità: lettura robusta header + calcolo stock ----
     const qtyRaw = (getQtyRaw(row) ?? '').toString().trim();
-    // normalizza per calcolo stock (es. "1.000", "12,5", "10 pz")
-    const normalizedStock = qtyRaw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]+/g, '');
-    const stockNum = parseFloat(normalizedStock) || 0;
+    const stockNum = normalizzaQuantita(qtyRaw);  // numero JS
     const isSoldOut = stockNum <= 0;
 
-    // input TESTUALE che accetta virgola o punto
+    // step dinamico: 1 se stock >= 1, altrimenti = stock (es. 0.55)
+    let stepValue = 1;
+    if (stockNum > 0 && stockNum < 1) stepValue = stockNum;
+
+    // input number con frecce + max = stock reale
     const qtyCellHTML = isSoldOut
       ? `<span style="color:red; font-weight:bold;">VENDUTO</span>`
       : `
         <div class="qty-wrap">
-          <input type="text" class="qty-input" data-codice="${codice}"
-                 value="0" placeholder="0,0" 
-                 inputmode="decimal"
-                 pattern="^[0-9]+([,.][0-9]{1,2})?$" />
+          <input
+            type="number"
+            class="qty-input"
+            data-codice="${codice}"
+            value="0"
+            min="0"
+            max="${stockNum}"
+            step="${stepValue}"
+            inputmode="decimal"
+          />
           <small class="qty-hint">disp: ${qtyRaw || stockNum}</small>
         </div>
       `;
-    // ------------------------------------------------------------------
+    // -----------------------------------------------------------
 
-    // Prezzi e formattazioni (come avevi)
+    // Prezzi e formattazioni
     const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
     const conaicollo = row.Conaicollo || '';
@@ -103,15 +122,8 @@ function mostraArticoli(data) {
   });
 }
 
-// Helper: converte "1,5" -> 1.5 (numero), gestisce stringhe vuote
-function normalizzaQuantita(val) {
-  if (val == null) return 0;
-  const s = val.toString().trim().replace(/\./g, '').replace(',', '.');
-  const n = parseFloat(s);
-  return isNaN(n) ? 0 : n;
-}
 
-
+// -------------------- CATEGORIE --------------------
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
   const select = document.getElementById("select-categoria");
@@ -120,7 +132,6 @@ function popolaCategorie(data) {
     return;
   }
 
-  // prendi la categoria con fallback su varianti di intestazione
   const getCat = r => (r.Categoria ?? r.categoria ?? r['Categoria '] ?? r['categoria ']);
   const categorieUniche = [...new Set(
     data.map(r => (getCat(r) || '').toString().trim()).filter(Boolean)
@@ -128,12 +139,10 @@ function popolaCategorie(data) {
 
   console.log('[DEBUG] categorie trovate:', categorieUniche);
 
-  // Nessuna categoria? Mostra riga di diagnosi in pagina
   if (categorieUniche.length === 0) {
     console.error('[DEBUG] Nessuna categoria trovata. Controlla il nome colonna nello Sheet.');
   }
 
-  // --- BOTTONI (desktop) ---
   if (contenitore) {
     contenitore.innerHTML = "";
     categorieUniche.forEach(categoria => {
@@ -148,7 +157,6 @@ function popolaCategorie(data) {
     });
   }
 
-  // --- COMBO (mobile) ---
   if (select) {
     select.innerHTML = '<option value="">Scegli la categoria di articoli</option>';
     categorieUniche.forEach(categoria => {
@@ -172,7 +180,7 @@ function popolaCategorie(data) {
 }
 
 
-// reset combo nel "Pulisci"
+// -------------------- PULISCI --------------------
 document.getElementById("pulisci-filtro").addEventListener("click", () => {
   document.getElementById("filtro-globale").value = "";
   mostraArticoli(datiOriginali);
@@ -181,13 +189,11 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
 });
 
 
-
-// 🔍 Filtro globale (safe per celle con input quantità)
+// -------------------- FILTRO GLOBALE SAFE --------------------
 (function () {
   const filtro = document.getElementById("filtro-globale");
   if (!filtro) return;
 
-  // Escape dei caratteri speciali per costruire la RegExp in sicurezza
   const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   filtro.addEventListener("input", function (e) {
@@ -198,7 +204,7 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
     rows.forEach(tr => {
       let matched = false;
 
-      // 1) Pulisci i <mark> SOLO nelle celle eleggibili (no qty-wrap/input)
+      // Pulisci <mark> SOLO dove non ci sono input/qty
       tr.querySelectorAll("td").forEach(td => {
         const isQtyCell = td.querySelector('.qty-wrap') || td.querySelector('input,select,button');
         if (!isQtyCell) {
@@ -206,16 +212,14 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
         }
       });
 
-      // 2) Se il termine è vuoto, mostra la riga e passa oltre
       if (term === "") {
         tr.style.display = "";
         return;
       }
 
-      // 3) Evidenzia e determina match SOLO nelle celle eleggibili
       tr.querySelectorAll("td").forEach(td => {
         const isQtyCell = td.querySelector('.qty-wrap') || td.querySelector('input,select,button');
-        if (isQtyCell) return; // non toccare la cella quantità
+        if (isQtyCell) return;
 
         const testo = td.textContent.toLowerCase();
         if (testo.includes(term)) {
@@ -225,26 +229,13 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
         }
       });
 
-      // 4) Mostra/Nascondi riga
       tr.style.display = matched ? "" : "none";
     });
   });
 })();
 
 
-// 🧼 Pulsante Pulisci
-document.getElementById("pulisci-filtro").addEventListener("click", function () {
-  const input = document.getElementById("filtro-globale");
-  input.value = "";
-  mostraArticoli(datiOriginali); // RESET
-
-const select = document.getElementById("select-categoria");
-  if (select) {
-    select.value = "";
-  }
-});
-
-// 🔍 Zoom immagine
+// -------------------- ZOOM IMG --------------------
 function mostraZoom(src) {
   const overlay = document.getElementById("zoomOverlay");
   const zoomedImg = document.getElementById("zoomedImg");
@@ -252,7 +243,8 @@ function mostraZoom(src) {
   overlay.style.display = "flex";
 }
 
-// 📄 PDF: header + tabella, multipagina A4, senza filtri/categorie, con override CSS per evitare tagli
+
+// -------------------- PDF LISTA PRODOTTI --------------------
 document.getElementById("scarica-pdf").addEventListener("click", () => {
   const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
   if (!visibile) { alert("Nessun articolo da stampare!"); return; }
@@ -260,7 +252,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   const src = document.getElementById("contenuto-pdf");
   const clone = src.cloneNode(true);
 
-  // rimuovi ciò che non vuoi
+  // rimuovi elementi non stampabili
   clone.querySelectorAll(".no-print, .filters, #categorie, #combo-categorie").forEach(el => el.remove());
 
   // disattiva sticky e overflow nel clone
@@ -270,18 +262,33 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   const wrapper = clone.querySelector(".tabella-scroll");
   if (wrapper) { wrapper.style.overflow = "visible"; wrapper.style.maxHeight = "none"; }
 
-  // ⚠️ OVERRIDE CSS SOLO NEL CLONE per evitare tagli a destra
+  // rimuovi eventuali evidenziazioni
+  clone.querySelectorAll('mark').forEach(m => {
+    const t = document.createTextNode(m.textContent);
+    m.replaceWith(t);
+  });
+
+  // trasforma gli input quantità in testo semplice per il PDF
+  clone.querySelectorAll('.qty-wrap').forEach(w => {
+    const input = w.querySelector('.qty-input');
+    const hint  = w.querySelector('.qty-hint')?.textContent || '';
+    if (input) {
+      const span = document.createElement('span');
+      span.textContent = `Q.tà: ${input.value || 0} ${hint ? `(${hint})` : ''}`;
+      w.replaceWith(span);
+    }
+  });
+
   const styleFix = document.createElement("style");
   styleFix.textContent = `
     #tabella-prodotti { width: 95% !important; table-layout: auto !important; }
     #tabella-prodotti th, #tabella-prodotti td { white-space: normal !important; }
     #tabella-prodotti th, #tabella-prodotti td { font-size: 13px !important; padding: 6px !important; }
     #tabella-prodotti img { max-width: 80px !important; height: auto !important; }
-.immagine-shock{max-width:160px!important;height:auto!important}
+    .immagine-shock{max-width:160px!important;height:auto!important}
   `;
   clone.appendChild(styleFix);
 
-  // monta off-screen
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
@@ -290,7 +297,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 
   html2pdf()
     .set({
-      margin: 1, // mm
+      margin: 1,
       filename: "prodotti-svendita-tecnobox.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
@@ -303,6 +310,8 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     .catch(() => document.body.removeChild(tmp));
 });
 
+
+// -------------------- TOP BUTTON --------------------
 (function () {
   const SCROLL_THRESHOLD = 600;
 
@@ -310,45 +319,91 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     return document.querySelector(".tabella-scroll");
   }
 
-  function scrolledAmount() {
-    const winScroll =
-      document.documentElement.scrollTop || document.body.scrollTop || 0;
+  function updateBtnVisibility() {
+    const btn = document.getElementById("btnTop");
+    if (!btn) return;
+
+    const winScroll = document.documentElement.scrollTop || document.body.scrollTop || 0;
     const box = getScrollContainer();
     const boxScroll = box ? box.scrollTop : 0;
-    return { winScroll, boxScroll };
+
+    const visible = (winScroll > SCROLL_THRESHOLD || boxScroll > SCROLL_THRESHOLD);
+    btn.classList.toggle("is-visible", visible);
   }
 
- function updateBtnVisibility() {
-  const btn = document.getElementById("btnTop");
-  if (!btn) return;
-
-  const winScroll = document.documentElement.scrollTop || document.body.scrollTop || 0;
-  const box = document.querySelector(".tabella-scroll");
-  const boxScroll = box ? box.scrollTop : 0;
-
-  const visible = (winScroll > SCROLL_THRESHOLD || boxScroll > SCROLL_THRESHOLD);
-  btn.classList.toggle("is-visible", visible);
-}
-
-
-  // Listener su finestra
   window.addEventListener("scroll", updateBtnVisibility, { passive: true });
-  // Listener sul contenitore scrollabile (dopo che esiste nel DOM)
   window.addEventListener("load", () => {
     const box = getScrollContainer();
     if (box) box.addEventListener("scroll", updateBtnVisibility, { passive: true });
-    updateBtnVisibility(); // stato iniziale
+    updateBtnVisibility();
   });
 
-  // Funzione globale richiamata dal bottone
   window.scrollToTop = function () {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const behavior = prefersReduced ? "auto" : "smooth";
-
-    // scrolla la finestra
     window.scrollTo({ top: 0, behavior });
-    // scrolla anche il contenitore
     const box = getScrollContainer();
     if (box) box.scrollTo({ top: 0, behavior });
   };
 })();
+
+
+// -------------------- INPUT QUANTITÀ: virgola, salto finale, cap, pulse MAX --------------------
+document.addEventListener('input', function (e) {
+  if (!e.target.classList.contains('qty-input')) return;
+
+  const input = e.target;
+  const wrap  = input.closest('.qty-wrap');
+
+  // normalizza virgola -> punto per compatibilità con type=number
+  if (input.value.includes(',')) {
+    const caret = input.selectionStart;
+    input.value = input.value.replace(',', '.');
+    try { input.setSelectionRange(caret, caret); } catch {}
+  }
+
+  const max = parseFloat((input.max || '0').toString().replace(',', '.')) || 0;
+  let val = parseFloat(input.value) || 0;
+
+  // “salto finale”:
+  // - se step=1 e max ha decimali, quando si supera floor(max) ci si aggancia a max
+  const step = parseFloat(input.step) || 1;
+  if (step === 1 && max % 1 !== 0) {
+    if (val > Math.floor(max) && val < max) {
+      val = max;
+    }
+  }
+
+  // se lo stock < 1, lo step è esattamente lo stock: 0 -> max (un click)
+  if (max > 0 && max < 1) {
+    // opzionale: forza a multipli di max (in pratica 0 o max)
+    if (val > 0 && val < max) val = max;
+  }
+
+  // clamp
+  if (val > max) val = max;
+  if (val < 0) val = 0;
+
+  input.value = val;
+
+  // feedback visivo quando tocchi il massimo
+  const atMax = (val === max && max > 0);
+  input.classList.toggle('qty-max-reached', atMax);
+  if (wrap) wrap.classList.toggle('max-reached', atMax);
+
+  if (atMax && 'vibrate' in navigator) {
+    navigator.vibrate(10);
+  }
+
+  // aria-live (annuncio screen reader)
+  let live = document.getElementById('qty-live');
+  if (!live) {
+    live = document.createElement('div');
+    live.id = 'qty-live';
+    live.setAttribute('aria-live', 'polite');
+    live.style.position = 'absolute';
+    live.style.left = '-9999px';
+    document.body.appendChild(live);
+  }
+  live.textContent = atMax ? 'Quantità massima raggiunta' : '';
+});
