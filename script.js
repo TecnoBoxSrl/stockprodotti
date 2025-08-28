@@ -344,15 +344,15 @@ async function generaPdfProposta(datiCliente, items) {
   // off-screen con layout reale (NO visibility:hidden)
   const wrapper = document.createElement("div");
   wrapper.id = "pdf-proposta-temp";
-  Object.assign(wrapper.style, {
-    position: "absolute",
-    left: "0",
-    top: "-9999px",      // fuori viewport
-    width: "297mm",      // A4 orizzontale
-    background: "#ffffff",
-    opacity: "0",
-    pointerEvents: "none"
-  });
+ Object.assign(wrapper.style, {
+  position: "absolute",
+  left: "-10000px",       // fuori viewport
+  top: "0",
+  width: "297mm",         // A4 orizzontale
+  background: "#ffffff",
+  pointerEvents: "none"   // ok tenerlo
+});
+
 
   wrapper.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
