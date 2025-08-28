@@ -328,10 +328,14 @@ function apriModalProposta(onConfirm) {
   });
 }
 
-// ====== PDF proposta (solo articoli selezionati) ======
+// ====== PROPOSTA PDF (robusto, come "Scarica PDF") ======
 async function generaPdfProposta(datiCliente, items) {
   if (!items || items.length === 0) {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
+    return;
+  }
+  if (!window.html2pdf) {
+    alert("Libreria PDF non caricata. Metti html2pdf.bundle.min.js prima di script.js");
     return;
   }
 
@@ -341,93 +345,80 @@ async function generaPdfProposta(datiCliente, items) {
   const dd = String(now.getDate()).padStart(2,'0');
   const dataStr = `${dd}/${mm}/${yyyy}`;
 
-  // off-screen con layout reale (NO visibility:hidden)
-  const wrapper = document.createElement("div");
-  wrapper.id = "pdf-proposta-temp";
- Object.assign(wrapper.style, {
-  position: "absolute",
-  left: "-10000px",       // fuori viewport
-  top: "0",
-  width: "297mm",         // A4 orizzontale
-  background: "#ffffff",
-  pointerEvents: "none"   // ok tenerlo
-});
+  // 1) Costruisci il contenuto della proposta
+  const content = document.createElement("div");
+  content.innerHTML = `
+    <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
+      <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
+      <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
 
+      <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
+        <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
+        <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
+        <tr><td style="padding:6px 8px; background:#f5f5f5;">Email</td><td style="padding:6px 8px;">${datiCliente.email || '-'}</td></tr>
+        <tr><td style="padding:6px 8px; background:#f5f5f5;">Ritiro azienda</td><td style="padding:6px 8px;">${datiCliente.ritiro || '-'}</td></tr>
+        <tr><td style="padding:6px 8px; background:#f5f5f5;">Località spedizione</td><td style="padding:6px 8px;">${datiCliente.localita || '-'}</td></tr>
+        ${datiCliente.note ? `<tr><td style="padding:6px 8px; background:#f5f5f5;">Note</td><td style="padding:6px 8px;">${datiCliente.note}</td></tr>` : ``}
+      </table>
 
-  wrapper.innerHTML = `
-  <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
-    <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
-    <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
-
-    <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
-      <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
-      <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
-      <tr><td style="padding:6px 8px; background:#f5f5f5;">Email</td><td style="padding:6px 8px;">${datiCliente.email || '-'}</td></tr>
-      <tr><td style="padding:6px 8px; background:#f5f5f5;">Ritiro azienda</td><td style="padding:6px 8px;">${datiCliente.ritiro || '-'}</td></tr>
-      <tr><td style="padding:6px 8px; background:#f5f5f5;">Località spedizione</td><td style="padding:6px 8px;">${datiCliente.localita || '-'}</td></tr>
-      ${datiCliente.note ? `<tr><td style="padding:6px 8px; background:#f5f5f5;">Note</td><td style="padding:6px 8px;">${datiCliente.note}</td></tr>` : ``}
-    </table>
-
-    <table style="width:95%; border-collapse:collapse; font-size:12px; table-layout:auto;">
-      <thead>
-        <tr>
-          <th style="width:12%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Codice</th>
-          <th style="width:42%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Descrizione</th>
-          <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Prezzo</th>
-          <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Promo</th>
-          <th style="width:12%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Conai/collo</th>
-          <th style="width:8%; text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Q.tà</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${items.map(it => `
+      <table style="width:95%; border-collapse:collapse; font-size:12px; table-layout:auto;">
+        <thead>
           <tr>
-            <td style="border:1px solid #ccc; padding:6px; white-space:normal; word-break:break-word;">${it.codice}</td>
-            <td style="border:1px solid #ccc; padding:6px; white-space:normal; word-break:break-word;">${it.descrizione}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:right; white-space:normal;">${it.prezzo}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:right; white-space:normal;">${it.prezzoPromo}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:right; white-space:normal;">${it.conai}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:center; white-space:normal;">${it.quantita}</td>
+            <th style="width:12%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Codice</th>
+            <th style="width:42%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Descrizione</th>
+            <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Prezzo</th>
+            <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Promo</th>
+            <th style="width:12%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Conai/collo</th>
+            <th style="width:8%; text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Q.tà</th>
           </tr>
-        `).join('')}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          ${items.map(it => `
+            <tr>
+              <td style="border:1px solid #ccc; padding:6px; word-break:break-word;">${it.codice}</td>
+              <td style="border:1px solid #ccc; padding:6px; word-break:break-word;">${it.descrizione}</td>
+              <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzo}</td>
+              <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzoPromo}</td>
+              <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.conai}</td>
+              <td style="border:1px solid #ccc; padding:6px; text-align:center;">${it.quantita}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
 
-    <p style="margin-top:8px; font-size:11.5px; color:#444;">
-      I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
-    </p>
-  </div>
+      <p style="margin-top:8px; font-size:11.5px; color:#444;">
+        I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
+      </p>
+    </div>
   `;
 
- document.body.appendChild(wrapper);
+  // 2) Contenitore OFF-SCREEN identico a "Scarica PDF"
+  const tmp = document.createElement("div");
+  tmp.style.position = "fixed";
+  tmp.style.left = "-99999px";
+  tmp.style.top = "0";
+  tmp.appendChild(content);
+  document.body.appendChild(tmp);
 
-// attesa di layout (importantissima)
-await new Promise(r => requestAnimationFrame(r));
-await new Promise(r => setTimeout(r, 30));
-
-// 🔎 LOG DIAGNOSTICI
-console.log("[DEBUG] wrapper size:", wrapper.offsetWidth, "x", wrapper.offsetHeight);
-console.log("[DEBUG] wrapper HTML length:", wrapper.innerHTML.length);
-
-
-
-  // attesa minima per consentire layout/fonts (evita PDF bianco)
+  // 3) Attesa di layout e cattura
   await new Promise(r => requestAnimationFrame(r));
   await new Promise(r => setTimeout(r, 30));
 
-  return html2pdf()
-    .set({
-      margin: 6, // mm: più stretto, più contenuto entra
-      filename: `proposta-acquisto-${yyyy}${mm}${dd}.pdf`,
-      image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },  // come lo "Scarica PDF" generale
-      pagebreak: { mode: ["css", "legacy"] }
-    })
-    .from(wrapper)
-    .save()
-    .then(() => document.body.removeChild(wrapper))
-    .catch(() => document.body.removeChild(wrapper));
+  try {
+    await html2pdf()
+      .set({
+        margin: 6,
+        filename: `proposta-acquisto-${yyyy}${mm}${dd}.pdf`,
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
+        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+        pagebreak: { mode: ["css", "legacy"] }
+      })
+      .from(content)
+      .save();
+  } finally {
+    document.body.removeChild(tmp);
+  }
 }
 
 // ====== Email bozza ======
@@ -459,7 +450,7 @@ Grazie, resto in attesa di conferma disponibilità e tempi.`;
 // ====== Click "Invia proposta" ======
 document.getElementById("invia-proposta").addEventListener("click", () => {
   const items = getArticoliSelezionati();
-console.log("[DEBUG] articoli selezionati:", items.length, items); // 👈 aggiungi questa riga
+  console.log("[DEBUG] articoli selezionati:", items.length, items);
   if (items.length === 0) {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
     return;
