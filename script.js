@@ -449,6 +449,7 @@ Grazie, resto in attesa di conferma disponibilità e tempi.`;
 // ====== Click "Invia proposta" ======
 document.getElementById("invia-proposta").addEventListener("click", () => {
   const items = getArticoliSelezionati();
+console.log("[DEBUG] articoli selezionati:", items.length, items); // 👈 aggiungi questa riga
   if (items.length === 0) {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
     return;
