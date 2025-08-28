@@ -54,7 +54,8 @@ function mostraArticoli(data) {
             type="number"
             class="qty-input"
             data-codice="${codice}"
-            value="0"
+           value=""                 // <— prima era "0"
+  placeholder="0"          // <— mostra 0 come suggerimento
             min="0"
             max="${stockNum}"
             step="${stepValue}"
@@ -64,6 +65,39 @@ function mostraArticoli(data) {
       `;
     // ---------------------------------------------------------------
 
+// Gestione digitazione: svuota su focus, clamp su blur/input
+document.querySelectorAll('.qty-input:not([disabled])').forEach(inp => {
+  // al focus: se vuoto seleziona, se c'è "0" lo seleziona comunque
+  inp.addEventListener('focus', () => {
+    setTimeout(() => inp.select(), 0);
+  });
+
+  // durante la digitazione: consenti vuoto, normalizza virgola/punto e rispetta max/min
+  inp.addEventListener('input', () => {
+    if (inp.value.trim() === '') return; // vuoto permesso mentre scrive
+    let val = inp.value.replace(',', '.');
+    let num = parseFloat(val);
+    if (isNaN(num)) { inp.value = ''; return; }
+
+    const max = parseFloat(inp.max);
+    const min = parseFloat(inp.min) || 0;
+    if (!isNaN(max) && num > max) num = max;
+    if (!isNaN(min) && num < min) num = min;
+
+    // mostra con virgola in UI se decimale
+    inp.value = Number.isInteger(num) ? String(num) : String(num).replace('.', ',');
+  });
+
+  // al blur: se resta vuoto rimetti 0
+  inp.addEventListener('blur', () => {
+    if (inp.value.trim() === '') inp.value = '0';
+  });
+});
+
+
+
+
+    
     // Prezzi e formattazioni
     const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
