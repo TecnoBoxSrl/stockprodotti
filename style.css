@@ -642,3 +642,15 @@ background-color: #05539c !important;
 }
 #proposta-modal .btn.cancel { background: #aaa; color: #fff; }
 #proposta-modal .btn.go { background: #45AC49; color: #fff; }
+
+
+
+
+/* Il "0" del placeholder sparisce quando l'input è a fuoco */
+.qty-input::placeholder { opacity: 1; transition: opacity .15s; }
+.qty-input:focus::placeholder { opacity: 0; }
+
+/* Per compat Safari/WebKit */
+.qty-input::-webkit-input-placeholder { opacity: 1; }
+.qty-input:focus::-webkit-input-placeholder { opacity: 0; }
+
