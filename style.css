@@ -605,5 +605,7 @@ background-color: #05539c !important;
 .qty-input {
   width: 80px;
   text-align: center !important;
+  height: 32px;        /* opzionale: per un aspetto uniforme */
+  line-height: 32px;   /* aiuta la centratura verticale cross-browser */
   padding: 3px 4px;
 }
