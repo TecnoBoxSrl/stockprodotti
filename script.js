@@ -9,7 +9,6 @@ Papa.parse(sheetURL, {
   complete: function(results) {
     const raw = results.data || [];
     datiOriginali = raw.filter(r => (r.Codice || r.Descrizione));
-
     popolaCategorie(datiOriginali);
     mostraArticoli(datiOriginali);
   }
@@ -27,7 +26,6 @@ function mostraArticoli(data) {
     const qtyRaw = (row['Quantità'] ?? row['quantità'] ?? row['Qta'] ?? row['Q.tà'] ?? row['Quantita'] ?? row['quantita'] ?? '').toString().trim();
     const stockNum = qtyRaw ? parseFloat(qtyRaw.replace(',', '.')) : 0;
     const isSoldOut = !qtyRaw || isNaN(stockNum) || stockNum <= 0;
-
     const stepValue = (!isSoldOut && stockNum < 1) ? stockNum : 1;
 
     const qtyCellHTML = isSoldOut
@@ -267,7 +265,7 @@ function getArticoliSelezionati() {
   return items;
 }
 
-// ====== MODAL dati cliente (con stile inline per essere autonomo) ======
+// ====== MODAL dati cliente (stili inline per semplicità) ======
 function apriModalProposta(onConfirm) {
   const old = document.getElementById("proposta-modal");
   if (old) old.remove();
@@ -331,10 +329,10 @@ function apriModalProposta(onConfirm) {
 }
 
 // ====== PDF proposta (solo articoli selezionati) ======
-function generaPdfProposta(datiCliente, items) {
+async function generaPdfProposta(datiCliente, items) {
   if (!items || items.length === 0) {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
-    return Promise.resolve();
+    return;
   }
 
   const now = new Date();
@@ -343,25 +341,19 @@ function generaPdfProposta(datiCliente, items) {
   const dd = String(now.getDate()).padStart(2,'0');
   const dataStr = `${dd}/${mm}/${yyyy}`;
 
-  // off-screen ma con layout reale
+  // off-screen con layout reale (NO visibility:hidden)
   const wrapper = document.createElement("div");
   wrapper.id = "pdf-proposta-temp";
- Object.assign(wrapper.style, {
-  position: "absolute",
-  left: "0",
-  top: "-9999px",   // fuori dallo schermo, ma con layout reale
-  width: "297mm",   // A4 orizzontale
-  background: "#ffffff",
-  opacity: "0",     // invisibile ma renderizzato
-  pointerEvents: "none"
-});
+  Object.assign(wrapper.style, {
+    position: "absolute",
+    left: "0",
+    top: "-9999px",      // fuori viewport
+    width: "297mm",      // A4 orizzontale
+    background: "#ffffff",
+    opacity: "0",
+    pointerEvents: "none"
+  });
 
-
-  // NOTE DI LAYOUT:
-  // - font 12/13px
-  // - padding celle 5/6px
-  // - image max-width 70px
-  // - col width: Cod 12%, Desc 42%, Prezzo 10%, Promo 10%, Conai 12%, Q.tà 8%
   wrapper.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
     <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
@@ -408,19 +400,18 @@ function generaPdfProposta(datiCliente, items) {
   `;
 
   document.body.appendChild(wrapper);
-  
-  // attesa minima per consentire layout/fonts
-await new Promise(r => requestAnimationFrame(r));
-await new Promise(r => setTimeout(r, 30)); // piccola sicurezza
 
+  // attesa minima per consentire layout/fonts (evita PDF bianco)
+  await new Promise(r => requestAnimationFrame(r));
+  await new Promise(r => setTimeout(r, 30));
 
   return html2pdf()
     .set({
       margin: 6, // mm: più stretto, più contenuto entra
       filename: `proposta-acquisto-${yyyy}${mm}${dd}.pdf`,
       image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },  // <-- come il tuo "scarica PDF"
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },  // come lo "Scarica PDF" generale
       pagebreak: { mode: ["css", "legacy"] }
     })
     .from(wrapper)
@@ -428,7 +419,6 @@ await new Promise(r => setTimeout(r, 30)); // piccola sicurezza
     .then(() => document.body.removeChild(wrapper))
     .catch(() => document.body.removeChild(wrapper));
 }
-
 
 // ====== Email bozza ======
 function apriEmailProposta(datiCliente, itemsCount) {
