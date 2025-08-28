@@ -21,7 +21,6 @@ Papa.parse(sheetURL, {
   }
 });
 
-
 function mostraArticoli(data) {
   const tbody = document.querySelector("#tabella-prodotti tbody");
   tbody.innerHTML = "";
@@ -30,42 +29,63 @@ function mostraArticoli(data) {
     const codice = row.Codice || '';
     const descrizione = row.Descrizione || '';
 
+    // --- Quantità / Disponibilità dallo Sheet (supporta virgola) ---
+    const qtyRaw = (row['Quantità'] ?? row['quantità'] ?? row['Qta'] ?? row['Q.tà'] ?? '').toString().trim();
+    const stockNum = qtyRaw ? parseFloat(qtyRaw.replace(',', '.')) : 0;
+    const isSoldOut = !qtyRaw || isNaN(stockNum) || stockNum <= 0;
 
-    
-// const quantita = row.Quantità || '';
- let quantita = row.Quantità || '';
+    // step: se stock < 1 consenti incremento esattamente uguale allo stock (es. 0,5)
+    const stepValue = (!isSoldOut && stockNum < 1) ? stockNum : 1;
 
-// normalizza a stringa e rimuovi spazi
-quantita = quantita.toString().trim();
+    // HTML cella con input limitato al max = stock
+    const qtyCellHTML = isSoldOut
+      ? `
+        <div class="qty-wrap">
+          <div class="qty-label">Disponibilità</div>
+          <div class="qty-value" style="color:red; font-weight:bold;">VENDUTO</div>
+          <input type="number" class="qty-input" value="0" min="0" step="1" disabled />
+        </div>
+      `
+      : `
+        <div class="qty-wrap">
+          <div class="qty-label">Disponibilità</div>
+          <div class="qty-value">${qtyRaw}</div>
+          <input
+            type="number"
+            class="qty-input"
+            data-codice="${codice}"
+            value="0"
+            min="0"
+            max="${stockNum}"
+            step="${stepValue}"
+            inputmode="decimal"
+          />
+        </div>
+      `;
+    // ---------------------------------------------------------------
 
-// se vuoto, zero o negativo → VENDUTO
-if (!quantita || parseFloat(quantita.replace(',', '.')) <= 0) {
-  quantita = `<span style="color:red; font-weight:bold;">VENDUTO</span>`;
-}
-
-
-    
-const prezzo = row.Prezzo || '';
+    // Prezzi e formattazioni
+    const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
     const conaicollo = row.Conaicollo || '';
     const imgSrc = row.Immagine?.trim() || '';
     const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
 
-    const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.'))) 
-        ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-        : '';
+    const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.')))
+      ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}`
+      : '';
 
-    const prezzoPromoFmt = (prezzoPromo && !isNaN(prezzoPromo.replace(',', '.'))) 
-        ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>` 
-        : '';
+    const prezzoPromoFmt = (prezzoPromo && !isNaN(prezzoPromo.replace(',', '.')))
+      ? `<span style="color:red; font-weight:bold;">€${Number(prezzoPromo.replace(',', '.')).toFixed(2).replace('.', ',')}</span>`
+      : '';
 
-    const conaiFmt = (conaicollo && !isNaN(conaicollo.replace(',', '.'))) 
-        ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}` 
-        : '';
+    const conaiFmt = (conaicollo && !isNaN(conaicollo.replace(',', '.')))
+      ? `€${Number(conaicollo.replace(',', '.')).toFixed(2).replace('.', ',')}`
+      : '';
 
-    const imgTag = imgSrc 
-        ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">` 
-        : '';
+    const imgTag = imgSrc
+      ? `<img src="${imgSrc}" alt="foto prodotto" class="zoomable" onclick="mostraZoom('${imgSrc}')">`
+      : '';
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -74,7 +94,7 @@ const prezzo = row.Prezzo || '';
       <td style="text-align:right;">${prezzoFmt}</td>
       <td style="text-align:right;">${prezzoPromoFmt}</td>
       <td style="text-align:right;">${conaiFmt}</td>
-      <td style="text-align:center;">${quantita}</td>
+      <td style="text-align:center;">${qtyCellHTML}</td>
       <td style="text-align:center;">${imgTag}</td>
     `;
 
@@ -85,7 +105,25 @@ const prezzo = row.Prezzo || '';
 
     tbody.appendChild(tr);
   });
+
+  // 🔒 Hard clamp: impedisce di superare il max anche digitando a mano
+  document.querySelectorAll('.qty-input:not([disabled])').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const max = parseFloat(inp.max);
+      const min = parseFloat(inp.min) || 0;
+      let val = inp.value.replace(',', '.');      // consenti virgola in input
+      let num = parseFloat(val);
+      if (isNaN(num)) { num = 0; }
+      if (num > max) num = max;
+      if (num < min) num = min;
+      // normalizza visualizzazione (virgola per decimali italiani)
+      inp.value = (Number.isInteger(num) ? num.toString() : num.toString().replace('.', ','));
+    });
+    inp.addEventListener('change', () => inp.dispatchEvent(new Event('input')));
+  });
 }
+
+
 
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
