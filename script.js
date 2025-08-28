@@ -50,17 +50,18 @@ function mostraArticoli(data) {
         <div class="qty-wrap">
           <div class="qty-label">Disponibilità</div>
           <div class="qty-value">${qtyRaw}</div>
-          <input
-            type="number"
-            class="qty-input"
-            data-codice="${codice}"
-           value=""                 // <— prima era "0"
-  placeholder="0"          // <— mostra 0 come suggerimento
-            min="0"
-            max="${stockNum}"
-            step="${stepValue}"
-            inputmode="decimal"
-          />
+         <input
+  type="number"
+  class="qty-input"
+  data-codice="${codice}"
+  value=""
+  placeholder="0"
+  min="0"
+  max="${stockNum}"
+  step="${stepValue}"
+  inputmode="decimal"
+/>
+
         </div>
       `;
     // ---------------------------------------------------------------
