@@ -406,7 +406,13 @@ function generaPdfProposta(datiCliente, items) {
   `;
 
   document.body.appendChild(wrapper);
-
+  
+// ✅ LOG DI DEBUG + MICRO-ATTESA PRIMA DELLA CATTURA
+  console.log("[DEBUG] items per PDF:", items.length, items);
+  await new Promise(r => requestAnimationFrame(r)); // aspetta un frame
+  await new Promise(r => setTimeout(r, 30));        // piccola attesa extra per layout/fonts
+  console.log("[DEBUG] wrapper size:", wrapper.offsetWidth, "x", wrapper.offsetHeight);
+  
   return html2pdf()
     .set({
       margin: 6, // mm: più stretto, più contenuto entra
