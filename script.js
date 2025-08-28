@@ -346,14 +346,16 @@ function generaPdfProposta(datiCliente, items) {
   // off-screen ma con layout reale
   const wrapper = document.createElement("div");
   wrapper.id = "pdf-proposta-temp";
-  Object.assign(wrapper.style, {
-    position: "absolute",
-    left: "-10000px",
-    top: "0",
-    width: "297mm",       // larghezza A4 orizzontale
-    background: "#ffffff",
-    visibility: "hidden",
-  });
+ Object.assign(wrapper.style, {
+  position: "absolute",
+  left: "0",
+  top: "-9999px",   // fuori dallo schermo, ma con layout reale
+  width: "297mm",   // A4 orizzontale
+  background: "#ffffff",
+  opacity: "0",     // invisibile ma renderizzato
+  pointerEvents: "none"
+});
+
 
   // NOTE DI LAYOUT:
   // - font 12/13px
@@ -407,6 +409,10 @@ function generaPdfProposta(datiCliente, items) {
 
   document.body.appendChild(wrapper);
   
+  // attesa minima per consentire layout/fonts
+await new Promise(r => requestAnimationFrame(r));
+await new Promise(r => setTimeout(r, 30)); // piccola sicurezza
+
 
   return html2pdf()
     .set({
