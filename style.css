@@ -587,7 +587,7 @@ background-color: #05539c !important;
 .qty-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center !important;
   gap: 3px;
   line-height: 1.2;
 }
@@ -604,6 +604,6 @@ background-color: #05539c !important;
 
 .qty-input {
   width: 80px;
-  text-align: center;
+  text-align: center !important;
   padding: 3px 4px;
 }
