@@ -399,7 +399,17 @@ async function generaPdfProposta(datiCliente, items) {
   </div>
   `;
 
-  document.body.appendChild(wrapper);
+ document.body.appendChild(wrapper);
+
+// attesa di layout (importantissima)
+await new Promise(r => requestAnimationFrame(r));
+await new Promise(r => setTimeout(r, 30));
+
+// 🔎 LOG DIAGNOSTICI
+console.log("[DEBUG] wrapper size:", wrapper.offsetWidth, "x", wrapper.offsetHeight);
+console.log("[DEBUG] wrapper HTML length:", wrapper.innerHTML.length);
+
+
 
   // attesa minima per consentire layout/fonts (evita PDF bianco)
   await new Promise(r => requestAnimationFrame(r));
