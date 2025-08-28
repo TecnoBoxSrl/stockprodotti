@@ -332,22 +332,40 @@ function apriModalProposta(onConfirm) {
 
 // ====== PDF proposta (solo articoli selezionati) ======
 function generaPdfProposta(datiCliente, items) {
+  if (!items || items.length === 0) {
+    alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
+    return Promise.resolve();
+  }
+
   const now = new Date();
   const yyyy = now.getFullYear();
   const mm = String(now.getMonth()+1).padStart(2,'0');
   const dd = String(now.getDate()).padStart(2,'0');
   const dataStr = `${dd}/${mm}/${yyyy}`;
 
+  // off-screen ma con layout reale
   const wrapper = document.createElement("div");
-  wrapper.style.position = "fixed";
-  wrapper.style.left = "-99999px";
+  wrapper.id = "pdf-proposta-temp";
+  Object.assign(wrapper.style, {
+    position: "absolute",
+    left: "-10000px",
+    top: "0",
+    width: "297mm",       // larghezza A4 orizzontale
+    background: "#ffffff",
+    visibility: "hidden",
+  });
 
+  // NOTE DI LAYOUT:
+  // - font 12/13px
+  // - padding celle 5/6px
+  // - image max-width 70px
+  // - col width: Cod 12%, Desc 42%, Prezzo 10%, Promo 10%, Conai 12%, Q.tà 8%
   wrapper.innerHTML = `
-  <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; padding: 10px;">
+  <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
     <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
-    <div style="font-size:13px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
+    <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
 
-    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px;">
+    <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
       <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
       <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
       <tr><td style="padding:6px 8px; background:#f5f5f5;">Email</td><td style="padding:6px 8px;">${datiCliente.email || '-'}</td></tr>
@@ -356,51 +374,54 @@ function generaPdfProposta(datiCliente, items) {
       ${datiCliente.note ? `<tr><td style="padding:6px 8px; background:#f5f5f5;">Note</td><td style="padding:6px 8px;">${datiCliente.note}</td></tr>` : ``}
     </table>
 
-    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <table style="width:95%; border-collapse:collapse; font-size:12px; table-layout:auto;">
       <thead>
         <tr>
-          <th style="text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Codice</th>
-          <th style="text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Descrizione</th>
-          <th style="text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Prezzo</th>
-          <th style="text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Promo</th>
-          <th style="text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Conai/collo</th>
-          <th style="text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Q.tà</th>
+          <th style="width:12%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Codice</th>
+          <th style="width:42%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Descrizione</th>
+          <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Prezzo</th>
+          <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Promo</th>
+          <th style="width:12%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Conai/collo</th>
+          <th style="width:8%; text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc; white-space:normal;">Q.tà</th>
         </tr>
       </thead>
       <tbody>
         ${items.map(it => `
           <tr>
-            <td style="border:1px solid #ccc; padding:6px;">${it.codice}</td>
-            <td style="border:1px solid #ccc; padding:6px;">${it.descrizione}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzo}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzoPromo}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.conai}</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:center;">${it.quantita}</td>
+            <td style="border:1px solid #ccc; padding:6px; white-space:normal; word-break:break-word;">${it.codice}</td>
+            <td style="border:1px solid #ccc; padding:6px; white-space:normal; word-break:break-word;">${it.descrizione}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right; white-space:normal;">${it.prezzo}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right; white-space:normal;">${it.prezzoPromo}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right; white-space:normal;">${it.conai}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center; white-space:normal;">${it.quantita}</td>
           </tr>
         `).join('')}
       </tbody>
     </table>
 
-    <p style="margin-top:8px; font-size:12px; color:#444;">
+    <p style="margin-top:8px; font-size:11.5px; color:#444;">
       I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
     </p>
   </div>
   `;
+
   document.body.appendChild(wrapper);
 
   return html2pdf()
     .set({
-      margin: 10,
+      margin: 6, // mm: più stretto, più contenuto entra
       filename: `proposta-acquisto-${yyyy}${mm}${dd}.pdf`,
       image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true },
+      jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },  // <-- come il tuo "scarica PDF"
+      pagebreak: { mode: ["css", "legacy"] }
     })
     .from(wrapper)
     .save()
     .then(() => document.body.removeChild(wrapper))
     .catch(() => document.body.removeChild(wrapper));
 }
+
 
 // ====== Email bozza ======
 function apriEmailProposta(datiCliente, itemsCount) {
