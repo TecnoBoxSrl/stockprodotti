@@ -335,3 +335,232 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     if (box) box.scrollTo({ top: 0, behavior });
   };
 })();
+
+
+
+// ====== UTILI: articoli selezionati (qty > 0) ======
+function getArticoliSelezionati() {
+  const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
+  const items = [];
+  rows.forEach(tr => {
+    const tds = tr.querySelectorAll("td");
+    if (tds.length < 7) return;
+
+    const codice = tds[0].textContent.trim();
+    const descrizione = tds[1].textContent.trim();
+    const prezzo = tds[2].textContent.trim();
+    const prezzoPromo = tds[3].textContent.trim();
+    const conai = tds[4].textContent.trim();
+
+    const inp = tr.querySelector(".qty-input:not([disabled])");
+    if (!inp) return;
+    const val = inp.value ? inp.value.toString().replace(',', '.') : "0";
+    const qty = parseFloat(val);
+    if (!isNaN(qty) && qty > 0) {
+      items.push({
+        codice, descrizione, prezzo, prezzoPromo, conai,
+        quantita: inp.value  // mantieni formattazione con virgola se presente
+      });
+    }
+  });
+  return items;
+}
+
+// ====== MODAL per i dati cliente ======
+function apriModalProposta(onConfirm) {
+  // se esiste già, rimuovi
+  const old = document.getElementById("proposta-modal");
+  if (old) old.remove();
+
+  const html = `
+    <div id="proposta-modal">
+      <div class="box">
+        <h3>Invia proposta</h3>
+        <div class="grid">
+          <div class="full">
+            <label>Ragione sociale</label>
+            <input id="prop-ragione" type="text" placeholder="Es. Tecno Box Srl">
+          </div>
+          <div>
+            <label>Referente</label>
+            <input id="prop-referente" type="text" placeholder="Nome Cognome">
+          </div>
+          <div>
+            <label>Email</label>
+            <input id="prop-email" type="email" placeholder="esempio@mail.com">
+          </div>
+          <div>
+            <label>Ritiro in azienda?</label>
+            <select id="prop-ritiro">
+              <option value="SI">SI</option>
+              <option value="NO">NO</option>
+            </select>
+          </div>
+          <div>
+            <label>Località spedizione</label>
+            <input id="prop-localita" type="text" placeholder="Città / CAP / indirizzo (se noto)">
+          </div>
+          <div class="full">
+            <label>Note (opzionale)</label>
+            <textarea id="prop-note" rows="3" placeholder="Es. preferenza su orari, richiesta bancale, ecc."></textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn cancel" id="prop-annulla">Annulla</button>
+          <button class="btn go" id="prop-conferma">Genera PDF e apri email</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML("beforeend", html);
+  const modal = document.getElementById("proposta-modal");
+  modal.style.display = "flex";
+
+  modal.querySelector("#prop-annulla").addEventListener("click", () => modal.remove());
+  modal.querySelector("#prop-conferma").addEventListener("click", () => {
+    const dati = {
+      ragione: document.getElementById("prop-ragione").value.trim(),
+      referente: document.getElementById("prop-referente").value.trim(),
+      email: document.getElementById("prop-email").value.trim(),
+      ritiro: document.getElementById("prop-ritiro").value,
+      localita: document.getElementById("prop-localita").value.trim(),
+      note: document.getElementById("prop-note").value.trim(),
+    };
+    modal.remove();
+    onConfirm(dati);
+  });
+}
+
+// ====== PDF con soli articoli selezionati ======
+function generaPdfProposta(datiCliente, items) {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  const dd = String(now.getDate()).padStart(2,'0');
+  const dataStr = `${dd}/${mm}/${yyyy}`;
+
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "fixed";
+  wrapper.style.left = "-99999px";
+
+  wrapper.innerHTML = `
+  <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; padding: 10px;">
+    <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
+    <div style="font-size:13px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
+
+    <table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:12px;">
+      <tr>
+        <td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td>
+        <td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px; background:#f5f5f5;">Referente</td>
+        <td style="padding:6px 8px;">${datiCliente.referente || '-'}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px; background:#f5f5f5;">Email</td>
+        <td style="padding:6px 8px;">${datiCliente.email || '-'}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px; background:#f5f5f5;">Ritiro azienda</td>
+        <td style="padding:6px 8px;">${datiCliente.ritiro || '-'}</td>
+      </tr>
+      <tr>
+        <td style="padding:6px 8px; background:#f5f5f5;">Località spedizione</td>
+        <td style="padding:6px 8px;">${datiCliente.localita || '-'}</td>
+      </tr>
+      ${datiCliente.note ? `
+      <tr>
+        <td style="padding:6px 8px; background:#f5f5f5;">Note</td>
+        <td style="padding:6px 8px;">${datiCliente.note}</td>
+      </tr>` : ``}
+    </table>
+
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr>
+          <th style="text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Codice</th>
+          <th style="text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Descrizione</th>
+          <th style="text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Prezzo</th>
+          <th style="text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Promo</th>
+          <th style="text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Conai/collo</th>
+          <th style="text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Q.tà</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(it => `
+          <tr>
+            <td style="border:1px solid #ccc; padding:6px;">${it.codice}</td>
+            <td style="border:1px solid #ccc; padding:6px;">${it.descrizione}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzo}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzoPromo}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.conai}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center;">${it.quantita}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    <p style="margin-top:8px; font-size:12px; color:#444;">
+      I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
+    </p>
+  </div>
+  `;
+  document.body.appendChild(wrapper);
+
+  // genera e salva PDF
+  return html2pdf()
+    .set({
+      margin: 10,
+      filename: `proposta-acquisto-${yyyy}${mm}${dd}.pdf`,
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    })
+    .from(wrapper)
+    .save()
+    .then(() => document.body.removeChild(wrapper))
+    .catch(() => document.body.removeChild(wrapper));
+}
+
+// ====== Email: costruisci bozza e apri client ======
+function apriEmailProposta(datiCliente, itemsCount) {
+  const subject = `Proposta di acquisto`;
+  const body =
+`Buongiorno,
+
+invio proposta di acquisto per gli articoli indicati nel PDF allegato.
+
+Dati cliente
+- Ragione sociale: ${datiCliente.ragione || '-'}
+- Referente: ${datiCliente.referente || '-'}
+- Email: ${datiCliente.email || '-'}
+- Ritiro in azienda: ${datiCliente.ritiro || '-'}
+- Località spedizione: ${datiCliente.localita || '-'}
+
+Articoli selezionati: ${itemsCount}
+
+Note:
+${datiCliente.note || '-'}
+
+Grazie, resto in attesa di conferma disponibilità e tempi.`;
+
+  const mailto = `mailto:preventivi@tecnobox.net?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+}
+
+// ====== Click "Invia proposta" ======
+document.getElementById("invia-proposta").addEventListener("click", () => {
+  // 1) raccogli gli articoli con qty > 0
+  const items = getArticoliSelezionati();
+  if (items.length === 0) {
+    alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
+    return;
+  }
+  // 2) chiedi dati cliente
+  apriModalProposta(async (dati) => {
+    // 3) genera PDF, poi apri mail
+    await generaPdfProposta(dati, items);
+    apriEmailProposta(dati, items.length);
+  });
+});
