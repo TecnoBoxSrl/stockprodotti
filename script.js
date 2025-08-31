@@ -277,23 +277,27 @@ function apriModalProposta(onConfirm) {
 
       <div class="grid" style="display:grid;gap:10px;grid-template-columns:1fr 1fr;">
         <div class="full" style="grid-column:1/-1;">
-          <label style="font-size:13px;color:#333;display:block;">Ragione sociale</label>
-          <input id="prop-ragione" type="text" placeholder="Inserisci ragione sociale" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <label style="font-size:13px;color:#333;display:block;">Ragione sociale *</label>
+          <input id="prop-ragione" type="text" placeholder="Es. Tecno Box Srl" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-ragione" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div>
-          <label style="font-size:13px;color:#333;display:block;">Referente</label>
+          <label style="font-size:13px;color:#333;display:block;">Referente *</label>
           <input id="prop-referente" type="text" placeholder="Nome Cognome" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-referente" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div>
-          <label style="font-size:13px;color:#333;display:block;">Email</label>
-          <input id="prop-email" type="email" placeholder="Inserisci email valida" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <label style="font-size:13px;color:#333;display:block;">Email *</label>
+          <input id="prop-email" type="email" placeholder="esempio@mail.com" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-email" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div>
-          <label style="font-size:13px;color:#333;display:block;">Telefono</label>
-          <input id="prop-telefono" type="tel" placeholder="Inserisci recapito telefonico" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <label style="font-size:13px;color:#333;display:block;">Telefono *</label>
+          <input id="prop-telefono" type="tel" placeholder="Es. 3331234567" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-telefono" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div>
@@ -305,23 +309,26 @@ function apriModalProposta(onConfirm) {
         </div>
 
         <div>
-          <label style="font-size:13px;color:#333;display:block;">Città</label>
-          <input id="prop-citta" type="text" placeholder="Es. Milano" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <label style="font-size:13px;color:#333;display:block;">Città ${/* sarà obbligatoria se ritiro=NO */''}</label>
+          <input id="prop-citta" type="text" placeholder="Città" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-citta" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div>
-          <label style="font-size:13px;color:#333;display:block;">CAP</label>
-          <input id="prop-cap" type="text" placeholder="Cap" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <label style="font-size:13px;color:#333;display:block;">CAP ${/* obbligatorio se ritiro=NO */''}</label>
+          <input id="prop-cap" type="text" placeholder="Es. 20100" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-cap" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div class="full" style="grid-column:1/-1;">
-          <label style="font-size:13px;color:#333;display:block;">Indirizzo</label>
+          <label style="font-size:13px;color:#333;display:block;">Indirizzo ${/* obbligatorio se ritiro=NO */''}</label>
           <input id="prop-indirizzo" type="text" placeholder="Via e numero civico" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <div class="err" id="err-indirizzo" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div class="full" style="grid-column:1/-1;">
           <label style="font-size:13px;color:#333;display:block;">Note (opzionale)</label>
-          <textarea id="prop-note" rows="3" placeholder="" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;"></textarea>
+          <textarea id="prop-note" rows="3" placeholder="Es. preferenza su orari, richiesta bancale, ecc." style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;"></textarea>
         </div>
       </div>
 
@@ -335,33 +342,85 @@ function apriModalProposta(onConfirm) {
   document.body.insertAdjacentHTML("beforeend", html);
   const modal = document.getElementById("proposta-modal");
 
+  // utilità
+  const $ = id => document.getElementById(id);
+  const setErr = (inputEl, errEl, msg) => {
+    if (msg) {
+      inputEl.style.borderColor = "#c00";
+      errEl.textContent = msg;
+      errEl.style.display = "block";
+    } else {
+      inputEl.style.borderColor = "#ccc";
+      errEl.textContent = "";
+      errEl.style.display = "none";
+    }
+  };
+  const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const isPhone = v => v.replace(/\D/g,'').length >= 7; // semplice: almeno 7 cifre
+  const isCAP = v => /^\d{5}$/.test(v); // CAP italiano 5 cifre
+
   // Abilita/Disabilita indirizzo in base a "Ritiro in azienda"
   function setAddressDisabled(disabled) {
     ["prop-citta","prop-cap","prop-indirizzo"].forEach(id => {
-      const el = document.getElementById(id);
-      if (!el) return;
+      const el = $(id);
       el.disabled = disabled;
       el.style.background = disabled ? "#f3f3f3" : "#fff";
+      if (disabled) {
+        setErr(el, $(`err-${id.split('prop-')[1]}`), ""); // pulisci errori
+      }
     });
   }
   const selRitiro = modal.querySelector("#prop-ritiro");
   const updateAddress = () => setAddressDisabled(selRitiro.value === "SI");
   selRitiro.addEventListener("change", updateAddress);
-  updateAddress(); // stato iniziale (SI disabilita i campi)
+  updateAddress(); // stato iniziale
 
   modal.querySelector("#prop-annulla").addEventListener("click", () => modal.remove());
+
+  // Conferma con VALIDAZIONE
   modal.querySelector("#prop-conferma").addEventListener("click", () => {
-    const dati = {
-      ragione:   document.getElementById("prop-ragione").value.trim(),
-      referente: document.getElementById("prop-referente").value.trim(),
-      email:     document.getElementById("prop-email").value.trim(),
-      telefono:  document.getElementById("prop-telefono").value.trim(),
-      ritiro:    document.getElementById("prop-ritiro").value,
-      citta:     document.getElementById("prop-citta").value.trim(),
-      cap:       document.getElementById("prop-cap").value.trim(),
-      indirizzo: document.getElementById("prop-indirizzo").value.trim(),
-      note:      document.getElementById("prop-note").value.trim(),
-    };
+    // leggi valori
+    const ragione   = $("prop-ragione").value.trim();
+    const referente = $("prop-referente").value.trim();
+    const email     = $("prop-email").value.trim();
+    const telefono  = $("prop-telefono").value.trim();
+    const ritiro    = $("prop-ritiro").value;
+    const citta     = $("prop-citta").value.trim();
+    const cap       = $("prop-cap").value.trim();
+    const indirizzo = $("prop-indirizzo").value.trim();
+    const note      = $("prop-note").value.trim();
+
+    // reset errori
+    setErr($("prop-ragione"), $("err-ragione"), "");
+    setErr($("prop-referente"), $("err-referente"), "");
+    setErr($("prop-email"), $("err-email"), "");
+    setErr($("prop-telefono"), $("err-telefono"), "");
+    setErr($("prop-citta"), $("err-citta"), "");
+    setErr($("prop-cap"), $("err-cap"), "");
+    setErr($("prop-indirizzo"), $("err-indirizzo"), "");
+
+    let ok = true;
+
+    // obbligatori sempre
+    if (!ragione)   { setErr($("prop-ragione"), $("err-ragione"), "Campo obbligatorio"); ok = false; }
+    if (!referente) { setErr($("prop-referente"), $("err-referente"), "Campo obbligatorio"); ok = false; }
+    if (!email || !isEmail(email)) { setErr($("prop-email"), $("err-email"), "Inserire un'email valida"); ok = false; }
+    if (!telefono || !isPhone(telefono)) { setErr($("prop-telefono"), $("err-telefono"), "Inserire un numero valido"); ok = false; }
+
+    // obbligatori se ritiro = NO
+    if (ritiro === "NO") {
+      if (!citta)     { setErr($("prop-citta"), $("err-citta"), "Campo obbligatorio"); ok = false; }
+      if (!cap || !isCAP(cap)) { setErr($("prop-cap"), $("err-cap"), "CAP a 5 cifre"); ok = false; }
+      if (!indirizzo) { setErr($("prop-indirizzo"), $("err-indirizzo"), "Campo obbligatorio"); ok = false; }
+    }
+
+    if (!ok) {
+      // opzionale: messaggio generale
+      // alert("Compila i campi obbligatori evidenziati.");
+      return;
+    }
+
+    const dati = { ragione, referente, email, telefono, ritiro, citta, cap, indirizzo, note };
     modal.remove();
     onConfirm(dati);
   });
