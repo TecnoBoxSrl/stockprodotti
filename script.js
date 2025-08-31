@@ -272,21 +272,30 @@ function apriModalProposta(onConfirm) {
 
   const html = `
   <div id="proposta-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10000;">
-    <div class="box" style="background:#fff;width:95%;max-width:650px;border-radius:10px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-family:Segoe UI,Roboto,Helvetica Neue,Arial;">
+    <div class="box" style="background:#fff;width:95%;max-width:720px;border-radius:10px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.2);font-family:Segoe UI,Roboto,Helvetica Neue,Arial;">
       <h3 style="margin:0 0 10px;font-size:20px;">Invia proposta</h3>
+
       <div class="grid" style="display:grid;gap:10px;grid-template-columns:1fr 1fr;">
         <div class="full" style="grid-column:1/-1;">
           <label style="font-size:13px;color:#333;display:block;">Ragione sociale</label>
-          <input id="prop-ragione" type="text" placeholder="Ragione Sociale" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-ragione" type="text" placeholder="Es. Tecno Box Srl" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
         </div>
+
         <div>
           <label style="font-size:13px;color:#333;display:block;">Referente</label>
           <input id="prop-referente" type="text" placeholder="Nome Cognome" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
         </div>
+
         <div>
           <label style="font-size:13px;color:#333;display:block;">Email</label>
-          <input id="prop-email" type="email" placeholder="Inserisci email valida" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-email" type="email" placeholder="esempio@mail.com" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
         </div>
+
+        <div>
+          <label style="font-size:13px;color:#333;display:block;">Telefono</label>
+          <input id="prop-telefono" type="tel" placeholder="Es. 3331234567" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+        </div>
+
         <div>
           <label style="font-size:13px;color:#333;display:block;">Ritiro in azienda?</label>
           <select id="prop-ritiro" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
@@ -294,15 +303,28 @@ function apriModalProposta(onConfirm) {
             <option value="NO">NO</option>
           </select>
         </div>
+
         <div>
-          <label style="font-size:13px;color:#333;display:block;">Località spedizione</label>
-          <input id="prop-localita" type="text" placeholder="Città / CAP / indirizzo (se noto)" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <label style="font-size:13px;color:#333;display:block;">Città</label>
+          <input id="prop-citta" type="text" placeholder="Es. Milano" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
         </div>
+
+        <div>
+          <label style="font-size:13px;color:#333;display:block;">CAP</label>
+          <input id="prop-cap" type="text" placeholder="Es. 20100" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+        </div>
+
+        <div class="full" style="grid-column:1/-1;">
+          <label style="font-size:13px;color:#333;display:block;">Indirizzo</label>
+          <input id="prop-indirizzo" type="text" placeholder="Via e numero civico" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+        </div>
+
         <div class="full" style="grid-column:1/-1;">
           <label style="font-size:13px;color:#333;display:block;">Note (opzionale)</label>
           <textarea id="prop-note" rows="3" placeholder="Es. preferenza su orari, richiesta bancale, ecc." style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;"></textarea>
         </div>
       </div>
+
       <div class="actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
         <button id="prop-annulla" style="border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600;background:#aaa;color:#fff;">Annulla</button>
         <button id="prop-conferma" style="border:none;border-radius:6px;padding:8px 14px;cursor:pointer;font-weight:600;background:#45AC49;color:#fff;">Genera PDF e apri email</button>
@@ -313,20 +335,38 @@ function apriModalProposta(onConfirm) {
   document.body.insertAdjacentHTML("beforeend", html);
   const modal = document.getElementById("proposta-modal");
 
+  // Abilita/Disabilita indirizzo in base a "Ritiro in azienda"
+  function setAddressDisabled(disabled) {
+    ["prop-citta","prop-cap","prop-indirizzo"].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.disabled = disabled;
+      el.style.background = disabled ? "#f3f3f3" : "#fff";
+    });
+  }
+  const selRitiro = modal.querySelector("#prop-ritiro");
+  const updateAddress = () => setAddressDisabled(selRitiro.value === "SI");
+  selRitiro.addEventListener("change", updateAddress);
+  updateAddress(); // stato iniziale (SI disabilita i campi)
+
   modal.querySelector("#prop-annulla").addEventListener("click", () => modal.remove());
   modal.querySelector("#prop-conferma").addEventListener("click", () => {
     const dati = {
-      ragione: document.getElementById("prop-ragione").value.trim(),
+      ragione:   document.getElementById("prop-ragione").value.trim(),
       referente: document.getElementById("prop-referente").value.trim(),
-      email: document.getElementById("prop-email").value.trim(),
-      ritiro: document.getElementById("prop-ritiro").value,
-      localita: document.getElementById("prop-localita").value.trim(),
-      note: document.getElementById("prop-note").value.trim(),
+      email:     document.getElementById("prop-email").value.trim(),
+      telefono:  document.getElementById("prop-telefono").value.trim(),
+      ritiro:    document.getElementById("prop-ritiro").value,
+      citta:     document.getElementById("prop-citta").value.trim(),
+      cap:       document.getElementById("prop-cap").value.trim(),
+      indirizzo: document.getElementById("prop-indirizzo").value.trim(),
+      note:      document.getElementById("prop-note").value.trim(),
     };
     modal.remove();
     onConfirm(dati);
   });
 }
+
 
 // ====== PROPOSTA PDF (robusto, come "Scarica PDF") ======
 async function generaPdfProposta(datiCliente, items) {
@@ -347,50 +387,55 @@ async function generaPdfProposta(datiCliente, items) {
 
   // 1) Costruisci il contenuto della proposta
   const content = document.createElement("div");
-  content.innerHTML = `
-    <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
-      <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
-      <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
 
-      <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
-        <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
-        <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
-        <tr><td style="padding:6px 8px; background:#f5f5f5;">Email</td><td style="padding:6px 8px;">${datiCliente.email || '-'}</td></tr>
-        <tr><td style="padding:6px 8px; background:#f5f5f5;">Ritiro azienda</td><td style="padding:6px 8px;">${datiCliente.ritiro || '-'}</td></tr>
-        <tr><td style="padding:6px 8px; background:#f5f5f5;">Località spedizione</td><td style="padding:6px 8px;">${datiCliente.localita || '-'}</td></tr>
-        ${datiCliente.note ? `<tr><td style="padding:6px 8px; background:#f5f5f5;">Note</td><td style="padding:6px 8px;">${datiCliente.note}</td></tr>` : ``}
-      </table>
+ content.innerHTML = `
+  <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
+    <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
+    <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
 
-      <table style="width:95%; border-collapse:collapse; font-size:12px; table-layout:auto;">
-        <thead>
+    <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
+      <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">Email</td><td style="padding:6px 8px;">${datiCliente.email || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">Telefono</td><td style="padding:6px 8px;">${datiCliente.telefono || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">Ritiro in azienda</td><td style="padding:6px 8px;">${datiCliente.ritiro || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">Città</td><td style="padding:6px 8px;">${datiCliente.citta || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">CAP</td><td style="padding:6px 8px;">${datiCliente.cap || '-'}</td></tr>
+      <tr><td style="padding:6px 8px; background:#f5f5f5;">Indirizzo</td><td style="padding:6px 8px;">${datiCliente.indirizzo || '-'}</td></tr>
+      ${datiCliente.note ? `<tr><td style="padding:6px 8px; background:#f5f5f5;">Note</td><td style="padding:6px 8px;">${datiCliente.note}</td></tr>` : ``}
+    </table>
+
+    <table style="width:95%; border-collapse:collapse; font-size:12px; table-layout:auto;">
+      <thead>
+        <tr>
+          <th style="width:12%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Codice</th>
+          <th style="width:42%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Descrizione</th>
+          <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Prezzo</th>
+          <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Promo</th>
+          <th style="width:12%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Conai/collo</th>
+          <th style="width:8%; text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Q.tà</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(it => `
           <tr>
-            <th style="width:12%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Codice</th>
-            <th style="width:42%; text-align:left; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Descrizione</th>
-            <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Prezzo</th>
-            <th style="width:10%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Promo</th>
-            <th style="width:12%; text-align:right; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Conai/collo</th>
-            <th style="width:8%; text-align:center; background:#45AC49; color:#fff; padding:6px; border:1px solid #ccc;">Q.tà</th>
+            <td style="border:1px solid #ccc; padding:6px; word-break:break-word;">${it.codice}</td>
+            <td style="border:1px solid #ccc; padding:6px; word-break:break-word;">${it.descrizione}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzo}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzoPromo}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.conai}</td>
+            <td style="border:1px solid #ccc; padding:6px; text-align:center;">${it.quantita}</td>
           </tr>
-        </thead>
-        <tbody>
-          ${items.map(it => `
-            <tr>
-              <td style="border:1px solid #ccc; padding:6px; word-break:break-word;">${it.codice}</td>
-              <td style="border:1px solid #ccc; padding:6px; word-break:break-word;">${it.descrizione}</td>
-              <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzo}</td>
-              <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.prezzoPromo}</td>
-              <td style="border:1px solid #ccc; padding:6px; text-align:right;">${it.conai}</td>
-              <td style="border:1px solid #ccc; padding:6px; text-align:center;">${it.quantita}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+        `).join('')}
+      </tbody>
+    </table>
 
-      <p style="margin-top:8px; font-size:11.5px; color:#444;">
-        I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
-      </p>
-    </div>
-  `;
+    <p style="margin-top:8px; font-size:11.5px; color:#444;">
+      I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
+    </p>
+  </div>
+`;
+
 
   // 2) Contenitore OFF-SCREEN identico a "Scarica PDF"
   const tmp = document.createElement("div");
@@ -424,7 +469,8 @@ async function generaPdfProposta(datiCliente, items) {
 // ====== Email bozza ======
 function apriEmailProposta(datiCliente, itemsCount) {
   const subject = `Proposta di acquisto`;
-  const body = 
+
+ const body = 
 `Buongiorno,
 
 invio proposta di acquisto per gli articoli indicati nel PDF allegato.
@@ -433,13 +479,19 @@ Dati cliente
 - Ragione sociale: ${datiCliente.ragione || '-'}
 - Referente: ${datiCliente.referente || '-'}
 - Email: ${datiCliente.email || '-'}
+- Telefono: ${datiCliente.telefono || '-'}
 - Ritiro in azienda: ${datiCliente.ritiro || '-'}
-- Località spedizione: ${datiCliente.localita || '-'}
+
+Indirizzo spedizione
+- Città: ${datiCliente.citta || '-'}
+- CAP: ${datiCliente.cap || '-'}
+- Indirizzo: ${datiCliente.indirizzo || '-'}
 
 Articoli selezionati: ${itemsCount}
 
 Note:
 ${datiCliente.note || '-'}
+
 
 Grazie, resto in attesa di conferma disponibilità e tempi.`;
 
