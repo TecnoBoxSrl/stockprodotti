@@ -654,3 +654,19 @@ background-color: #05539c !important;
 .qty-input::-webkit-input-placeholder { opacity: 1; }
 .qty-input:focus::-webkit-input-placeholder { opacity: 0; }
 
+/* --- FOTO PRODOTTI UNIFORMI --- */
+#tabella-prodotti td:last-child {
+  width: 120px;           /* colonna foto con larghezza fissa */
+  text-align: center;     /* immagine centrata */
+  vertical-align: middle; /* centrata verticalmente */
+}
+
+td img.zoomable {
+  width: 100px;           /* tutte larghe uguali */
+  height: 100px;          /* tutte alte uguali */
+  object-fit: contain;    /* mantiene proporzioni senza deformare */
+  cursor: zoom-in;
+  display: block;
+  margin: 0 auto;         /* centra anche come blocco */
+}
+
