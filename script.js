@@ -277,7 +277,7 @@ function apriModalProposta(onConfirm) {
       <div class="grid" style="display:grid;gap:10px;grid-template-columns:1fr 1fr;">
         <div class="full" style="grid-column:1/-1;">
           <label style="font-size:13px;color:#333;display:block;">Ragione sociale</label>
-          <input id="prop-ragione" type="text" placeholder="Es. Tecno Box Srl" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-ragione" type="text" placeholder="Ragione Sociale" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
         </div>
         <div>
           <label style="font-size:13px;color:#333;display:block;">Referente</label>
@@ -285,7 +285,7 @@ function apriModalProposta(onConfirm) {
         </div>
         <div>
           <label style="font-size:13px;color:#333;display:block;">Email</label>
-          <input id="prop-email" type="email" placeholder="esempio@mail.com" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-email" type="email" placeholder="Inserisci email valida" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
         </div>
         <div>
           <label style="font-size:13px;color:#333;display:block;">Ritiro in azienda?</label>
