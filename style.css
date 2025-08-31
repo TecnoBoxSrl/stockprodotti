@@ -662,8 +662,8 @@ background-color: #05539c !important;
 }
 
 td img.zoomable {
-  width: 100px;           /* tutte larghe uguali */
-  height: 100px;          /* tutte alte uguali */
+  width: 80px;           /* tutte larghe uguali */
+  height: 80px;          /* tutte alte uguali */
   object-fit: contain;    /* mantiene proporzioni senza deformare */
   cursor: zoom-in;
   display: block;
