@@ -278,7 +278,7 @@ function apriModalProposta(onConfirm) {
       <div class="grid" style="display:grid;gap:10px;grid-template-columns:1fr 1fr;">
         <div class="full" style="grid-column:1/-1;">
           <label style="font-size:13px;color:#333;display:block;">Ragione sociale *</label>
-          <input id="prop-ragione" type="text" placeholder="Es. Tecno Box Srl" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-ragione" type="text" placeholder="Ragione sociale" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
           <div class="err" id="err-ragione" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
@@ -290,13 +290,13 @@ function apriModalProposta(onConfirm) {
 
         <div>
           <label style="font-size:13px;color:#333;display:block;">Email *</label>
-          <input id="prop-email" type="email" placeholder="esempio@mail.com" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-email" type="email" placeholder="inserisci email valida" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
           <div class="err" id="err-email" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
         <div>
           <label style="font-size:13px;color:#333;display:block;">Telefono *</label>
-          <input id="prop-telefono" type="tel" placeholder="Es. 3331234567" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
+          <input id="prop-telefono" type="tel" placeholder="Inserisci recapito telefonico" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;">
           <div class="err" id="err-telefono" style="display:none;color:#c00;font-size:12px;margin-top:4px;"></div>
         </div>
 
@@ -328,7 +328,7 @@ function apriModalProposta(onConfirm) {
 
         <div class="full" style="grid-column:1/-1;">
           <label style="font-size:13px;color:#333;display:block;">Note (opzionale)</label>
-          <textarea id="prop-note" rows="3" placeholder="Es. preferenza su orari, richiesta bancale, ecc." style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;"></textarea>
+          <textarea id="prop-note" rows="3" placeholder="" style="width:100%;padding:8px 10px;font-size:14px;border:1px solid #ccc;border-radius:6px;box-sizing:border-box;"></textarea>
         </div>
       </div>
 
