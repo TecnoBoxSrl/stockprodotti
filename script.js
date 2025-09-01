@@ -28,31 +28,25 @@ function mostraArticoli(data) {
     const isSoldOut = !qtyRaw || isNaN(stockNum) || stockNum <= 0;
     const stepValue = (!isSoldOut && stockNum < 1) ? stockNum : 1;
 
-    const qtyCellHTML = isSoldOut
-      ? `
-        <div class="qty-wrap">
-          <div class="qty-label">Disponibilità</div>
-          <div class="qty-value" style="color:red; font-weight:bold;">VENDUTO</div>
-          <input type="number" class="qty-input" value="" placeholder="0" min="0" step="1" disabled />
-        </div>
-      `
-      : `
-        <div class="qty-wrap">
-          <div class="qty-label">Disponibilità</div>
-          <div class="qty-value">${qtyRaw}</div>
-          <input
-            type="number"
-            class="qty-input"
-            data-codice="${codice}"
-            value=""
-            placeholder="0"
-            min="0"
-            max="${stockNum}"
-            step="${stepValue}"
-            inputmode="decimal"
-          />
-        </div>
-      `;
+   const qtyCellHTML = isSoldOut
+  ? `<span style="color:red; font-weight:bold;">VENDUTO</span>`
+  : `
+    <div class="qty-wrap">
+      <input
+        type="number"
+        class="qty-input"
+        data-codice="${codice}"
+        value="0"
+        min="0"
+        max="${stockNum}"
+        step="any"           <!-- permette i decimali liberamente -->
+        inputmode="decimal"  <!-- tastierino con separatore su mobile -->
+        lang="en"            <!-- forza il punto come separatore accettato -->
+      />
+      <small class="qty-hint">disp: ${qtyRaw || stockNum}</small>
+    </div>
+  `;
+
     // ====================================
 
     // Prezzi e formattazioni
@@ -603,12 +597,11 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
 
 
 
-// Consente di "scrivere la virgola" anche su type=number, convertendola in punto
+// Consenti di digitare la VIRGOLA convertendola in punto
 document.addEventListener('keydown', function (e) {
   const el = e.target;
   if (!el.classList || !el.classList.contains('qty-input')) return;
 
-  // Se l'utente preme la virgola, inseriamo un punto al caret
   if (e.key === ',') {
     e.preventDefault();
     const start = el.selectionStart ?? el.value.length;
@@ -616,21 +609,18 @@ document.addEventListener('keydown', function (e) {
     const v = el.value || '';
     el.value = v.slice(0, start) + '.' + v.slice(end);
     try { el.setSelectionRange(start + 1, start + 1); } catch {}
-    // Trigger manuale dell'evento input per far scattare i tuoi controlli
     el.dispatchEvent(new Event('input', { bubbles: true }));
   }
 });
 
-// Gestione incolla: sostituisce eventuali virgole con punto
+// Gestisci incolla: virgole -> punto
 document.addEventListener('paste', function (e) {
   const el = e.target;
   if (!el.classList || !el.classList.contains('qty-input')) return;
 
-  const data = (e.clipboardData || window.clipboardData).getData('text');
-  if (typeof data !== 'string') return;
-
+  const data = (e.clipboardData || window.clipboardData).getData('text') || '';
   e.preventDefault();
-  const cleaned = data.replace(/,/g, '.');  // virgole -> punti
+  const cleaned = data.replace(/,/g, '.');
 
   const start = el.selectionStart ?? el.value.length;
   const end   = el.selectionEnd ?? el.value.length;
@@ -639,4 +629,3 @@ document.addEventListener('paste', function (e) {
   try { el.setSelectionRange(start + cleaned.length, start + cleaned.length); } catch {}
   el.dispatchEvent(new Event('input', { bubbles: true }));
 });
-
