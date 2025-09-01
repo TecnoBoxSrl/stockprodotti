@@ -28,25 +28,31 @@ function mostraArticoli(data) {
     const isSoldOut = !qtyRaw || isNaN(stockNum) || stockNum <= 0;
     const stepValue = (!isSoldOut && stockNum < 1) ? stockNum : 1;
 
-const qtyCellHTML = isSoldOut
-  ? `<span style="color:red; font-weight:bold;">VENDUTO</span>`
-  : `
-    <div class="qty-wrap">
-      <input
-        type="number"
-        class="qty-input"
-        data-codice="${codice}"
-        value="0"
-        min="0"
-        max="${stockNum}"
-        step="any"
-        inputmode="decimal"
-        lang="en"
-      />
-      <small class="qty-hint">disp: ${qtyRaw || stockNum}</small>
-    </div>
-  `;
-
+    const qtyCellHTML = isSoldOut
+      ? `
+        <div class="qty-wrap">
+          <div class="qty-label">Disponibilità</div>
+          <div class="qty-value" style="color:red; font-weight:bold;">VENDUTO</div>
+          <input type="number" class="qty-input" value="" placeholder="0" min="0" step="1" disabled />
+        </div>
+      `
+      : `
+        <div class="qty-wrap">
+          <div class="qty-label">Disponibilità</div>
+          <div class="qty-value">${qtyRaw}</div>
+          <input
+            type="number"
+            class="qty-input"
+            data-codice="${codice}"
+            value=""
+            placeholder="0"
+            min="0"
+            max="${stockNum}"
+            step="${stepValue}"
+            inputmode="decimal"
+          />
+        </div>
+      `;
     // ====================================
 
     // Prezzi e formattazioni
@@ -593,34 +599,3 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
     if (box) box.scrollTo({ top: 0, behavior });
   };
 })();
-
-
-
-
-document.addEventListener('keydown', function (e) {
-  const el = e.target;
-  if (!el.classList || !el.classList.contains('qty-input')) return;
-  if (e.key === ',') {
-    e.preventDefault();
-    const start = el.selectionStart ?? el.value.length;
-    const end   = el.selectionEnd ?? el.value.length;
-    const v = el.value || '';
-    el.value = v.slice(0, start) + '.' + v.slice(end);
-    try { el.setSelectionRange(start + 1, start + 1); } catch {}
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  }
-});
-
-document.addEventListener('paste', function (e) {
-  const el = e.target;
-  if (!el.classList || !el.classList.contains('qty-input')) return;
-  const data = (e.clipboardData || window.clipboardData).getData('text') || '';
-  e.preventDefault();
-  const cleaned = data.replace(/,/g, '.');
-  const start = el.selectionStart ?? el.value.length;
-  const end   = el.selectionEnd ?? el.value.length;
-  const v = el.value || '';
-  el.value = v.slice(0, start) + cleaned + v.slice(end);
-  try { el.setSelectionRange(start + cleaned.length, start + cleaned.length); } catch {}
-  el.dispatchEvent(new Event('input', { bubbles: true }));
-});
