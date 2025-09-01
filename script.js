@@ -599,3 +599,44 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
     if (box) box.scrollTo({ top: 0, behavior });
   };
 })();
+
+
+
+
+// Consente di "scrivere la virgola" anche su type=number, convertendola in punto
+document.addEventListener('keydown', function (e) {
+  const el = e.target;
+  if (!el.classList || !el.classList.contains('qty-input')) return;
+
+  // Se l'utente preme la virgola, inseriamo un punto al caret
+  if (e.key === ',') {
+    e.preventDefault();
+    const start = el.selectionStart ?? el.value.length;
+    const end   = el.selectionEnd ?? el.value.length;
+    const v = el.value || '';
+    el.value = v.slice(0, start) + '.' + v.slice(end);
+    try { el.setSelectionRange(start + 1, start + 1); } catch {}
+    // Trigger manuale dell'evento input per far scattare i tuoi controlli
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+
+// Gestione incolla: sostituisce eventuali virgole con punto
+document.addEventListener('paste', function (e) {
+  const el = e.target;
+  if (!el.classList || !el.classList.contains('qty-input')) return;
+
+  const data = (e.clipboardData || window.clipboardData).getData('text');
+  if (typeof data !== 'string') return;
+
+  e.preventDefault();
+  const cleaned = data.replace(/,/g, '.');  // virgole -> punti
+
+  const start = el.selectionStart ?? el.value.length;
+  const end   = el.selectionEnd ?? el.value.length;
+  const v = el.value || '';
+  el.value = v.slice(0, start) + cleaned + v.slice(end);
+  try { el.setSelectionRange(start + cleaned.length, start + cleaned.length); } catch {}
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+});
+
