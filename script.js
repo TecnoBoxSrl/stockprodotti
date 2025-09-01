@@ -28,7 +28,7 @@ function mostraArticoli(data) {
     const isSoldOut = !qtyRaw || isNaN(stockNum) || stockNum <= 0;
     const stepValue = (!isSoldOut && stockNum < 1) ? stockNum : 1;
 
-   const qtyCellHTML = isSoldOut
+const qtyCellHTML = isSoldOut
   ? `<span style="color:red; font-weight:bold;">VENDUTO</span>`
   : `
     <div class="qty-wrap">
@@ -39,9 +39,9 @@ function mostraArticoli(data) {
         value="0"
         min="0"
         max="${stockNum}"
-        step="any"           <!-- permette i decimali liberamente -->
-        inputmode="decimal"  <!-- tastierino con separatore su mobile -->
-        lang="en"            <!-- forza il punto come separatore accettato -->
+        step="any"
+        inputmode="decimal"
+        lang="en"
       />
       <small class="qty-hint">disp: ${qtyRaw || stockNum}</small>
     </div>
@@ -597,11 +597,9 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
 
 
 
-// Consenti di digitare la VIRGOLA convertendola in punto
 document.addEventListener('keydown', function (e) {
   const el = e.target;
   if (!el.classList || !el.classList.contains('qty-input')) return;
-
   if (e.key === ',') {
     e.preventDefault();
     const start = el.selectionStart ?? el.value.length;
@@ -613,15 +611,12 @@ document.addEventListener('keydown', function (e) {
   }
 });
 
-// Gestisci incolla: virgole -> punto
 document.addEventListener('paste', function (e) {
   const el = e.target;
   if (!el.classList || !el.classList.contains('qty-input')) return;
-
   const data = (e.clipboardData || window.clipboardData).getData('text') || '';
   e.preventDefault();
   const cleaned = data.replace(/,/g, '.');
-
   const start = el.selectionStart ?? el.value.length;
   const end   = el.selectionEnd ?? el.value.length;
   const v = el.value || '';
