@@ -670,3 +670,47 @@ td img.zoomable {
   margin: 0 auto;         /* centra anche come blocco */
 }
 
+
+
+/* --- Tabella: colonne stabili e descrizione a capo --- */
+#tabella-prodotti {
+  table-layout: fixed;   /* impedisce che la descrizione allarghi la tabella */
+  width: 100%;
+}
+
+#tabella-prodotti th, 
+#tabella-prodotti td {
+  vertical-align: middle;
+}
+
+/* Larghezze indicative per desktop (somma ≈ 100%) */
+#tabella-prodotti th:nth-child(1), #tabella-prodotti td:nth-child(1) { width: 12%; white-space: nowrap; } /* Codice */
+#tabella-prodotti th:nth-child(2), #tabella-prodotti td:nth-child(2) { 
+  width: 38%;
+  white-space: normal;          /* ✅ permette l'andata a capo */
+  word-break: break-word;       /* spezza parole lunghe */
+  overflow-wrap: anywhere;      /* spezza anche senza spazi */
+}
+#tabella-prodotti th:nth-child(3), #tabella-prodotti td:nth-child(3) { width: 10%; white-space: nowrap; text-align: right; } /* Prezzo */
+#tabella-prodotti th:nth-child(4), #tabella-prodotti td:nth-child(4) { width: 10%; white-space: nowrap; text-align: right; } /* Promo */
+#tabella-prodotti th:nth-child(5), #tabella-prodotti td:nth-child(5) { width: 10%; white-space: nowrap; text-align: right; } /* Conai */
+#tabella-prodotti th:nth-child(6), #tabella-prodotti td:nth-child(6) { width: 12%; white-space: nowrap; text-align: center; } /* Quantità */
+#tabella-prodotti th:nth-child(7), #tabella-prodotti td:nth-child(7) { width: 8%;  white-space: nowrap; text-align: center; } /* Foto */
+
+/* Colonna foto uniforme (se non l’hai già) */
+#tabella-prodotti td:last-child {
+  width: 120px;
+  text-align: center;
+}
+td img.zoomable {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Contenitore scroll orizzontale se serve su schermi piccoli */
+.tabella-scroll {
+  overflow-x: auto;
+}
