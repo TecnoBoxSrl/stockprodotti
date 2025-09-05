@@ -535,3 +535,36 @@ mark {
   /* #btnTop{ transform: translateY(-0.5px); }  */
   /* #btnTop{ transform: translateY(0.5px); }   */
 }
+/* === CENTRATURA FORTE: freccia "Torna su" perfettamente al centro === */
+#btnTop{
+  display: grid !important;          /* più robusto di flex per il testo */
+  place-items: center !important;    /* centro orizzontale + verticale */
+  padding: 0 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+/* Se dentro c'è un'icona <svg> o <i>, centrala comunque */
+#btnTop > *{
+  margin: 0 !important;
+  display: block !important;
+}
+
+/* iOS/WebKit: niente stili nativi che possono spostare il glifo */
+@supports (-webkit-touch-callout: none) {
+  #btnTop{ -webkit-appearance: none; }
+}
+
+/* ====== PIANO B (usa SOLO se la vedi ancora spostata) ======
+   Sblocca le 3 righe qui sotto: disattiva il testo originale
+   e disegna la freccia centrata con un pseudo-elemento.      */
+/*
+#btnTop{ color: transparent !important; position: relative !important; }
+#btnTop::after{
+  content: "↑";
+  color: #fff;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1;
+}
+*/
