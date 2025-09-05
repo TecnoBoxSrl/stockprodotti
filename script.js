@@ -259,7 +259,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   html2pdf()
     .set({
       margin: 1,
-      filename: "prodotti-svendita-tecnobox.pdf",
+      filename: "ProdottiStockTecnoBoxRisultati.pdf",
       image: { type: "jpeg", quality: 1 },
       html2canvas: { scale: 2, useCORS: true, allowTaint: true, scrollX: 0, scrollY: 0 },
       jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
@@ -467,7 +467,7 @@ async function generaPdfProposta(datiCliente, items) {
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const dd = String(now.getDate()).padStart(2, '0');
   const dataStr = `${dd}/${mm}/${yyyy}`;
-  const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
+  const filename = `PropostaAcquistoTecnoBox-${yyyy}${mm}${dd}.pdf`;
 
   // 1) Costruisci contenuto off-screen (uguale al tuo)
   const content = document.createElement("div");
