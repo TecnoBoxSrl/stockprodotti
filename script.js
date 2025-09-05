@@ -9,16 +9,15 @@ Papa.parse(sheetURL, {
   complete: function(results) {
     const raw = results.data || [];
     datiOriginali = raw.filter(r => (r.Codice || r.Descrizione));
-
-    console.log('[DEBUG] righe caricate:', datiOriginali.length);
-    if (datiOriginali[0]) console.log('[DEBUG] chiavi prima riga:', Object.keys(datiOriginali[0]));
-
     popolaCategorie(datiOriginali);
     mostraArticoli(datiOriginali);
   }
 });
 
 
+// ====================
+// Rendering tabella
+// ====================
 function mostraArticoli(data) {
   const tbody = document.querySelector("#tabella-prodotti tbody");
   tbody.innerHTML = "";
@@ -84,11 +83,11 @@ function mostraArticoli(data) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${codice}</td>
-      <td>${descrizione}</td>
-      <td style="text-align:right;">${prezzoFmt}</td>
-      <td style="text-align:right;">${prezzoPromoFmt}</td>
-      <td style="text-align:right;">${conaiFmt}</td>
+      <td class="td-codice">${codice}</td>
+      <td class="td-desc">${descrizione}</td>
+      <td class="td-prezzo" style="text-align:right;">${prezzoFmt}</td>
+      <td class="td-prezzo-promo" style="text-align:right;">${prezzoPromoFmt}</td>
+      <td class="td-conai" style="text-align:right;">${conaiFmt}</td>
       <td style="text-align:center;">${qtyCellHTML}</td>
       <td style="text-align:center;">${imgTag}</td>
     `;
@@ -103,21 +102,19 @@ function mostraArticoli(data) {
 }
 
 
+// ====================
+// Categorie (bottoni + combo)
+// ====================
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
   const select = document.getElementById("select-categoria");
-  if (!contenitore && !select) {
-    console.warn('[DEBUG] Mancano #categorie e #select-categoria nel DOM');
-    return;
-  }
+  if (!contenitore && !select) return;
 
   const getCat = r => (r.Categoria ?? r.categoria ?? r['Categoria '] ?? r['categoria ']);
 
   const categorieUniche = [...new Set(
     data.map(r => (getCat(r) || '').toString().trim()).filter(Boolean)
   )].sort();
-
-  console.log('[DEBUG] categorie trovate:', categorieUniche);
 
   // --- BOTTONI (desktop) ---
   if (contenitore) {
@@ -157,7 +154,10 @@ function popolaCategorie(data) {
   }
 }
 
-// reset combo nel "Pulisci"
+
+// ====================
+// Filtro globale + pulisci
+// ====================
 document.getElementById("pulisci-filtro").addEventListener("click", () => {
   document.getElementById("filtro-globale").value = "";
   mostraArticoli(datiOriginali);
@@ -165,8 +165,6 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
   if (select) select.value = "";
 });
 
-
-// 🔍 Filtro globale
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
   const term = e.target.value.trim().toLowerCase();
   const righe = document.querySelectorAll("#tabella-prodotti tbody tr");
@@ -186,16 +184,10 @@ document.getElementById("filtro-globale").addEventListener("input", function(e) 
   });
 });
 
-// 🧼 Pulsante Pulisci (reset)
-document.getElementById("pulisci-filtro").addEventListener("click", function () {
-  const input = document.getElementById("filtro-globale");
-  input.value = "";
-  mostraArticoli(datiOriginali);
-  const select = document.getElementById("select-categoria");
-  if (select) select.value = "";
-});
 
-// 🔍 Zoom immagine
+// ====================
+// Zoom immagine
+// ====================
 function mostraZoom(src) {
   const overlay = document.getElementById("zoomOverlay");
   const zoomedImg = document.getElementById("zoomedImg");
@@ -203,7 +195,10 @@ function mostraZoom(src) {
   overlay.style.display = "flex";
 }
 
-// 📄 PDF
+
+// ====================
+// PDF export
+// ====================
 document.getElementById("scarica-pdf").addEventListener("click", () => {
   const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
   if (!visibile) { alert("Nessun articolo da stampare!"); return; }
@@ -250,7 +245,10 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     .catch(() => document.body.removeChild(tmp));
 });
 
-// 🔼 Bottone "torna su"
+
+// ====================
+// Bottone "torna su"
+// ====================
 (function () {
   const SCROLL_THRESHOLD = 600;
 
@@ -287,18 +285,18 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
   };
 })();
 
-/* ======================
-   GESTIONE INPUT QUANTITÀ
-   - accetta la virgola (convertita in .)
-   - nessuna formattazione locale su <input type="number">
-   - rispetta step e max (clamp)
-   ====================== */
 
+// ======================
+// GESTIONE INPUT QUANTITÀ
+// - accetta la virgola (convertita in . al volo)
+// - nessuna formattazione "it-IT" sull'input number (spinner ok)
+// - clamp a max e rispetto dello step
+// ======================
 document.addEventListener('input', (e) => {
   if (!e.target.classList.contains('qty-input')) return;
   const el = e.target;
 
-  // converte subito la virgola in punto (per i controlli nativi)
+  // converte virgola in punto per i controlli nativi
   if (el.value.includes(',')) {
     const caret = el.selectionStart;
     el.value = el.value.replace(',', '.');
@@ -318,5 +316,73 @@ document.addEventListener('input', (e) => {
   }
 });
 
-// Niente formattazione locale su change: lasciamo il valore "canonico"
-// così gli spinner/up-down funzionano correttamente.
+
+// ======================
+// INVIA PROPOSTA DI ACQUISTO (mailto)
+// ======================
+(function setupInviaProposta() {
+  const btn = document.getElementById('invia-proposta');
+  if (!btn) return;
+
+  const parseEuro = (txt) => {
+    let s = (txt || '').toString();
+    s = s.replace(/[^\d,.\-]/g, '');            // lascia cifre, , . e -
+    s = s.replace(/\./g, '').replace(',', '.'); // rimuovi migliaia, usa . come decimale
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  };
+
+  const fmtEuro = (n) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    // salva l'ultimo valore digitato
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+
+    const righe = Array.from(document.querySelectorAll('#tabella-prodotti tbody tr'));
+    const selezionati = [];
+
+    righe.forEach(tr => {
+      const input = tr.querySelector('.qty-input');
+      if (!input) return;
+
+      const raw = (input.value || '').replace(',', '.');
+      const qty = parseFloat(raw);
+      if (!qty || qty <= 0) return;
+
+      const codice = (tr.querySelector('.td-codice')?.textContent || '').trim();
+      const descr  = (tr.querySelector('.td-desc')?.textContent || '').trim();
+
+      const prezzoPromoTxt = (tr.querySelector('.td-prezzo-promo')?.textContent || '').trim();
+      const prezzoTxt      = (tr.querySelector('.td-prezzo')?.textContent || '').trim();
+
+      const unit = parseEuro(prezzoPromoTxt) || parseEuro(prezzoTxt) || 0;
+      const totale = unit * qty;
+
+      selezionati.push({ codice, descr, qty, unit, totale });
+    });
+
+    if (selezionati.length === 0) {
+      alert('Inserisci almeno una quantità prima di inviare la proposta.');
+      return;
+    }
+
+    const totaleMerce = selezionati.reduce((sum, r) => sum + r.totale, 0);
+
+    let body = '';
+    body += 'Buongiorno, invio proposta di acquisto dalla pagina "Linea Prodotti in Svendita".%0D%0A%0D%0A';
+    body += 'Righe selezionate:%0D%0A';
+    selezionati.forEach((r, i) => {
+      body += `${i+1}) ${r.codice} — Q.tà: ${r.qty} — Prezzo: € ${fmtEuro(r.unit)} — Totale: € ${fmtEuro(r.totale)}%0D%0A`;
+      body += `   ${r.descr}%0D%0A`;
+    });
+    body += `%0D%0ATOTALE MERCE: € ${fmtEuro(totaleMerce)} (IVA e trasporto esclusi)%0D%0A`;
+    body += `%0D%0ADATI CLIENTE:%0D%0A- Ragione Sociale:%0D%0A- Nome e Cognome:%0D%0A- Telefono:%0D%0A- Email:%0D%0A- Note:%0D%0A`;
+
+    const subject = `Proposta di acquisto – ${selezionati.length} articoli`;
+    const mailto = `mailto:preventivi@tecnobox.net?subject=${encodeURIComponent(subject)}&body=${body}`;
+
+    window.location.href = mailto;
+  });
+})();
