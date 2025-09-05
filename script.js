@@ -1,7 +1,9 @@
+// =================== CONFIG ===================
 const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTZBeQDcZ4tT-OSymuH_T89STQqG-OIQ2pmGmrZNSkj5VRVp4q_8oAh5D-bZ8HIIWYMW12xwEECxH5T/pub?output=csv';
 
 let datiOriginali = [];
 
+// =================== LOAD DATI ===================
 Papa.parse(sheetURL, {
   download: true,
   header: true,
@@ -14,6 +16,7 @@ Papa.parse(sheetURL, {
   }
 });
 
+// =================== RENDER TABELLA ===================
 function mostraArticoli(data) {
   const tbody = document.querySelector("#tabella-prodotti tbody");
   tbody.innerHTML = "";
@@ -34,7 +37,6 @@ function mostraArticoli(data) {
       if (Math.abs(frac - 0.5) < 1e-9) stepValue = '0.5';
       else if (Math.abs(frac - 0.25) < 1e-9 || Math.abs(frac - 0.75) < 1e-9) stepValue = '0.25';
       else if (frac === 0) stepValue = '1';
-      else stepValue = '0.01';
     }
 
     const qtyCellHTML = isSoldOut
@@ -69,8 +71,8 @@ function mostraArticoli(data) {
     const prezzo = row.Prezzo || '';
     const prezzoPromo = row["Prezzo Promo"] || '';
     const conaicollo = row.Conaicollo || '';
-    const imgSrc = row.Immagine?.trim() || '';
-    const evidenzia = row.Evidenzia?.trim().toUpperCase() === "SI";
+    const imgSrc = (row.Immagine || '').toString().trim();
+    const evidenzia = (row.Evidenzia || '').toString().trim().toUpperCase() === "SI";
 
     const prezzoFmt = (prezzo && !isNaN(prezzo.replace(',', '.')))
       ? `€${Number(prezzo.replace(',', '.')).toFixed(2).replace('.', ',')}` : '';
@@ -86,11 +88,11 @@ function mostraArticoli(data) {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${codice}</td>
-      <td>${descrizione}</td>
-      <td style="text-align:right;">${prezzoFmt}</td>
-      <td style="text-align:right;">${prezzoPromoFmt}</td>
-      <td style="text-align:right;">${conaiFmt}</td>
+      <td class="td-codice">${codice}</td>
+      <td class="td-desc">${descrizione}</td>
+      <td class="td-prezzo" style="text-align:right;">${prezzoFmt}</td>
+      <td class="td-prezzo-promo" style="text-align:right;">${prezzoPromoFmt}</td>
+      <td class="td-conai" style="text-align:right;">${conaiFmt}</td>
       <td style="text-align:center;">${qtyCellHTML}</td>
       <td style="text-align:center;">${imgTag}</td>
     `;
@@ -99,37 +101,33 @@ function mostraArticoli(data) {
       tr.style.backgroundColor = '#45ac49';
       tr.style.fontWeight = 'bold';
     }
-
     tbody.appendChild(tr);
   });
 
-  // 🔒 Hard clamp + supporto virgola → punto (spinner funzionante)
+  // Gestione quantità: virgola → punto, clamp a max, spinner ok
   document.querySelectorAll('.qty-input:not([disabled])').forEach(inp => {
     inp.addEventListener('input', () => {
-      // consenti vuoto mentre scrive
-      if (inp.value.trim() === '') return;
+      if (inp.value.trim() === '') return; // consenti campo vuoto
 
-      // converti virgola in punto per i controlli nativi del number
+      // virgola → punto per usare i controlli nativi del number
       if (inp.value.includes(',')) {
         const caret = inp.selectionStart;
         inp.value = inp.value.replace(',', '.');
         try { inp.setSelectionRange(caret, caret); } catch {}
       }
 
-      // clamp
       let num = inp.valueAsNumber;
-      if (Number.isNaN(num)) { return; } // lascia digitare
+      if (Number.isNaN(num)) return;
 
       const max = parseFloat(inp.max);
       const min = parseFloat(inp.min) || 0;
       if (!isNaN(max) && num > max) num = max;
       if (!isNaN(min) && num < min) num = min;
 
-      // scrivi valore canonico (con punto) per non rompere lo spinner
-      inp.value = String(num);
+      inp.value = String(num); // formato “canonico” per non rompere spinner
     });
 
-    // Proteggi da superamento max con frecce
+    // protezione da superamento max/min con frecce
     inp.addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
       const el = e.currentTarget;
@@ -144,6 +142,7 @@ function mostraArticoli(data) {
   });
 }
 
+// =================== CATEGORIE ===================
 function popolaCategorie(data) {
   const contenitore = document.getElementById("categorie");
   const select = document.getElementById("select-categoria");
@@ -190,7 +189,7 @@ function popolaCategorie(data) {
   }
 }
 
-// reset combo nel "Pulisci"
+// =================== FILTRI ===================
 document.getElementById("pulisci-filtro").addEventListener("click", () => {
   document.getElementById("filtro-globale").value = "";
   mostraArticoli(datiOriginali);
@@ -198,7 +197,6 @@ document.getElementById("pulisci-filtro").addEventListener("click", () => {
   if (select) select.value = "";
 });
 
-// 🔍 Filtro globale + evidenzia
 document.getElementById("filtro-globale").addEventListener("input", function(e) {
   const term = e.target.value.trim().toLowerCase();
   const righe = document.querySelectorAll("#tabella-prodotti tbody tr");
@@ -218,7 +216,7 @@ document.getElementById("filtro-globale").addEventListener("input", function(e) 
   });
 });
 
-// 🔍 Zoom immagine
+// =================== Zoom immagine ===================
 function mostraZoom(src) {
   const overlay = document.getElementById("zoomOverlay");
   const zoomedImg = document.getElementById("zoomedImg");
@@ -226,7 +224,7 @@ function mostraZoom(src) {
   overlay.style.display = "flex";
 }
 
-// 📄 PDF completo (elenco attualmente visibile)
+// =================== PDF elenco visibile ===================
 document.getElementById("scarica-pdf").addEventListener("click", () => {
   const visibile = document.querySelector("#tabella-prodotti tbody tr:not([style*='display: none'])");
   if (!visibile) { alert("Nessun articolo da stampare!"); return; }
@@ -273,7 +271,7 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
     .catch(() => document.body.removeChild(tmp));
 });
 
-// ====== PROPOSTA: selezione articoli con qty > 0 ======
+// =================== PROPOSTA: selezione articoli con qty > 0 ===================
 function getArticoliSelezionati() {
   const rows = document.querySelectorAll("#tabella-prodotti tbody tr");
   const items = [];
@@ -291,13 +289,15 @@ function getArticoliSelezionati() {
     const val = (inp.value || '').toString().replace(',', '.').trim();
     const qty = val === '' ? 0 : parseFloat(val);
     if (!isNaN(qty) && qty > 0) {
-      items.push({ codice, descrizione, prezzo, prezzoPromo, conai, quantita: inp.value });
+      // per stampa/visualizzazione usa la virgola
+      const quantitaText = (inp.value || String(qty)).replace(/\./g, ',');
+      items.push({ codice, descrizione, prezzo, prezzoPromo, conai, quantita: quantitaText });
     }
   });
   return items;
 }
 
-// ====== MODAL dati cliente ======
+// =================== MODAL dati cliente ===================
 function apriModalProposta(onConfirm) {
   const old = document.getElementById("proposta-modal");
   if (old) old.remove();
@@ -408,6 +408,7 @@ function apriModalProposta(onConfirm) {
 
   modal.querySelector("#prop-annulla").addEventListener("click", () => modal.remove());
 
+  // Conferma con validazione
   modal.querySelector("#prop-conferma").addEventListener("click", () => {
     const ragione   = $("prop-ragione").value.trim();
     const referente = $("prop-referente").value.trim();
@@ -443,16 +444,11 @@ function apriModalProposta(onConfirm) {
 
     const dati = { ragione, referente, email, telefono, ritiro, citta, cap, indirizzo, note };
     modal.remove();
-    // callback fornita dal chiamante
     onConfirm(dati);
   });
 }
 
-// ====== PROPOSTA PDF ======
-// --- Rileva "tablet" in modo prudente ---
-// --- Rileva "tablet" senza toccare PC/smartphone ---
-// --- iPadOS detector (iPad e iPadOS che si identificano "Mac" con touch) ---
-// --- iPadOS detector (iPad o iPadOS che si presenta come "Mac" con touch) ---
+// =================== Device detection (SOLO iPad) ===================
 function isIPadOS() {
   const ua = navigator.userAgent || navigator.vendor || "";
   const iPadUA = /\biPad\b/i.test(ua);
@@ -460,35 +456,7 @@ function isIPadOS() {
   return iPadUA || macTouch;
 }
 
-
-// --- Android tablet detector (Android ma NON "Mobile") ---
-function isAndroidTablet() {
-  const ua = navigator.userAgent || navigator.vendor || "";
-  return /\bAndroid\b/i.test(ua) && !/\bMobile\b/i.test(ua);
-}
-
-// --- Qualsiasi tablet (range prudente per evitare i telefoni) ---
-function isTabletDevice() {
-  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches; // input dito
-  const w = Math.min(window.innerWidth || 0, screen.width || 0);
-  return isIPadOS() || isAndroidTablet() || (coarse && w >= 768 && w <= 1366);
-}
-
-
-// ====== PROPOSTA PDF (tablet: download esterno; pc/cell: comportamento invariato) ======
-// ====== PROPOSTA PDF (tablet: download esterno; pc/cell: invariato) ======
-// rilevatore tablet (se non l'hai già)
-function isTabletDevice() {
-  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
-  const w = Math.min(window.innerWidth || 0, screen.width || 0);
-  return coarse && w >= 768 && w <= 1366;
-}
-
-// ====== PROPOSTA PDF (tablet: nuova scheda; pc/cell: invariato) ======
-// ====== PROPOSTA PDF (tablet safe: iPad & Android) ======
-gator.canShare && navigator.canShare({ files: [file] })) {
-            // ✅ Foglio di condivisione (Salva su File, invia ad app, ecc.)
-            await navi// ====== PROPOSTA PDF (iPad: scheda separata con download forzato; altri: invariato) ======
+// =================== PROPOSTA PDF ===================
 async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
   if (!items || items.length === 0) { alert("Nessun articolo selezionato. Inserisci almeno una quantità."); return; }
   if (!window.html2pdf) { alert("Libreria PDF non caricata. Metti html2pdf.bundle.min.js prima di script.js"); return; }
@@ -500,12 +468,13 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
   const dataStr = `${dd}/${mm}/${yyyy}`;
   const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
 
-  // --- contenuto off-screen (come il tuo attuale) ---
+  // 1) Costruisci contenuto off-screen
   const content = document.createElement("div");
   content.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
     <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
     <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
+
     <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
       <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
       <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
@@ -555,7 +524,7 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
 
   try {
     if (isIPadOS()) {
-      // iPad: genera PDF → prova Web Share; altrimenti usa la scheda aperta prima
+      // iPad: prova Web Share con file; fallback: nuova scheda già aperta con download forzato
       await html2pdf()
         .set({
           margin: 6,
@@ -572,16 +541,13 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
           const url = URL.createObjectURL(blob);
           const file = new File([blob], filename, { type: 'application/pdf' });
 
-          // 1) Tentativo migliore: Web Share con file (Salva su “File”, ecc.)
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file], title: 'Proposta di acquisto' });
-            // chiudi eventuale tab placeholder
             try { ipadTab && ipadTab.close && ipadTab.close(); } catch {}
             setTimeout(() => URL.revokeObjectURL(url), 10000);
             return;
           }
 
-          // 2) Fallback iPad: carica nella tab aperta prima e FORZA il download
           const htmlDownload = `
             <!doctype html>
             <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -604,28 +570,25 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
               ipadTab.document.write(htmlDownload);
               ipadTab.document.close();
             } catch {
-              ipadTab.location.href = url; // ultra fallback
+              ipadTab.location.href = url;
             }
           } else {
-            // se non siamo riusciti ad aprire la tab prima, apri ora in _blank
             const win = window.open('', '_blank', 'noopener');
             if (win) {
               win.document.write(htmlDownload);
               win.document.close();
             } else {
-              // ultimissimo fallback
               const a = document.createElement('a');
               a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.style.display = 'none';
               document.body.appendChild(a); a.click(); a.remove();
             }
           }
 
-          // revoca l'URL più tardi per sicurezza
           setTimeout(() => URL.revokeObjectURL(url), 20000);
         });
 
     } else {
-      // PC / smartphone / altri dispositivi: comportamento invariato (.save)
+      // PC / smartphone / altri: comportamento invariato
       await html2pdf()
         .set({
           margin: 6,
@@ -643,7 +606,7 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
   }
 }
 
-// ====== Email bozza ======
+// =================== Email bozza ===================
 function apriEmailProposta(datiCliente, itemsCount) {
   const subject = `Proposta di acquisto`;
   const body =
@@ -674,7 +637,7 @@ Grazie, resto in attesa di conferma disponibilità e tempi.`;
   window.location.href = mailto;
 }
 
-// ====== Click "Invia proposta" ======
+// =================== Click "Invia proposta" ===================
 document.getElementById("invia-proposta").addEventListener("click", () => {
   const items = getArticoliSelezionati();
   if (items.length === 0) {
@@ -682,37 +645,28 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
     return;
   }
 
-  apriModalProposta(async (dati) => {
-    let newTab = null;
-    let tabletMode = null;
-
-    if (isIPadOS()) {
-      tabletMode = 'ipad';
-      // apri SUBITO una scheda (gesto utente) che useremo dopo per caricare il PDF
-      newTab = window.open('', '_blank', 'noopener');
-      if (newTab) {
-        newTab.document.write('<p style="font-family:sans-serif;padding:16px">Preparazione PDF…</p>');
-      }
-    } else if (isAndroidTablet()) {
-      tabletMode = 'android';
+  // iPad: apri SUBITO tab placeholder (evita blocco popup)
+  let ipadTab = null;
+  if (isIPadOS()) {
+    ipadTab = window.open('', '_blank', 'noopener');
+    if (ipadTab) {
+      ipadTab.document.write('<p style="font-family:sans-serif;padding:16px;margin:0">Preparazione PDF…</p>');
+      try { ipadTab.document.title = 'Preparazione PDF…'; } catch {}
     }
+  }
 
-    await generaPdfProposta(dati, items, { newTabRef: newTab, tabletMode });
-
-    if (isTabletDevice()) {
-      // su tablet NON apriamo la mail automaticamente per non nascondere il download
-      const apri = confirm("PDF pronto. Vuoi aprire ora l'email di proposta?");
+  apriModalProposta(async (dati) => {
+    await generaPdfProposta(dati, items, { ipadTab });
+    if (isIPadOS()) {
+      const apri = confirm("PDF pronto. Vuoi aprire adesso l'email di proposta?");
       if (apri) apriEmailProposta(dati, items.length);
     } else {
-      // PC / telefono: comportamento invariato
       apriEmailProposta(dati, items.length);
     }
   });
 });
 
-
-
-// 🆙 Torna su
+// =================== 🆙 Torna su ===================
 (function () {
   const SCROLL_THRESHOLD = 600;
   function getScrollContainer() { return document.querySelector(".tabella-scroll"); }
