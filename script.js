@@ -105,63 +105,41 @@ function mostraArticoli(data) {
   });
 
   // Gestione quantità: virgola → punto, clamp a max, spinner ok
-// ✅ Accetta sia "." che ","; clamp su min/max; spinner funzionante; mostra la virgola al blur
-document.querySelectorAll('.qty-input:not([disabled])').forEach(inp => {
-  const max = parseFloat(inp.max);
-  const min = parseFloat(inp.min) || 0;
+  document.querySelectorAll('.qty-input:not([disabled])').forEach(inp => {
+    inp.addEventListener('input', () => {
+      if (inp.value.trim() === '') return; // consenti campo vuoto
 
-  // Al focus: se c'è la virgola, portala a punto (per far funzionare spinner/frecce)
-  inp.addEventListener('focus', () => {
-    if (inp.value.includes(',')) inp.value = inp.value.replace(',', '.');
+      // virgola → punto per usare i controlli nativi del number
+      if (inp.value.includes(',')) {
+        const caret = inp.selectionStart;
+        inp.value = inp.value.replace(',', '.');
+        try { inp.setSelectionRange(caret, caret); } catch {}
+      }
+
+      let num = inp.valueAsNumber;
+      if (Number.isNaN(num)) return;
+
+      const max = parseFloat(inp.max);
+      const min = parseFloat(inp.min) || 0;
+      if (!isNaN(max) && num > max) num = max;
+      if (!isNaN(min) && num < min) num = min;
+
+      inp.value = String(num); // formato “canonico” per non rompere spinner
+    });
+
+    // protezione da superamento max/min con frecce
+    inp.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      const el = e.currentTarget;
+      setTimeout(() => {
+        let v = el.valueAsNumber;
+        if (Number.isNaN(v)) return;
+        const max = parseFloat(el.max);
+        if (!isNaN(max) && v > max) el.value = String(max);
+        if (v < 0) el.value = '0';
+      }, 0);
+    });
   });
-
-  // In digitazione: consenti vuoto, accetta virgola -> convertila in punto; clamp
-  inp.addEventListener('input', () => {
-    if (inp.value.trim() === '') return; // consenti campo vuoto mentre scrive
-
-    // consenti virgola durante la digitazione
-    if (inp.value.includes(',')) {
-      const caret = inp.selectionStart;
-      inp.value = inp.value.replace(',', '.');     // normalizza
-      try { inp.setSelectionRange(caret, caret); } catch {}
-    }
-
-    let v = inp.valueAsNumber;
-    if (Number.isNaN(v)) return; // ancora non un numero completo, lascia scrivere
-
-    if (!isNaN(max) && v > max) v = max;
-    if (!isNaN(min) && v < min) v = min;
-
-    // tieni il punto mentre il campo è attivo, così le frecce e lo step funzionano
-    inp.value = String(v);
-  });
-
-  // Frecce ↑↓: dopo l'incremento/decremento, verifica che non superi i limiti
-  inp.addEventListener('keydown', (e) => {
-    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
-    setTimeout(() => {
-      let v = inp.valueAsNumber;
-      if (Number.isNaN(v)) return;
-      if (!isNaN(max) && v > max) inp.value = String(max);
-      if (v < min) inp.value = String(min);
-    }, 0);
-  });
-
-  // Al blur: formatta con la virgola (quello che l’utente si aspetta di vedere)
-  inp.addEventListener('blur', () => {
-    const val = inp.value.trim();
-    if (!val) return;
-    const num = parseFloat(val);
-    if (isNaN(num)) { inp.value = ''; return; }
-    inp.value = Number.isInteger(num) ? String(num) : String(num).replace('.', ',');
-  });
-
-  // Paste: normalizza dopo l'incolla
-  inp.addEventListener('paste', () => {
-    requestAnimationFrame(() => inp.dispatchEvent(new Event('input')));
-  });
-});
-
 }
 
 // =================== CATEGORIE ===================
