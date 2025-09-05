@@ -5,11 +5,9 @@ let datiOriginali = [];
 Papa.parse(sheetURL, {
   download: true,
   header: true,
-  // normalizza nomi colonne
   transformHeader: h => h.trim(),
   complete: function(results) {
     const raw = results.data || [];
-    // scarta righe completamente vuote
     datiOriginali = raw.filter(r => (r.Codice || r.Descrizione));
 
     console.log('[DEBUG] righe caricate:', datiOriginali.length);
@@ -60,7 +58,7 @@ function mostraArticoli(data) {
     if (stockNum <= 0) {
       qtyCellHTML = `<span style="color:red; font-weight:bold;">VENDUTO</span>`;
     } else {
-      // step dinamico a partire dalla frazione della disponibilità
+      // step dinamico in base alla frazione
       const frac = Math.abs(stockNum - Math.floor(stockNum));
       let step = '0.01';
       if (Math.abs(frac - 0.5) < 1e-9) step = '0.5';
@@ -291,64 +289,34 @@ document.getElementById("scarica-pdf").addEventListener("click", () => {
 
 /* ======================
    GESTIONE INPUT QUANTITÀ
-   - accetta virgola
-   - rispetta step e max
-   - blocca superamenti anche con frecce
+   - accetta la virgola (convertita in .)
+   - nessuna formattazione locale su <input type="number">
+   - rispetta step e max (clamp)
    ====================== */
 
-// Normalizza input quantità: accetta virgola, rispetta max, memorizza in data-normalized
 document.addEventListener('input', (e) => {
   if (!e.target.classList.contains('qty-input')) return;
-
   const el = e.target;
-  const max = parseFloat((el.getAttribute('max') || '0').replace(',', '.')) || 0;
 
-  // accetta virgola: converti a punto per parsing
-  let val = (el.value || '').replace(',', '.');
-
-  if (val === '') { el.dataset.normalized = ''; return; }
-
-  if (isNaN(val)) {
-    val = val.replace(/[^0-9.\-]/g,'');
+  // converte subito la virgola in punto (per i controlli nativi)
+  if (el.value.includes(',')) {
+    const caret = el.selectionStart;
+    el.value = el.value.replace(',', '.');
+    try { el.setSelectionRange(caret, caret); } catch {}
   }
 
-  let num = parseFloat(val);
-  if (isNaN(num)) { el.dataset.normalized = ''; return; }
+  const maxAttr = el.getAttribute('max') || '0';
+  const max = parseFloat(maxAttr.toString().replace(',', '.')) || 0;
 
-  if (num < 0) num = 0;
-  if (max > 0 && num > max) num = max;
+  let v = el.valueAsNumber;
+  if (Number.isNaN(v)) return;
 
-  el.dataset.normalized = num.toString();
-});
-
-// Alla conferma (blur/enter) formatta con locale it-IT (virgola)
-document.addEventListener('change', (e) => {
-  if (!e.target.classList.contains('qty-input')) return;
-
-  const el = e.target;
-  const n = parseFloat(el.dataset.normalized || el.value.replace(',', '.'));
-  if (!isNaN(n)) {
-    // mostra fino a 3 decimali ma non forza sempre 3
-    el.value = n.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
+  if (max > 0 && v > max) {
+    el.value = String(max);
+  } else if (v < 0) {
+    el.value = '0';
   }
 });
 
-// Protegge dallo sforamento con frecce tastiera/spinner
-document.addEventListener('keydown', (e) => {
-  if (!e.target.classList.contains('qty-input')) return;
-
-  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-    const el = e.target;
-    const max = parseFloat((el.getAttribute('max') || '0').replace(',', '.')) || 0;
-
-    // attendi l'aggiornamento dell'input
-    setTimeout(() => {
-      let v = parseFloat((el.value || '').toString().replace(',', '.'));
-      if (isNaN(v)) return;
-      if (max > 0 && v > max) {
-        el.value = max.toLocaleString('it-IT', { maximumFractionDigits: 3 });
-        el.dataset.normalized = max.toString();
-      }
-    }, 0);
-  }
-});
+// Niente formattazione locale su change: lasciamo il valore "canonico"
+// così gli spinner/up-down funzionano correttamente.
