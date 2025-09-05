@@ -799,3 +799,45 @@ td img.zoomable {
   /* righe zebra per migliorare la leggibilità orizzontale */
   #tabella-prodotti tbody tr:nth-child(even) { background: #fafafa; }
 }
+
+/* --- Tablet (iPad/Android) : mostra etichette intere e scorri in orizzontale --- */
+@media (pointer:coarse) and (min-width:768px) and (max-width:1366px) {
+  .tabella-scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* scorrimento fluido su iOS */
+  }
+
+  /* lascia che la tabella prenda la larghezza necessaria (poi la scrolli) */
+  #tabella-prodotti{
+    table-layout: auto;
+    width: max-content;            /* evita che stringa le colonne */
+    min-width: 100%;               /* non più stretta del contenitore */
+  }
+
+  /* non mandare a capo i testi nelle celle (così le intestazioni non si accorciano) */
+  #tabella-prodotti th,
+  #tabella-prodotti td{
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  /* un filo più piccole le intestazioni per iPad */
+  #tabella-prodotti th{
+    font-size: 13px;
+    line-height: 1.2;
+    padding: 8px 6px;
+  }
+
+  /* dai più spazio alle due intestazioni lunghe */
+  #tabella-prodotti th:nth-child(4){ /* Prezzo Promo (€) */
+    min-width: 140px;
+  }
+  #tabella-prodotti th:nth-child(5){ /* Conai x collo (€) */
+    min-width: 160px;
+  }
+}
+
+/* (opzionale) Solo Safari/iPad: stessa cosa, se vuoi essere ultra-specifico */
+@supports (-webkit-touch-callout: none) {
+  .tabella-scroll{ -webkit-overflow-scrolling: touch; }
+}
