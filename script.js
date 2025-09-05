@@ -452,12 +452,14 @@ function apriModalProposta(onConfirm) {
 // --- Rileva "tablet" in modo prudente ---
 // --- Rileva "tablet" senza toccare PC/smartphone ---
 // --- iPadOS detector (iPad e iPadOS che si identificano "Mac" con touch) ---
+// --- iPadOS detector (iPad o iPadOS che si presenta come "Mac" con touch) ---
 function isIPadOS() {
   const ua = navigator.userAgent || navigator.vendor || "";
   const iPadUA = /\biPad\b/i.test(ua);
   const macTouch = /\bMacintosh\b/i.test(ua) && 'ontouchend' in document; // iPadOS >= 13
   return iPadUA || macTouch;
 }
+
 
 // --- Android tablet detector (Android ma NON "Mobile") ---
 function isAndroidTablet() {
@@ -484,7 +486,10 @@ function isTabletDevice() {
 
 // ====== PROPOSTA PDF (tablet: nuova scheda; pc/cell: invariato) ======
 // ====== PROPOSTA PDF (tablet safe: iPad & Android) ======
-async function generaPdfProposta(datiCliente, items, opts = {}) {
+gator.canShare && navigator.canShare({ files: [file] })) {
+            // ✅ Foglio di condivisione (Salva su File, invia ad app, ecc.)
+            await navi// ====== PROPOSTA PDF (iPad: scheda separata con download forzato; altri: invariato) ======
+async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
   if (!items || items.length === 0) { alert("Nessun articolo selezionato. Inserisci almeno una quantità."); return; }
   if (!window.html2pdf) { alert("Libreria PDF non caricata. Metti html2pdf.bundle.min.js prima di script.js"); return; }
 
@@ -495,13 +500,12 @@ async function generaPdfProposta(datiCliente, items, opts = {}) {
   const dataStr = `${dd}/${mm}/${yyyy}`;
   const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
 
-  // 1) Contenuto off-screen (come già avevi)
+  // --- contenuto off-screen (come il tuo attuale) ---
   const content = document.createElement("div");
   content.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
     <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
     <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
-
     <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
       <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
       <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
@@ -544,17 +548,14 @@ async function generaPdfProposta(datiCliente, items, opts = {}) {
     </p>
   </div>`;
 
-  // 2) Metti off-screen
   const tmp = document.createElement("div");
   tmp.style.position = "fixed"; tmp.style.left = "-99999px"; tmp.style.top = "0";
   tmp.appendChild(content);
   document.body.appendChild(tmp);
 
   try {
-    const { newTabRef = null, tabletMode = null } = opts;
-
     if (isIPadOS()) {
-      // --- iPad: prova Web Share con file; fallback: usa la scheda già aperta ---
+      // iPad: genera PDF → prova Web Share; altrimenti usa la scheda aperta prima
       await html2pdf()
         .set({
           margin: 6,
@@ -568,70 +569,63 @@ async function generaPdfProposta(datiCliente, items, opts = {}) {
         .get('pdf')
         .then(async (pdf) => {
           const blob = pdf.output('blob');
+          const url = URL.createObjectURL(blob);
           const file = new File([blob], filename, { type: 'application/pdf' });
 
+          // 1) Tentativo migliore: Web Share con file (Salva su “File”, ecc.)
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            // ✅ Foglio di condivisione (Salva su File, invia ad app, ecc.)
             await navigator.share({ files: [file], title: 'Proposta di acquisto' });
-            // se avevamo aperto una scheda placeholder, la chiudiamo
-            try { newTabRef && newTabRef.close && newTabRef.close(); } catch {}
+            // chiudi eventuale tab placeholder
+            try { ipadTab && ipadTab.close && ipadTab.close(); } catch {}
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+            return;
+          }
+
+          // 2) Fallback iPad: carica nella tab aperta prima e FORZA il download
+          const htmlDownload = `
+            <!doctype html>
+            <meta name="viewport" content="width=device-width,initial-scale=1" />
+            <title>${filename}</title>
+            <div style="font-family:sans-serif;padding:12px">
+              <p>Se il download non parte, <a id="dl" href="${url}" download="${filename}">tocca qui per scaricare il PDF</a>.</p>
+            </div>
+            <iframe src="${url}" style="position:fixed;inset:0;border:0;width:100vw;height:100vh"></iframe>
+            <script>
+              (function(){
+                var a = document.getElementById('dl');
+                try { a.click(); } catch(e) {}
+              })();
+            <\/script>
+          `;
+
+          if (ipadTab && !ipadTab.closed) {
+            try {
+              ipadTab.document.open();
+              ipadTab.document.write(htmlDownload);
+              ipadTab.document.close();
+            } catch {
+              ipadTab.location.href = url; // ultra fallback
+            }
           } else {
-            // Fallback: carichiamo il PDF nella scheda aperta in anticipo (resti sulla pagina)
-            const dataUri = pdf.output('datauristring'); // data:application/pdf;...
-            if (newTabRef) {
-              newTabRef.location.href = dataUri;
+            // se non siamo riusciti ad aprire la tab prima, apri ora in _blank
+            const win = window.open('', '_blank', 'noopener');
+            if (win) {
+              win.document.write(htmlDownload);
+              win.document.close();
             } else {
-              // ultimo fallback: _blank
+              // ultimissimo fallback
               const a = document.createElement('a');
-              a.href = dataUri;
-              a.target = '_blank';
-              a.rel = 'noopener';
-              a.style.display = 'none';
-              document.body.appendChild(a);
-              a.click();
-              a.remove();
+              a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.style.display = 'none';
+              document.body.appendChild(a); a.click(); a.remove();
             }
           }
-        });
 
-    } else if (isAndroidTablet()) {
-      // --- Android tablet (Samsung): scarico come file (resti sulla pagina)
-      await html2pdf()
-        .set({
-          margin: 6,
-          image: { type: "jpeg", quality: 1 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
-          jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-          pagebreak: { mode: ["css", "legacy"] }
-        })
-        .from(content)
-        .toPdf()
-        .get('pdf')
-        .then((pdf) => {
-          const blob = pdf.output('blob');
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;       // forza download
-          a.rel = 'noopener';
-          a.style.display = 'none';
-          document.body.appendChild(a);
-
-          if (typeof a.download === 'string') {
-            a.click();
-          } else {
-            // fallback raro: apri in nuova scheda
-            window.open(url, '_blank', 'noopener');
-          }
-
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-            a.remove();
-          }, 4000);
+          // revoca l'URL più tardi per sicurezza
+          setTimeout(() => URL.revokeObjectURL(url), 20000);
         });
 
     } else {
-      // --- PC & smartphone: comportamento invariato (.save)
+      // PC / smartphone / altri dispositivi: comportamento invariato (.save)
       await html2pdf()
         .set({
           margin: 6,
@@ -648,7 +642,6 @@ async function generaPdfProposta(datiCliente, items, opts = {}) {
     document.body.removeChild(tmp);
   }
 }
-
 
 // ====== Email bozza ======
 function apriEmailProposta(datiCliente, itemsCount) {
