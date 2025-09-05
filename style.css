@@ -503,3 +503,35 @@ mark {
 
 /* cintura e bretelle: evita overflow in qualsiasi contesto residuo */
 .qty-input{ max-width: 100%; }
+
+
+/* === Freccia "Torna su" centrata nel pallino (fix iPad/tablet) === */
+#btnTop{
+  display: inline-flex !important;   /* usa flex per centrare */
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;             /* niente padding che la sposta */
+  line-height: 1 !important;         /* evita sfasamenti verticali del glifo */
+  text-align: center !important;
+}
+
+/* Safari/iOS: rimuovi eventuali stili nativi */
+@supports (-webkit-touch-callout: none) {
+  #btnTop{
+    -webkit-appearance: none;
+  }
+}
+
+/* Se dentro usi un'icona SVG, assicurati sia centrata */
+#btnTop svg{
+  width: 1em;
+  height: 1em;
+  display: block;                    /* elimina lo spazio inline sotto l'SVG */
+}
+
+/* (opzionale) micro-nudge solo su tablet se la vedi ancora leggermente alta/bassa */
+@media (pointer:coarse) and (min-width:768px) and (max-width:1366px){
+  /* scommenta una delle due righe se serve un ritocco fine */
+  /* #btnTop{ transform: translateY(-0.5px); }  */
+  /* #btnTop{ transform: translateY(0.5px); }   */
+}
