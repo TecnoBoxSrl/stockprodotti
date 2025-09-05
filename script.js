@@ -450,16 +450,17 @@ function apriModalProposta(onConfirm) {
 
 // ====== PROPOSTA PDF ======
 // --- Rileva "tablet" in modo prudente ---
+// --- Rileva "tablet" senza toccare PC/smartphone ---
 function isTabletDevice() {
-  const ua = navigator.userAgent || navigator.vendor || window.opera || "";
-  const isIPad = (/\biPad\b/.test(ua)) || (/\bMacintosh\b/.test(ua) && 'ontouchend' in document); // iPadOS
-  const isAndroidTablet = /\bAndroid\b/.test(ua) && !/\bMobile\b/.test(ua);
-  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
-  const w = Math.min(window.innerWidth, screen.width);
-  return isIPad || isAndroidTablet || (coarse && w >= 768 && w <= 1366);
+  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches; // input dito
+  const w = Math.min(window.innerWidth || 0, screen.width || 0);
+  // tipico range tablet in orizz./vert.
+  return coarse && w >= 768 && w <= 1366;
 }
 
+
 // ====== PROPOSTA PDF (tablet: download esterno; pc/cell: comportamento invariato) ======
+// ====== PROPOSTA PDF (tablet: download esterno; pc/cell: invariato) ======
 async function generaPdfProposta(datiCliente, items) {
   if (!items || items.length === 0) {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
@@ -477,7 +478,7 @@ async function generaPdfProposta(datiCliente, items) {
   const dataStr = `${dd}/${mm}/${yyyy}`;
   const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
 
-  // 1) Costruisci contenuto off-screen (uguale a prima)
+  // 1) Costruisci contenuto off-screen (identico al tuo)
   const content = document.createElement("div");
   content.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
@@ -526,7 +527,7 @@ async function generaPdfProposta(datiCliente, items) {
     </p>
   </div>`;
 
-  // 2) Metti off-screen
+  // 2) contenitore off-screen
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
@@ -536,7 +537,7 @@ async function generaPdfProposta(datiCliente, items) {
 
   try {
     if (isTabletDevice()) {
-      // --- SOLO TABLET: scarica come Blob (resti sulla pagina) ---
+      // --- SOLO TABLET: scarico come Blob e resto sulla pagina ---
       await html2pdf()
         .set({
           margin: 6,
@@ -553,15 +554,15 @@ async function generaPdfProposta(datiCliente, items) {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = filename;   // forza download
+          a.download = filename;   // forza download (niente navigazione)
           a.rel = 'noopener';
           a.style.display = 'none';
           document.body.appendChild(a);
 
-          // se l'attributo download non è supportato, apri in nuova scheda (ma non chiudi la pagina)
           if (typeof a.download === 'string') {
-            a.click();
+            a.click(); // download diretto
           } else {
+            // fallback raro: nuova scheda, ma la pagina resta aperta
             window.open(url, '_blank', 'noopener');
           }
 
@@ -571,7 +572,7 @@ async function generaPdfProposta(datiCliente, items) {
           }, 2000);
         });
     } else {
-      // --- PC & CELLULARE: comportamento invariato (quello che già ti va bene) ---
+      // --- PC & CELLULARE: comportamento invariato ---
       await html2pdf()
         .set({
           margin: 6,
@@ -588,6 +589,7 @@ async function generaPdfProposta(datiCliente, items) {
     document.body.removeChild(tmp);
   }
 }
+
 
 // ====== Email bozza ======
 function apriEmailProposta(datiCliente, itemsCount) {
@@ -627,11 +629,21 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
     return;
   }
+
   apriModalProposta(async (dati) => {
+    // 1) genera/scarica il PDF (tablet: Blob, pc/cell: come prima)
     await generaPdfProposta(dati, items);
-    apriEmailProposta(dati, items.length);
+
+    // 2) tablet: resta sulla pagina e chiedi se aprire la mail; pc/cell: apri subito
+    if (isTabletDevice()) {
+      const apri = confirm("PDF scaricato. Vuoi aprire adesso l'email di proposta?");
+      if (apri) apriEmailProposta(dati, items.length);
+    } else {
+      apriEmailProposta(dati, items.length);
+    }
   });
 });
+
 
 // 🆙 Torna su
 (function () {
