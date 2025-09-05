@@ -607,6 +607,98 @@ Grazie, resto in attesa di conferma disponibilità e tempi.`;
   window.location.href = mailto;
 }
 
+// === Helper: costruisci testo e link email ===
+function buildEmailDraft(datiCliente, itemsCount) {
+  return `Buongiorno,
+
+invio proposta di acquisto per gli articoli indicati nel PDF allegato.
+
+Dati cliente
+- Ragione sociale: ${datiCliente.ragione || '-'}
+- Referente: ${datiCliente.referente || '-'}
+- Email: ${datiCliente.email || '-'}
+- Telefono: ${datiCliente.telefono || '-'}
+- Ritiro in azienda: ${datiCliente.ritiro || '-'}
+
+Indirizzo spedizione
+- Città: ${datiCliente.citta || '-'}
+- CAP: ${datiCliente.cap || '-'}
+- Indirizzo: ${datiCliente.indirizzo || '-'}
+
+Articoli selezionati: ${itemsCount}
+
+Note:
+${datiCliente.note || '-'}
+
+Grazie, resto in attesa di conferma disponibilità e tempi.`;
+}
+
+function buildMailtoURL(datiCliente, itemsCount) {
+  const subject = 'Proposta di acquisto';
+  const body = buildEmailDraft(datiCliente, itemsCount);
+  return `mailto:preventivi@tecnobox.net?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function buildGmailComposeURL(datiCliente, itemsCount) {
+  const subject = 'Proposta di acquisto';
+  const body = buildEmailDraft(datiCliente, itemsCount);
+  // apre il composer di Gmail in una nuova scheda
+  return `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent('preventivi@tecnobox.net')}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+// === SOLO iPad: modale con pulsanti "Apri Mail", "Apri Gmail", "Copia email" ===
+function apriEmailModalIPad(datiCliente, itemsCount) {
+  const old = document.getElementById('ipad-mail-modal');
+  if (old) old.remove();
+
+  const mailto = buildMailtoURL(datiCliente, itemsCount);
+  const gmail  = buildGmailComposeURL(datiCliente, itemsCount);
+  const body   = buildEmailDraft(datiCliente, itemsCount);
+
+  const html = `
+  <div id="ipad-mail-modal" style="position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10001;">
+    <div style="background:#fff;width:92%;max-width:520px;border-radius:10px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);font-family:Segoe UI, Roboto, Helvetica, Arial;">
+      <h3 style="margin:0 0 10px;font-size:18px;">Invio email proposta</h3>
+      <p style="margin:0 0 12px;font-size:14px;color:#444;">Scegli come aprire la tua email su iPad:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <a id="btnMailto" href="${mailto}" style="text-align:center;background:#45AC49;color:#fff;text-decoration:none;padding:10px 12px;border-radius:8px;font-weight:600;">Apri Apple&nbsp;Mail</a>
+        <a id="btnGmail" href="${gmail}" target="_blank" rel="noopener" style="text-align:center;background:#155E75;color:#fff;text-decoration:none;padding:10px 12px;border-radius:8px;font-weight:600;">Apri Gmail web</a>
+        <button id="btnCopy" style="background:#e9ecef;color:#333;border:1px solid #cfd4da;border-radius:8px;padding:9px 12px;font-weight:600;cursor:pointer;">Copia testo email</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+        <button id="btnCloseEmailModal" style="background:#999;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600;">Chiudi</button>
+      </div>
+    </div>
+  </div>`;
+
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  const close = () => document.getElementById('ipad-mail-modal')?.remove();
+  document.getElementById('btnCloseEmailModal').addEventListener('click', close);
+
+  // Copia negli appunti (fallback legacy se Clipboard API non disponibile)
+  document.getElementById('btnCopy').addEventListener('click', async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(body);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = body;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select(); document.execCommand('copy'); ta.remove();
+      }
+      alert('Testo email copiato. Incollalo nella tua app di posta.');
+      close();
+    } catch {
+      alert('Non sono riuscito a copiare. Tieni premuto nel campo email della tua app e incolla manualmente.');
+    }
+  });
+}
+
+
+
 // =================== Click "Invia proposta" ===================
 document.getElementById("invia-proposta").addEventListener("click", () => {
   const items = getArticoliSelezionati();
@@ -616,17 +708,18 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
   }
 
   apriModalProposta(async (dati) => {
-    await generaPdfProposta(dati, items);
+    await generaPdfProposta(dati, items);  // (resta com’è: su iPad fa share/download senza nuove schede)
 
-    // iPad: chiedi se aprire la mail (evita che il mailto interferisca col salvataggio)
     if (isIPadOS()) {
-      const apri = confirm("PDF pronto. Vuoi aprire adesso l'email di proposta?");
-      if (apri) apriEmailProposta(dati, items.length);
+      // 👉 niente confirm: apriamo una modale con bottoni reali (gesture utente affidabile su iPad)
+      apriEmailModalIPad(dati, items.length);
     } else {
+      // PC / telefono: comportamento invariato
       apriEmailProposta(dati, items.length);
     }
   });
 });
+
 
 
 // =================== 🆙 Torna su ===================
