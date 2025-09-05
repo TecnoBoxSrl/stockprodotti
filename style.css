@@ -444,7 +444,7 @@ mark {
   /* riduci l'input e fallo adattare alla cella */
   .qty-input {
     width: 100% !important;     /* prende la larghezza disponibile della colonna */
-    max-width: 64px !important; /* più piccolo dei ~60–70px della colonna su iPad piccoli */
+    max-width: 54px !important; /* più piccolo dei ~60–70px della colonna su iPad piccoli */
     min-width: 48px;
     box-sizing: border-box;
     padding: 3px 4px;
