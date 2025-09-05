@@ -461,15 +461,17 @@ function isTabletDevice() {
 
 // ====== PROPOSTA PDF (tablet: download esterno; pc/cell: comportamento invariato) ======
 // ====== PROPOSTA PDF (tablet: download esterno; pc/cell: invariato) ======
+// rilevatore tablet (se non l'hai già)
+function isTabletDevice() {
+  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  const w = Math.min(window.innerWidth || 0, screen.width || 0);
+  return coarse && w >= 768 && w <= 1366;
+}
+
+// ====== PROPOSTA PDF (tablet: nuova scheda; pc/cell: invariato) ======
 async function generaPdfProposta(datiCliente, items) {
-  if (!items || items.length === 0) {
-    alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
-    return;
-  }
-  if (!window.html2pdf) {
-    alert("Libreria PDF non caricata. Metti html2pdf.bundle.min.js prima di script.js");
-    return;
-  }
+  if (!items || items.length === 0) { alert("Nessun articolo selezionato. Inserisci almeno una quantità."); return; }
+  if (!window.html2pdf) { alert("Libreria PDF non caricata. Metti html2pdf.bundle.min.js prima di script.js"); return; }
 
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -478,13 +480,12 @@ async function generaPdfProposta(datiCliente, items) {
   const dataStr = `${dd}/${mm}/${yyyy}`;
   const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
 
-  // 1) Costruisci contenuto off-screen (identico al tuo)
+  // contenuto off-screen (identico a prima)
   const content = document.createElement("div");
   content.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
     <h2 style="margin:0 0 8px;">Proposta di acquisto</h2>
     <div style="font-size:12px; color:#555; margin-bottom:10px;">Data: ${dataStr}</div>
-
     <table style="width:95%; border-collapse:collapse; font-size:13px; margin:0 0 10px 0; table-layout:auto;">
       <tr><td style="width:30%; padding:6px 8px; background:#f5f5f5;">Ragione sociale</td><td style="padding:6px 8px;">${datiCliente.ragione || '-'}</td></tr>
       <tr><td style="padding:6px 8px; background:#f5f5f5;">Referente</td><td style="padding:6px 8px;">${datiCliente.referente || '-'}</td></tr>
@@ -496,7 +497,6 @@ async function generaPdfProposta(datiCliente, items) {
       <tr><td style="padding:6px 8px; background:#f5f5f5;">Indirizzo</td><td style="padding:6px 8px;">${datiCliente.indirizzo || '-'}</td></tr>
       ${datiCliente.note ? `<tr><td style="padding:6px 8px; background:#f5f5f5;">Note</td><td style="padding:6px 8px;">${datiCliente.note}</td></tr>` : ``}
     </table>
-
     <table style="width:95%; border-collapse:collapse; font-size:12px; table-layout:auto;">
       <thead>
         <tr>
@@ -521,23 +521,23 @@ async function generaPdfProposta(datiCliente, items) {
         `).join('')}
       </tbody>
     </table>
-
-    <p style="margin-top:8px; font-size:11.5px; color:#444;">
-      I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
-    </p>
+    <p style="margin-top:8px; font-size:11.5px; color:#444;">I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.</p>
   </div>`;
 
-  // 2) contenitore off-screen
+  // contenitore off-screen
   const tmp = document.createElement("div");
-  tmp.style.position = "fixed";
-  tmp.style.left = "-99999px";
-  tmp.style.top = "0";
+  tmp.style.position = "fixed"; tmp.style.left = "-99999px"; tmp.style.top = "0";
   tmp.appendChild(content);
   document.body.appendChild(tmp);
 
   try {
     if (isTabletDevice()) {
-      // --- SOLO TABLET: scarico come Blob e resto sulla pagina ---
+      // 🔒 su tablet: apri SUBITO una scheda vuota (consenso popup) e poi spostaci il PDF
+      const newTab = window.open('', '_blank'); // deve avvenire dentro il gesto utente
+      if (newTab) {
+        newTab.document.write('<p style="font-family:sans-serif;padding:16px">Preparazione PDF…</p>');
+      }
+
       await html2pdf()
         .set({
           margin: 6,
@@ -552,27 +552,28 @@ async function generaPdfProposta(datiCliente, items) {
         .then((pdf) => {
           const blob = pdf.output('blob');
           const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;   // forza download (niente navigazione)
-          a.rel = 'noopener';
-          a.style.display = 'none';
-          document.body.appendChild(a);
 
-          if (typeof a.download === 'string') {
-            a.click(); // download diretto
+          if (newTab) {
+            // ✅ resta sulla pagina; il PDF si apre nella NUOVA scheda
+            newTab.location.href = url;
+            // non revocare subito l'URL: diamo tempo al browser di caricare
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
           } else {
-            // fallback raro: nuova scheda, ma la pagina resta aperta
-            window.open(url, '_blank', 'noopener');
+            // fallback (popup bloccato): prova con link target _blank
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
           }
-
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-            a.remove();
-          }, 2000);
         });
+
     } else {
-      // --- PC & CELLULARE: comportamento invariato ---
+      // PC & smartphone: comportamento invariato (.save apre dialog/download come prima)
       await html2pdf()
         .set({
           margin: 6,
@@ -589,7 +590,6 @@ async function generaPdfProposta(datiCliente, items) {
     document.body.removeChild(tmp);
   }
 }
-
 
 // ====== Email bozza ======
 function apriEmailProposta(datiCliente, itemsCount) {
