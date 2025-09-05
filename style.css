@@ -1,4 +1,4 @@
-/* Layout base */
+/* ========== LAYOUT BASE ========== */
 body {
   font-family: "Segoe UI", Roboto, Helvetica Neue, sans-serif;
   margin: 20px;
@@ -15,11 +15,6 @@ header {
   max-width: 230px;
   height: auto;
 }
-@media (max-width: 768px) {
-  .logo {
-    max-width: 250px !important; /* ingrandisci rispetto ai 150px che hai ora */
-  }
-}
 
 h1 {
   font-size: 2em;
@@ -34,7 +29,7 @@ h1 {
   margin-bottom: 0;
 }
 
-/* Filtro + Pulsanti */
+/* ========== FILTRI E BOTTONI ========== */
 .filters {
   display: flex;
   align-items: center;
@@ -65,7 +60,11 @@ h1 {
   background-color: #39933e;
 }
 
-/* Tabella */
+/* ========== TABELLA ========== */
+.tabella-scroll {
+  overflow-x: auto;                 /* default: se serve, può scorrere */
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -75,8 +74,8 @@ table {
 th, td {
   border: 1px solid #ccc;
   padding: 8px;
-  vertical-align: top;
-  white-space: nowrap;
+  vertical-align: middle;
+  white-space: nowrap;              /* base: niente a capo, gestito per device sotto */
 }
 
 th {
@@ -85,11 +84,7 @@ th {
   text-align: left;
 }
 
-/* Evita che le righe si spezzino nel PDF */
-#tabella-prodotti tr {
-  page-break-inside: avoid;
-}
-
+/* Sticky head (solo a schermo) */
 @media screen {
   #tabella-prodotti thead th {
     position: sticky;
@@ -100,29 +95,51 @@ th {
   }
 }
 
+/* Stampa */
 @media print {
-  #tabella-prodotti thead th {
-    position: static !important;
-  }
+  .no-print { display: none !important; }
+  #tabella-prodotti thead th { position: static !important; }
 }
 
+/* Evita spezzature riga in PDF */
+#tabella-prodotti tr { page-break-inside: avoid; }
 
-/* Immagini */
+/* Colonne desktop (tabella rigida, descrizione a capo) */
+#tabella-prodotti { table-layout: fixed; width: 100%; }
+
+#tabella-prodotti th:nth-child(1), #tabella-prodotti td:nth-child(1) { width: 12%; white-space: nowrap; }     /* Codice */
+#tabella-prodotti th:nth-child(2), #tabella-prodotti td:nth-child(2) { 
+  width: 38%;
+  white-space: normal;            /* consenti a capo solo alla descrizione su desktop */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+#tabella-prodotti th:nth-child(3), #tabella-prodotti td:nth-child(3) { width: 10%; text-align: right; }       /* Prezzo */
+#tabella-prodotti th:nth-child(4), #tabella-prodotti td:nth-child(4) { width: 10%; text-align: right; }       /* Prezzo Promo */
+#tabella-prodotti th:nth-child(5), #tabella-prodotti td:nth-child(5) { width: 10%; text-align: right; }       /* Conai */
+#tabella-prodotti th:nth-child(6), #tabella-prodotti td:nth-child(6) { width: 12%; text-align: center; }      /* Quantità */
+#tabella-prodotti th:nth-child(7), #tabella-prodotti td:nth-child(7) { width: 8%;  text-align: center; }      /* Foto */
+
+/* Colonna foto uniforme */
+#tabella-prodotti td:last-child {
+  width: 120px;
+  text-align: center;
+}
+
+/* ========== IMMAGINI E ZOOM ========== */
 td img.zoomable {
   width: 100px;
-  max-width: 100%;
-  height: auto;
+  height: 100px;
+  object-fit: contain;
   cursor: zoom-in;
+  display: block;
+  margin: 0 auto;
 }
 
-/* Zoom overlay */
 #zoomOverlay {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   background-color: rgba(0,0,0,0.7);
   justify-content: center;
   align-items: center;
@@ -134,92 +151,22 @@ td img.zoomable {
   max-height: 90%;
 }
 
-/* Evidenziazione righe */
+/* ========== EVIDENZIAZIONI ========== */
 tr.evidenziato {
   background-color: #45AC49 !important;
   color: white;
   font-weight: bold;
 }
 
-/* Evidenziazione ricerca */
 mark {
   background-color: #8ab783 !important;
   padding: 0 2px;
   border-radius: 2px;
 }
 
-/* Contenitore principale */
-main {
-  width: 100%;
-  overflow-x: auto;
-  margin-top: 20px;
-  
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filters input[type="text"],
-  .filters button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  th, td {
-    font-size: 14px;
-    padding: 6px;
-  }
-
-  .logo {
-    max-width: 150px;
-  }
-
-  h1 {
-    font-size: 1.5em;
-  }
-
-  td img.zoomable {
-    width: 80px;
-  }
-}
-
-@media (max-width: 480px) {
-  th, td {
-    font-size: 13px;
-  }
-
-  td img.zoomable {
-    width: 60px;
-  }
-
-  .filters input[type="text"] {
-    font-size: 14px;
-  }
-}
-
-/* Nasconde i pulsanti e la barra di ricerca solo nel PDF */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
-/* Evita che le righe si spezzino nel PDF */
-#tabella-prodotti tr {
-  page-break-inside: avoid;
-}
-
+/* ========== CATEGORIE ========== */
 .btn-categoria {
-background-color: #05539c !important;
+  background-color: #05539c !important;
   color: white !important;
   border: none;
   padding: 6px 16px;
@@ -235,12 +182,7 @@ background-color: #05539c !important;
   display: inline-block;
   box-sizing: border-box;
 }
-
-
-.btn-categoria:hover {
-  background-color: #000000;
-}
-
+.btn-categoria:hover { background-color: #000000; }
 
 #categorie {
   display: flex;
@@ -249,6 +191,8 @@ background-color: #05539c !important;
   justify-content: flex-start;
   align-items: stretch;
 }
+
+/* ========== TESTATA E IMMAGINI SHOCK ========== */
 .testata {
   display: flex;
   justify-content: space-between;
@@ -256,324 +200,54 @@ background-color: #05539c !important;
   flex-wrap: nowrap;
   gap: 20px;
 }
+.blocco-titolo { display: flex; align-items: center; gap: 20px; margin-top: 3px; }
+.titolo-testo { display: flex; flex-direction: column; }
 
-.blocco-titolo {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-top: 3px;
-}
+.immagine-shock { max-height: 250px; max-width: 179px; }
 
-.titolo-testo {
-  display: flex;
-  flex-direction: column;
-}
+.img-shock { display: block; width: 150px; height: auto; margin: 0 auto; }
+.txt-shock { width: 150px; margin: 6px auto 0; text-align: center; line-height: 1.35; }
 
-.immagine-shock {
-  max-height: 250px;
-  max-width: 179px;
-}
+.blocco-shock { display: inline-block; text-align: center; }
+.blocco-shock img { display: block; width: 120px; height: auto; }
+.testo-shock { max-width: 120px; margin: 5px auto 0; font-size: 14px; line-height: 1.4; }
 
-/* Solo su mobile (max 768px): centramento */
-@media (max-width: 768px) {
-  .testata {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .blocco-titolo {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .immagine-shock {
-    margin-top: 15px;
-  }
-}
-
-
-/* Combo categorie: desktop hidden, mobile visible */
+/* ========== COMBO CATEGORIE (MOBILE) ========== */
 #combo-categorie { display: none; }
-
-@media (max-width: 768px) {
-  #categorie { display: none; }              /* nasconde i bottoni su mobile */
-  #combo-categorie { display: block; }       /* mostra la combo su mobile */
-  #select-categoria {
-    width: 100%;
-    padding: 8px;
-    font-size: 16px;
-  }
-}
-#combo-categorie { display: none; }
-@media (max-width: 768px) {
-  #categorie { display: none; }
-  #combo-categorie { display: block !important; } /* serve !important se lasci inline */
-}
-
-/* Combo categorie mobile */
 #select-categoria {
-  background-color: #125ca2;   /* Colore di sfondo */
-  color: #ffffff;              /* Colore testo */
-  border: 1px solid #0d4377;   /* Bordo */
+  background-color: #125ca2;
+  color: #ffffff;
+  border: 1px solid #0d4377;
   padding: 8px;
   border-radius: 5px;
   font-size: 14px;
-  appearance: none;            /* Rimuove stile predefinito */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
-
-/* Cambia colore freccia dropdown nei browser */
 #select-categoria option {
-  background-color: #ffffff; /* Colore sfondo opzioni */
-  color: #000000;            /* Colore testo opzioni */
+  background-color: #ffffff;
+  color: #000000;
 }
 
-/* Mostra combo solo su mobile, nasconde bottoni */
-@media (max-width: 768px) {
-  #categorie {
-    display: none !important;
-  }
-  #combo-categorie {
-    display: block !important;
-  }
+/* ========== QUANTITÀ ========== */
+.testo-quantita { font-size: 15px; font-weight: bold; color: #444; margin: 2px 0 3px; }
+.qty-wrap { display: flex; flex-direction: column; align-items: center !important; gap: 3px; line-height: 1.2; }
+.qty-label { font-size: 12px; color: #555; }
+.qty-value { font-size: 14px; font-weight: bold; }
+.qty-input {
+  width: 80px;
+  text-align: center !important;
+  padding: 3px 6px;
 }
-.img-shock {
-  display: block;
-  width: 150px;     /* scegli tu: 120/150/180 px */
-  height: auto;
-  margin: 0 auto;   /* centra l’immagine */
-}
+.qty-input::placeholder { opacity: 1; transition: opacity .15s; }
+.qty-input:focus::placeholder { opacity: 0; }
+.qty-input::-webkit-input-placeholder { opacity: 1; }
+.qty-input:focus::-webkit-input-placeholder { opacity: 0; }
 
-.txt-shock {
-  width: 150px;     /* **uguale** alla width dell’immagine */
-  margin: 6px auto 0;
-  text-align: center;
-  line-height: 1.35;
-}
-
-
-.blocco-shock {
-  display: inline-block; /* il contenitore prende la larghezza dell'immagine */
-  text-align: center;    /* centra il testo rispetto all'immagine */
-}
-
-.blocco-shock img {
-  display: block;
-  width: 120px;  /* regola dimensione immagine */
-  height: auto;
-}
-
-.testo-shock {
-  max-width: 120px; /* stessa larghezza dell'immagine */
-  margin: 5px auto 0 auto;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-
-/* Ridimensionamento automatico su mobile */
-@media (max-width: 480px) {
-  .blocco-shock img {
-    width: 150px;       /* ridotta su schermi piccoli */
-  }
-  .blocco-shock p {
-    font-size: 13px;    /* testo leggermente più piccolo */
-  }
-}
-
-@media (max-width: 768px) {
-  /* aumenta lo spazio PRIMA del paragrafo info (solo mobile) */
-  .titolo-testo p:last-of-type {
-    margin-top: 12px !important;  /* prova 12–16 se vuoi più aria */
-  }
-}
-@media (max-width: 768px) {
-  #select-categoria {
-    text-align: center;          /* centra il testo selezionato */
-    text-align-last: center;     /* centra il testo anche nei browser che lo richiedono */
-  }
-}
-.testo-quantita {
-  font-size: 15px;
-  font-weight: bold;
-  color: #444;
-  margin-top: 2px;
-  margin-bottom: 3px;
-}
-
-/* Solo su mobile: centra il testo */
-@media (max-width: 768px) {
-  .testo-quantita {
-    text-align: center !important;
-  }
-}
-
-
-
-
-
-/* ===== FOOTER: DESKTOP (default) ===== */
-.footer {
-  border-top: 1px solid #ccc;
-  margin-top: 30px;
-  padding: 15px 10px;
-}
-
-.footer-content {
-  display: flex;
-  align-items: center;      /* centra verticalmente testo e immagini */
-  justify-content: center;  /* blocco centrato orizzontalmente */
-  gap: 16px;                /* spazio tra testo e gruppo immagini */
-  flex-wrap: nowrap;        /* stessa riga su desktop */
-  text-align: left;         /* testo a sinistra su desktop */
-}
-
-.footer-content p {
-  margin: 0;                /* niente margini verticali extra */
-  font-size: 14px;
-  color: #444;
-}
-
-.footer .certificazioni {
-  display: flex;
-  align-items: center;
-  gap: 14px;                /* spazio tra immagini */
-}
-
-.footer .certificazioni img {
-  height: 100px !important;  /* dimensione desktop */
-  width: auto;
-  vertical-align: middle;
-}
-
-/* ===== FOOTER: MOBILE ===== */
-@media (max-width: 768px) {
- 
-
-  .footer-content p {
-   margin: 0 auto;
- text-align: center !important;     /* forza centratura del testo su mobile */
-  }
-
-  .footer .certificazioni {
-    justify-content: center;
-    gap: 20px;              /* più respiro tra immagini su mobile */
-    flex-wrap: wrap;
-  }
-
-  .footer .certificazioni img {
-    height: 60px !important; /* aumenta dimensione mobile */
-    width: auto;
-  }
-}
-
-
-
-
-
-
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  /* forza stessa larghezza per input e pulsanti */
-  .filters input[type="text"],
-  .filters button {
-    width: 100% !important;
-    display: block;
-    box-sizing: border-box;
-  }
-}
-
-/* se usi anche la combo, allineala */
-@media (max-width: 768px) {
-  #combo-categorie select {
-    width: 100% !important;
-    box-sizing: border-box;
-  }
-}
-
-
-
-
-
-
-@media (max-width: 768px) {
-  .filters {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    width: 100%;
-  }
-
-  /* stessa larghezza per input e pulsanti */
-  #filtro-globale,
-  .filters button {
-    width: 100% !important;
-    display: block;
-    box-sizing: border-box;
-  }
-
-  /* evita che i bottoni “sforino” col min-width del desktop */
-  .filters button { min-width: 0 !important; }
-}
-
-#btnTop {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 99999;
-  width: 45px;
-  height: 45px;
-  border: none;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  background: #05539c !important;   /* colore richiesto */
-  color: #fff;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-
-  /* Fade */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(6px);
-  transition: opacity .2s ease, visibility .2s ease, transform .2s ease, background .3s ease;
-}
-
-/* Stato visibile */
-#btnTop.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-#btnTop:hover {
-  background: #05539c !important;   /* versione più scura per hover */
-  transform: translateY(-1px);
-}
-
-/* Telefono con notch */
-@supports (bottom: env(safe-area-inset-bottom)) {
-  #btnTop { bottom: calc(20px + env(safe-area-inset-bottom)); }
-}
-
-/* Niente in stampa */
-@media print { #btnTop { display: none !important; } }
-
-/* Accessibilità */
-@media (prefers-reduced-motion: reduce) {
-  #btnTop { transition: none; }
-}
-
-
+/* ========== PULSANTI AZIONE ========== */
 #invia-proposta {
-  background:#c92c3a !important;   /* tuo blu */
+  background: #c92c3a !important;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -581,263 +255,168 @@ background-color: #05539c !important;
   cursor: pointer;
   font-weight: 600;
 }
-#invia-proposta:hover { background: #033d74; }
+#invia-proposta:hover { background: #a82431; }
 
-/* Quantità: etichetta + valore + input */
-.qty-wrap {
+/* ========== FOOTER ========== */
+.footer {
+  border-top: 1px solid #ccc;
+  margin-top: 30px;
+  padding: 15px 10px;
+}
+.footer-content {
   display: flex;
-  flex-direction: column;
-  align-items: center !important;
-  gap: 3px;
-  line-height: 1.2;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: nowrap;
+  text-align: left;
 }
-
-.qty-label {
-  font-size: 12px;
-  color: #555;
-}
-
-.qty-value {
+.footer-content p {
+  margin: 0;
   font-size: 14px;
-  font-weight: bold;
+  color: #444;
 }
-
-.qty-input {
-  width: 80px;
-  text-align: center !important;
- 
-  padding: 3px 6px;
+.footer .certificazioni {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
-/* ===== Modal proposta ===== */
-#proposta-modal {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: none;            /* mostrato via JS */
-  align-items: center; justify-content: center;
-  z-index: 10000;
-}
-#proposta-modal .box {
-  background: #fff;
-  width: 95%; max-width: 650px;
-  border-radius: 10px; padding: 16px 18px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  font-family: "Segoe UI", Roboto, Helvetica Neue, sans-serif;
-}
-#proposta-modal h3 { margin: 0 0 10px; font-size: 20px; }
-#proposta-modal .grid {
-  display: grid; gap: 10px;
-  grid-template-columns: 1fr 1fr;
-}
-#proposta-modal .grid .full { grid-column: 1 / -1; }
-#proposta-modal label { font-size: 13px; color: #333; display:block; }
-#proposta-modal input, #proposta-modal select, #proposta-modal textarea {
-  width: 100%; padding: 8px 10px; font-size: 14px;
-  border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;
-}
-#proposta-modal .actions {
-  display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px;
-}
-#proposta-modal .btn {
-  border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer; font-weight: 600;
-}
-#proposta-modal .btn.cancel { background: #aaa; color: #fff; }
-#proposta-modal .btn.go { background: #45AC49; color: #fff; }
-
-
-
-
-/* Il "0" del placeholder sparisce quando l'input è a fuoco */
-.qty-input::placeholder { opacity: 1; transition: opacity .15s; }
-.qty-input:focus::placeholder { opacity: 0; }
-
-/* Per compat Safari/WebKit */
-.qty-input::-webkit-input-placeholder { opacity: 1; }
-.qty-input:focus::-webkit-input-placeholder { opacity: 0; }
-
-/* --- FOTO PRODOTTI UNIFORMI --- */
-#tabella-prodotti td:last-child {
-  width: 120px;           /* colonna foto con larghezza fissa */
-  text-align: center;     /* immagine centrata */
-  vertical-align: middle; /* centrata verticalmente */
-}
-
-td img.zoomable {
-  width: 80px;           /* tutte larghe uguali */
-  height: 80px;          /* tutte alte uguali */
-  object-fit: contain;    /* mantiene proporzioni senza deformare */
-  cursor: zoom-in;
-  display: block;
-  margin: 0 auto;         /* centra anche come blocco */
-}
-
-
-
-/* --- Tabella: colonne stabili e descrizione a capo --- */
-#tabella-prodotti {
-  table-layout: fixed;   /* impedisce che la descrizione allarghi la tabella */
-  width: 100%;
-}
-
-#tabella-prodotti th, 
-#tabella-prodotti td {
+.footer .certificazioni img {
+  height: 100px !important;
+  width: auto;
   vertical-align: middle;
 }
 
-/* Larghezze indicative per desktop (somma ≈ 100%) */
-#tabella-prodotti th:nth-child(1), #tabella-prodotti td:nth-child(1) { width: 12%; white-space: nowrap; } /* Codice */
-#tabella-prodotti th:nth-child(2), #tabella-prodotti td:nth-child(2) { 
-  width: 38%;
-  white-space: normal;          /* ✅ permette l'andata a capo */
-  word-break: break-word;       /* spezza parole lunghe */
-  overflow-wrap: anywhere;      /* spezza anche senza spazi */
+/* ========== TORNA SU ========== */
+#btnTop {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 99999;
+  width: 45px; height: 45px;
+  border: none; border-radius: 50%;
+  font-size: 18px; cursor: pointer;
+  background: #05539c !important;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  opacity: 0; visibility: hidden; transform: translateY(6px);
+  transition: opacity .2s ease, visibility .2s ease, transform .2s ease, background .3s ease;
 }
-#tabella-prodotti th:nth-child(3), #tabella-prodotti td:nth-child(3) { width: 10%; white-space: nowrap; text-align: right; } /* Prezzo */
-#tabella-prodotti th:nth-child(4), #tabella-prodotti td:nth-child(4) { width: 10%; white-space: nowrap; text-align: right; } /* Promo */
-#tabella-prodotti th:nth-child(5), #tabella-prodotti td:nth-child(5) { width: 10%; white-space: nowrap; text-align: right; } /* Conai */
-#tabella-prodotti th:nth-child(6), #tabella-prodotti td:nth-child(6) { width: 12%; white-space: nowrap; text-align: center; } /* Quantità */
-#tabella-prodotti th:nth-child(7), #tabella-prodotti td:nth-child(7) { width: 8%;  white-space: nowrap; text-align: center; } /* Foto */
+#btnTop.is-visible { opacity: 1; visibility: visible; transform: translateY(0); }
+#btnTop:hover { background: #05539c !important; transform: translateY(-1px); }
+@supports (bottom: env(safe-area-inset-bottom)) { #btnTop { bottom: calc(20px + env(safe-area-inset-bottom)); } }
+@media print { #btnTop { display: none !important; } }
+@media (prefers-reduced-motion: reduce) { #btnTop { transition: none; } }
 
-/* Colonna foto uniforme (se non l’hai già) */
-#tabella-prodotti td:last-child {
-  width: 120px;
-  text-align: center;
-}
-td img.zoomable {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-}
-
-/* Contenitore scroll orizzontale se serve su schermi piccoli */
-.tabella-scroll {
-  overflow-x: auto;
-}
-
-
-
-/* Mobile: scorri orizzontalmente la tabella */
+/* ========== RESPONSIVE: MOBILE (<=768px) ========== */
 @media (max-width: 768px) {
+  /* Logo più grande su mobile (come richiesto) */
+  .logo { max-width: 250px !important; }
+
+  header { flex-direction: column; align-items: flex-start; }
+  h1 { font-size: 1.5em; }
+
+  .filters { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; }
+  .filters input[type="text"], .filters button { width: 100% !important; display: block; box-sizing: border-box; }
+  .filters button { min-width: 0 !important; }
+
+  /* Combo categorie ON, bottoni OFF */
+  #categorie { display: none !important; }
+  #combo-categorie { display: block !important; }
+  #select-categoria { width: 100%; text-align: center; }
+  #select-categoria { text-align-last: center; }
+
+  th, td { font-size: 14px; padding: 6px; }
+  td img.zoomable { width: 80px; height: auto; }
+
+  .testata { flex-direction: column; align-items: center; text-align: center; }
+  .blocco-titolo { flex-direction: column; align-items: center; }
+  .immagine-shock { margin-top: 15px; }
+
+  /* Tabella: su mobile permetti scroll orizzontale */
   .tabella-scroll {
-    overflow-x: auto;           /* abilita scroll orizzontale */
+    overflow-x: auto;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* scorrimento fluido su iOS */
+    -webkit-overflow-scrolling: touch;
   }
-
-  /* lascia che la tabella possa allargarsi oltre il viewport */
   #tabella-prodotti {
-    width: auto;        /* NON 100%, così può superare la larghezza del contenitore */
-    min-width: 900px;   /* base minima comoda; al bisogno si espande oltre */
-    table-layout: auto;
+    width: auto;             /* può superare la larghezza del contenitore */
+    min-width: 900px;        /* base comoda */
+    table-layout: auto;      /* calcolo naturale delle colonne */
+  }
+  #tabella-prodotti th, #tabella-prodotti td {
+    white-space: nowrap;     /* niente a capo su mobile: si scorre */
   }
 
-  /* non mandare a capo il testo delle celle (inclusa la descrizione) */
+  .blocco-shock img { width: 150px; }
+  .blocco-shock p { font-size: 13px; }
+
+  .testo-quantita { text-align: center !important; }
+}
+
+/* Footer su mobile */
+@media (max-width: 768px) {
+  .footer-content p { margin: 0 auto; text-align: center !important; }
+  .footer .certificazioni { justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .footer .certificazioni img { height: 60px !important; }
+}
+
+/* ========== RESPONSIVE: TABLET (iPad/Android) ==========
+   NIENTE SCROLL ORIZZONTALE, ETICHETTE A CAPO
+   (pointer:coarse = input dito, range tipico tablet)
+========================================================= */
+@media (pointer:coarse) and (min-width:768px) and (max-width:1366px) {
+  .tabella-scroll{
+    overflow-x: hidden !important;   /* niente scroll orizzontale */
+  }
+
+  #tabella-prodotti{
+    width: 100% !important;
+    table-layout: fixed !important;  /* consente a capo nelle celle */
+  }
+
   #tabella-prodotti th,
-  #tabella-prodotti td {
-    white-space: nowrap;
-    /* optional, se qualche parola lunghissima causasse rotture:
-    word-break: keep-all;
-    */
+  #tabella-prodotti td{
+    white-space: normal !important;  /* va a capo */
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
-  /* facoltativo: limita un po’ l'immagine per non alzare troppo le righe */
-  #tabella-prodotti img {
-    max-width: 90px;
+  /* leggero compattamento per far entrare tutto */
+  #tabella-prodotti th{
+    font-size: 12.5px;
+    line-height: 1.2;
+    padding: 6px 6px;
+  }
+  #tabella-prodotti td{
+    font-size: 13px;
+    padding: 6px 6px;
+  }
+
+  /* larghezze guida per distribuire lo spazio */
+  #tabella-prodotti th:nth-child(1), #tabella-prodotti td:nth-child(1){ width: 12%; } /* Codice */
+  #tabella-prodotti th:nth-child(2), #tabella-prodotti td:nth-child(2){ width: 34%; } /* Descrizione */
+  #tabella-prodotti th:nth-child(3), #tabella-prodotti td:nth-child(3){ width: 12%; text-align:right; } /* Prezzo */
+  #tabella-prodotti th:nth-child(4), #tabella-prodotti td:nth-child(4){ width: 14%; text-align:right; } /* Prezzo Promo (€) */
+  #tabella-prodotti th:nth-child(5), #tabella-prodotti td:nth-child(5){ width: 14%; text-align:right; } /* Conai x collo (€) */
+  #tabella-prodotti th:nth-child(6), #tabella-prodotti td:nth-child(6){ width: 8%;  text-align:center; } /* Q.tà */
+  #tabella-prodotti th:nth-child(7), #tabella-prodotti td:nth-child(7){ width: 6%;  text-align:center; } /* Foto */
+
+  /* immagini un po' più piccole per stare comodi */
+  #tabella-prodotti td img.zoomable{
+    max-width: 56px;
     height: auto;
   }
 }
 
-
-
-
-
-/* ===== Tablet: rendi ben visibili Prezzo Promo e Conai ===== */
-@media (min-width: 768px) and (max-width: 1024px) {
-  /* abilita lo scroll orizzontale anche su tablet */
-  .tabella-scroll {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* lascia che la tabella possa allargarsi, così le colonne non si schiacciano */
-  #tabella-prodotti {
-    width: auto;
-    min-width: 1100px;        /* aumenta se vuoi ancora più spazio */
-    table-layout: auto;
-  }
-
-  /* intestazioni più leggibili e su una riga */
-  #tabella-prodotti th {
-    white-space: nowrap;
-    font-size: 14px;
-  }
-
-  /* Colonne 4 (Prezzo Promo) e 5 (Conai) ben leggibili */
-  #tabella-prodotti th:nth-child(4),
-  #tabella-prodotti td:nth-child(4),
-  #tabella-prodotti th:nth-child(5),
-  #tabella-prodotti td:nth-child(5) {
-    white-space: nowrap;                 /* niente a capo */
-    text-align: right;                   /* prezzi a destra */
-    font-variant-numeric: tabular-nums;  /* allinea le cifre (decimali in colonna) */
-    min-width: 140px;                    /* spazio minimo per non comprimere */
-  }
-
-  /* evidenzia le intestazioni delle due colonne economiche */
-  #tabella-prodotti th:nth-child(4),
-  #tabella-prodotti th:nth-child(5) {
-    background: #eef7f0;
-    color: #0f5132;
-  }
-
-  /* rafforza visivamente il Prezzo Promo e rendi ben leggibile il Conai */
-  .td-prezzo-promo { font-weight: 700; }
-  .td-prezzo-promo span { color: #c1121f !important; }  /* rosso più deciso */
-  .td-conai { color: #222; }
-
-  /* righe zebra per migliorare la leggibilità orizzontale */
-  #tabella-prodotti tbody tr:nth-child(even) { background: #fafafa; }
+/* ========== SMALL PHONES (<=480px) ========== */
+@media (max-width: 480px) {
+  th, td { font-size: 13px; }
+  td img.zoomable { width: 60px; }
+  .filters input[type="text"] { font-size: 14px; }
 }
 
-/* --- Tablet (iPad/Android) : mostra etichette intere e scorri in orizzontale --- */
-@media (pointer:coarse) and (min-width:768px) and (max-width:1366px) {
-  .tabella-scroll{
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* scorrimento fluido su iOS */
-  }
-
-  /* lascia che la tabella prenda la larghezza necessaria (poi la scrolli) */
-  #tabella-prodotti{
-    table-layout: auto;
-    width: max-content;            /* evita che stringa le colonne */
-    min-width: 100%;               /* non più stretta del contenitore */
-  }
-
-  /* non mandare a capo i testi nelle celle (così le intestazioni non si accorciano) */
-  #tabella-prodotti th,
-  #tabella-prodotti td{
-    white-space: nowrap;
-    vertical-align: middle;
-  }
-
-  /* un filo più piccole le intestazioni per iPad */
-  #tabella-prodotti th{
-    font-size: 13px;
-    line-height: 1.2;
-    padding: 8px 6px;
-  }
-
-  /* dai più spazio alle due intestazioni lunghe */
-  #tabella-prodotti th:nth-child(4){ /* Prezzo Promo (€) */
-    min-width: 140px;
-  }
-  #tabella-prodotti th:nth-child(5){ /* Conai x collo (€) */
-    min-width: 160px;
-  }
-}
-
-/* (opzionale) Solo Safari/iPad: stessa cosa, se vuoi essere ultra-specifico */
+/* ========== iOS SAFARI BOOST ========== */
 @supports (-webkit-touch-callout: none) {
   .tabella-scroll{ -webkit-overflow-scrolling: touch; }
 }
