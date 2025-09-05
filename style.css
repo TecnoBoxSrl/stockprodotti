@@ -420,3 +420,38 @@ mark {
 @supports (-webkit-touch-callout: none) {
   .tabella-scroll{ -webkit-overflow-scrolling: touch; }
 }
+
+/* === FIX TABLET: l'input quantità non esce dalla colonna === */
+@media (pointer:coarse) and (min-width:768px) and (max-width:1366px) {
+  /* la cella quantità: un po' meno padding per guadagnare spazio */
+  #tabella-prodotti td:nth-child(6) {
+    padding: 4px 4px;
+  }
+
+  /* contenitore quantità a tutta larghezza della cella */
+  .qty-wrap {
+    width: 100%;
+    align-items: center;
+  }
+
+  .qty-label,
+  .qty-value {
+    line-height: 1.1;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  /* riduci l'input e fallo adattare alla cella */
+  .qty-input {
+    width: 100% !important;     /* prende la larghezza disponibile della colonna */
+    max-width: 64px !important; /* più piccolo dei ~60–70px della colonna su iPad piccoli */
+    min-width: 48px;
+    box-sizing: border-box;
+    padding: 3px 4px;
+    margin: 0 auto;             /* centrato */
+  }
+}
+
+/* opzionale: sicurezza globale per evitare overflow in altri casi */
+.qty-input { max-width: 100%; }
+
