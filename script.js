@@ -449,6 +449,17 @@ function apriModalProposta(onConfirm) {
 }
 
 // ====== PROPOSTA PDF ======
+// --- Rileva "tablet" in modo prudente ---
+function isTabletDevice() {
+  const ua = navigator.userAgent || navigator.vendor || window.opera || "";
+  const isIPad = (/\biPad\b/.test(ua)) || (/\bMacintosh\b/.test(ua) && 'ontouchend' in document); // iPadOS
+  const isAndroidTablet = /\bAndroid\b/.test(ua) && !/\bMobile\b/.test(ua);
+  const coarse = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  const w = Math.min(window.innerWidth, screen.width);
+  return isIPad || isAndroidTablet || (coarse && w >= 768 && w <= 1366);
+}
+
+// ====== PROPOSTA PDF (tablet: download esterno; pc/cell: comportamento invariato) ======
 async function generaPdfProposta(datiCliente, items) {
   if (!items || items.length === 0) {
     alert("Nessun articolo selezionato. Inserisci almeno una quantità.");
@@ -461,10 +472,12 @@ async function generaPdfProposta(datiCliente, items) {
 
   const now = new Date();
   const yyyy = now.getFullYear();
-  const mm = String(now.getMonth()+1).padStart(2,'0');
-  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
   const dataStr = `${dd}/${mm}/${yyyy}`;
+  const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
 
+  // 1) Costruisci contenuto off-screen (uguale a prima)
   const content = document.createElement("div");
   content.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
@@ -511,9 +524,9 @@ async function generaPdfProposta(datiCliente, items) {
     <p style="margin-top:8px; font-size:11.5px; color:#444;">
       I prezzi si intendono IVA 22% esclusa. Disponibilità soggetta a conferma.
     </p>
-  </div>
-  `;
+  </div>`;
 
+  // 2) Metti off-screen
   const tmp = document.createElement("div");
   tmp.style.position = "fixed";
   tmp.style.left = "-99999px";
@@ -521,21 +534,56 @@ async function generaPdfProposta(datiCliente, items) {
   tmp.appendChild(content);
   document.body.appendChild(tmp);
 
-  await new Promise(r => requestAnimationFrame(r));
-  await new Promise(r => setTimeout(r, 30));
-
   try {
-    await html2pdf()
-      .set({
-        margin: 6,
-        filename: `proposta-acquisto-${yyyy}${mm}${dd}.pdf`,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
-        pagebreak: { mode: ["css", "legacy"] }
-      })
-      .from(content)
-      .save();
+    if (isTabletDevice()) {
+      // --- SOLO TABLET: scarica come Blob (resti sulla pagina) ---
+      await html2pdf()
+        .set({
+          margin: 6,
+          image: { type: "jpeg", quality: 1 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+          pagebreak: { mode: ["css", "legacy"] }
+        })
+        .from(content)
+        .toPdf()
+        .get('pdf')
+        .then((pdf) => {
+          const blob = pdf.output('blob');
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;   // forza download
+          a.rel = 'noopener';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+
+          // se l'attributo download non è supportato, apri in nuova scheda (ma non chiudi la pagina)
+          if (typeof a.download === 'string') {
+            a.click();
+          } else {
+            window.open(url, '_blank', 'noopener');
+          }
+
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            a.remove();
+          }, 2000);
+        });
+    } else {
+      // --- PC & CELLULARE: comportamento invariato (quello che già ti va bene) ---
+      await html2pdf()
+        .set({
+          margin: 6,
+          filename: filename,
+          image: { type: "jpeg", quality: 1 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff", allowTaint: true, scrollX: 0, scrollY: 0 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+          pagebreak: { mode: ["css", "legacy"] }
+        })
+        .from(content)
+        .save();
+    }
   } finally {
     document.body.removeChild(tmp);
   }
