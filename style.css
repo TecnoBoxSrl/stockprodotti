@@ -747,3 +747,55 @@ td img.zoomable {
     height: auto;
   }
 }
+
+
+
+
+
+/* ===== Tablet: rendi ben visibili Prezzo Promo e Conai ===== */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* abilita lo scroll orizzontale anche su tablet */
+  .tabella-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* lascia che la tabella possa allargarsi, così le colonne non si schiacciano */
+  #tabella-prodotti {
+    width: auto;
+    min-width: 1100px;        /* aumenta se vuoi ancora più spazio */
+    table-layout: auto;
+  }
+
+  /* intestazioni più leggibili e su una riga */
+  #tabella-prodotti th {
+    white-space: nowrap;
+    font-size: 14px;
+  }
+
+  /* Colonne 4 (Prezzo Promo) e 5 (Conai) ben leggibili */
+  #tabella-prodotti th:nth-child(4),
+  #tabella-prodotti td:nth-child(4),
+  #tabella-prodotti th:nth-child(5),
+  #tabella-prodotti td:nth-child(5) {
+    white-space: nowrap;                 /* niente a capo */
+    text-align: right;                   /* prezzi a destra */
+    font-variant-numeric: tabular-nums;  /* allinea le cifre (decimali in colonna) */
+    min-width: 140px;                    /* spazio minimo per non comprimere */
+  }
+
+  /* evidenzia le intestazioni delle due colonne economiche */
+  #tabella-prodotti th:nth-child(4),
+  #tabella-prodotti th:nth-child(5) {
+    background: #eef7f0;
+    color: #0f5132;
+  }
+
+  /* rafforza visivamente il Prezzo Promo e rendi ben leggibile il Conai */
+  .td-prezzo-promo { font-weight: 700; }
+  .td-prezzo-promo span { color: #c1121f !important; }  /* rosso più deciso */
+  .td-conai { color: #222; }
+
+  /* righe zebra per migliorare la leggibilità orizzontale */
+  #tabella-prodotti tbody tr:nth-child(even) { background: #fafafa; }
+}
