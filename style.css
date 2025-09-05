@@ -714,3 +714,36 @@ td img.zoomable {
 .tabella-scroll {
   overflow-x: auto;
 }
+
+
+
+/* Mobile: scorri orizzontalmente la tabella */
+@media (max-width: 768px) {
+  .tabella-scroll {
+    overflow-x: auto;           /* abilita scroll orizzontale */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* scorrimento fluido su iOS */
+  }
+
+  /* lascia che la tabella possa allargarsi oltre il viewport */
+  #tabella-prodotti {
+    width: auto;        /* NON 100%, così può superare la larghezza del contenitore */
+    min-width: 900px;   /* base minima comoda; al bisogno si espande oltre */
+    table-layout: auto;
+  }
+
+  /* non mandare a capo il testo delle celle (inclusa la descrizione) */
+  #tabella-prodotti th,
+  #tabella-prodotti td {
+    white-space: nowrap;
+    /* optional, se qualche parola lunghissima causasse rotture:
+    word-break: keep-all;
+    */
+  }
+
+  /* facoltativo: limita un po’ l'immagine per non alzare troppo le righe */
+  #tabella-prodotti img {
+    max-width: 90px;
+    height: auto;
+  }
+}
