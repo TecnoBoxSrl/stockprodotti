@@ -457,7 +457,8 @@ function isIPadOS() {
 }
 
 // =================== PROPOSTA PDF ===================
-async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
+// ====== PROPOSTA PDF (iPad: share o download diretto; altri: invariato) ======
+async function generaPdfProposta(datiCliente, items) {
   if (!items || items.length === 0) { alert("Nessun articolo selezionato. Inserisci almeno una quantità."); return; }
   if (!window.html2pdf) { alert("Libreria PDF non caricata. Metti html2pdf.bundle.min.js prima di script.js"); return; }
 
@@ -468,7 +469,7 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
   const dataStr = `${dd}/${mm}/${yyyy}`;
   const filename = `proposta-acquisto-${yyyy}${mm}${dd}.pdf`;
 
-  // 1) Costruisci contenuto off-screen
+  // 1) Costruisci contenuto off-screen (uguale al tuo)
   const content = document.createElement("div");
   content.innerHTML = `
   <div style="font-family: Segoe UI, Roboto, Helvetica, Arial; color:#000; padding: 10px; background:#fff;">
@@ -517,6 +518,7 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
     </p>
   </div>`;
 
+  // 2) OFF-SCREEN container
   const tmp = document.createElement("div");
   tmp.style.position = "fixed"; tmp.style.left = "-99999px"; tmp.style.top = "0";
   tmp.appendChild(content);
@@ -524,7 +526,7 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
 
   try {
     if (isIPadOS()) {
-      // iPad: prova Web Share con file; fallback: nuova scheda già aperta con download forzato
+      // iPad: prima prova con Web Share, altrimenti download diretto (niente nuove schede)
       await html2pdf()
         .set({
           margin: 6,
@@ -538,53 +540,20 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
         .get('pdf')
         .then(async (pdf) => {
           const blob = pdf.output('blob');
-          const url = URL.createObjectURL(blob);
           const file = new File([blob], filename, { type: 'application/pdf' });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file], title: 'Proposta di acquisto' });
-            try { ipadTab && ipadTab.close && ipadTab.close(); } catch {}
-            setTimeout(() => URL.revokeObjectURL(url), 10000);
-            return;
-          }
-
-          const htmlDownload = `
-            <!doctype html>
-            <meta name="viewport" content="width=device-width,initial-scale=1" />
-            <title>${filename}</title>
-            <div style="font-family:sans-serif;padding:12px">
-              <p>Se il download non parte, <a id="dl" href="${url}" download="${filename}">tocca qui per scaricare il PDF</a>.</p>
-            </div>
-            <iframe src="${url}" style="position:fixed;inset:0;border:0;width:100vw;height:100vh"></iframe>
-            <script>
-              (function(){
-                var a = document.getElementById('dl');
-                try { a.click(); } catch(e) {}
-              })();
-            <\/script>
-          `;
-
-          if (ipadTab && !ipadTab.closed) {
-            try {
-              ipadTab.document.open();
-              ipadTab.document.write(htmlDownload);
-              ipadTab.document.close();
-            } catch {
-              ipadTab.location.href = url;
-            }
           } else {
-            const win = window.open('', '_blank', 'noopener');
-            if (win) {
-              win.document.write(htmlDownload);
-              win.document.close();
-            } else {
-              const a = document.createElement('a');
-              a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.style.display = 'none';
-              document.body.appendChild(a); a.click(); a.remove();
-            }
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;      // forza il salvataggio, senza aprire schede
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 4000);
           }
-
-          setTimeout(() => URL.revokeObjectURL(url), 20000);
         });
 
     } else {
@@ -605,6 +574,7 @@ async function generaPdfProposta(datiCliente, items, { ipadTab = null } = {}) {
     document.body.removeChild(tmp);
   }
 }
+
 
 // =================== Email bozza ===================
 function apriEmailProposta(datiCliente, itemsCount) {
@@ -645,18 +615,10 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
     return;
   }
 
-  // iPad: apri SUBITO tab placeholder (evita blocco popup)
-  let ipadTab = null;
-  if (isIPadOS()) {
-    ipadTab = window.open('', '_blank', 'noopener');
-    if (ipadTab) {
-      ipadTab.document.write('<p style="font-family:sans-serif;padding:16px;margin:0">Preparazione PDF…</p>');
-      try { ipadTab.document.title = 'Preparazione PDF…'; } catch {}
-    }
-  }
-
   apriModalProposta(async (dati) => {
-    await generaPdfProposta(dati, items, { ipadTab });
+    await generaPdfProposta(dati, items);
+
+    // iPad: chiedi se aprire la mail (evita che il mailto interferisca col salvataggio)
     if (isIPadOS()) {
       const apri = confirm("PDF pronto. Vuoi aprire adesso l'email di proposta?");
       if (apri) apriEmailProposta(dati, items.length);
@@ -665,6 +627,7 @@ document.getElementById("invia-proposta").addEventListener("click", () => {
     }
   });
 });
+
 
 // =================== 🆙 Torna su ===================
 (function () {
